@@ -15,7 +15,7 @@ config = {
     'author_email': 'b.j.morgan@bath.ac.uk',
     'version': VERSION,
     'install_requires': open( 'requirements.txt' ).read(),
-    'python_requires': '>=3.5',
+    'python_requires': '>=3.12.1',
     'license': 'MIT',
     'packages': ['bsym', 'bsym.interface'],
     'scripts': [],
