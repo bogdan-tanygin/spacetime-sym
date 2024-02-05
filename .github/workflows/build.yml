@@ -27,7 +27,7 @@ jobs:
     - name: Run unit tests, publish code coverage
       uses: paambaati/codeclimate-action@v5.0.0
       env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+        CC_TEST_REPORTER_ID: '${{ secrets.CODECLIMATE_REPO_TOKEN }}'
       with:
         coverageCommand: pytest tests/unit_tests --cov=bsym --cov-report xml 
         debug: true
