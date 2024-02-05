@@ -26,9 +26,8 @@ jobs:
         pip3 list
     - name: Run unit tests, publish code coverage
       uses: paambaati/codeclimate-action@v5.0.0
-      environment: CODECLIMATE_REPO_TOKEN
       env:
-        CC_TEST_REPORTER_ID: '${{ secrets.CODECLIMATE_REPO_TOKEN }}'
+        CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
       with:
         coverageCommand: pytest tests/unit_tests --cov=bsym --cov-report xml 
         debug: true
