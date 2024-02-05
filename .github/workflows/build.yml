@@ -30,6 +30,7 @@ jobs:
         pytest tests/notebook_tests
         pytest tests/unit_tests --cov=bsym --cov-report xml 
     - name: Publish code coverage
-      uses: paambaati/codeclimate-action@v5.0.0
       env:
-        CC_TEST_REPORTER_ID: ${{ CODECLIMATE_REPO_TOKEN.CODECLIMATE_REPO_TOKEN }}
+        CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+      uses: paambaati/codeclimate-action@v5.0.0
+
