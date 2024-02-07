@@ -5,21 +5,21 @@ readme = 'README.md'
 long_description = open( readme ).read()
 
 config = {
-    'description': 'A Basic Symmetry Module',
+    'description': 'A Basic Spacetime Symmetry Module',
     'long_description': long_description,
     'long_description_content_type': 'text/markdown',
-    'author': 'Benjamin J. Morgan',
-    'author_email': 'b.j.morgan@bath.ac.uk',
-    'url': 'https://github.com/bjmorgan/bsym',
-    'download_url': "https://github.com/bjmorgan/bsym/archive/%s.tar.gz" % (VERSION),
-    'author_email': 'b.j.morgan@bath.ac.uk',
+    'author': 'Dr. Bogdan Tanygin',
+    'author_email': 'bogdan@tanygin-holding.com',
+    'url': 'https://github.com/psci2195/spacetime-sym',
+    'download_url': "https://github.com/psci2195/spacetime-sym/archive/%s.tar.gz" % (VERSION),
+    'author_email': 'bogdan@tanygin-holding.com',
     'version': VERSION,
     'install_requires': open( 'requirements.txt' ).read(),
     'python_requires': '>=3.12.1',
     'license': 'MIT',
-    'packages': ['bsym', 'bsym.interface'],
+    'packages': ['bsym', 'bsym.interface', 'spacetime-sym'],
     'scripts': [],
-    'name': 'bsym'
+    'name': 'spacetime-sym'
 }
 
 setup(**config)
