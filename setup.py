@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from bsym.version import __version__ as VERSION
+from spacetime.version import __version__ as VERSION
 
 readme = 'README.md'
 long_description = open( readme ).read()
@@ -17,7 +17,7 @@ config = {
     'install_requires': open( 'requirements.txt' ).read(),
     'python_requires': '>=3.12.1',
     'license': 'MIT',
-    'packages': ['bsym', 'bsym.interface', 'spacetime-sym'],
+    'packages': ['bsym', 'bsym.interface', 'spacetime'],
     'scripts': [],
     'name': 'spacetime-sym'
 }
