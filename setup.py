@@ -19,7 +19,7 @@ config = {
     'license': 'MIT',
     'packages': ['bsym', 'bsym.interface', 'spacetime'],
     'scripts': [],
-    'name': 'spacetimesym'
+    'name': 'spacetime-sym'
 }
 
 setup(**config)
