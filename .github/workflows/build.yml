@@ -29,7 +29,7 @@ jobs:
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
       with:
-        coverageCommand: pytest tests/unit_tests --cov=spacetimesym --cov-report xml 
+        coverageCommand: pytest tests/unit_tests --cov=spacetimes --cov-report xml 
         debug: true
     - name: Run tests
       run: |
