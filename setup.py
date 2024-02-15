@@ -5,7 +5,7 @@ readme = 'README.md'
 long_description = open( readme ).read()
 
 config = {
-    'description': 'A Basic Spacetime Symmetry Module',
+    'description': 'Spacetime Symmetry Module',
     'long_description': long_description,
     'long_description_content_type': 'text/markdown',
     'author': 'Dr. Bogdan Tanygin',
@@ -19,7 +19,7 @@ config = {
     'license': 'MIT',
     'packages': ['bsym', 'bsym.interface', 'spacetime'],
     'scripts': [],
-    'name': 'spacetime-sym'
+    'name': 'spacetimesym'
 }
 
 setup(**config)
