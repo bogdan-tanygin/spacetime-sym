@@ -15,7 +15,7 @@ config = {
     'author_email': 'bogdan@tanygin-holding.com',
     'version': VERSION,
     'install_requires': open( 'requirements.txt' ).read(),
-    'python_requires': '>=3.12.1',
+    'python_requires': '>=3.9.18',
     'license': 'MIT',
     'packages': ['bsym', 'bsym.interface', 'spacetime'],
     'scripts': [],

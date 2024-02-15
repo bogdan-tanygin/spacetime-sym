@@ -24,12 +24,19 @@ jobs:
         pip3 install pytest-cov
         pip3 install .
         pip3 list
-    - name: Run unit tests, publish code coverage
+    - name: Run unit tests, publish code coverage (bsym)
       uses: paambaati/codeclimate-action@v5.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
       with:
-        coverageCommand: pytest tests/unit_tests --cov=spacetime --cov-report xml 
+        coverageCommand: pytest tests/unit_tests/bsym --cov-config .coveragerc_bsym --cov=bsym --cov-report xml 
+        debug: true
+    - name: Run unit tests, publish code coverage (spacetime)
+      uses: paambaati/codeclimate-action@v5.0.0
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
+      with:
+        coverageCommand: pytest tests/unit_tests/spacetime --cov-config .coveragerc_spacetime --cov=spacetime --cov-report xml 
         debug: true
     - name: Run tests
       run: |

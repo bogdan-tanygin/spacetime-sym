@@ -8,7 +8,7 @@ tests/__pycache__
 .DS_Store
 coverage.xml
 dist/
-bsym.egg-info/
+*.egg-info/
 build/
 examples/.nbgrader.log
 **/.python-version
