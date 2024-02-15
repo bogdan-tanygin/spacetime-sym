@@ -39,7 +39,7 @@ class TestPhysicalQuantity( unittest.TestCase ):
         for i in range(len(cpt_test)):
             pq.parities = cpt_test[i]
             for key in keys:
-                self.assertEqual( pq.parities[key], cpt_test[key] )
+                self.assertEqual( pq.parities[key], cpt_test[i] )
 
 if __name__ == '__main__':
     unittest.main()
