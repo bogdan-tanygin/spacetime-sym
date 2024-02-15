@@ -1,4 +1,4 @@
 from .symmetry import SpaceTimeGroup
-from .polarvector import PolarVector
+from .physicalquantity import PhysicalQuantity
 
 from .version import __version__
