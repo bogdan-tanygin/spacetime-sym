@@ -25,8 +25,8 @@ import numpy as np
 class TestPhysicalQuantity( unittest.TestCase ):
 
     def setUp( self ):
-        self.parities = {"C":0, "P":0, "T":0}
-#TODO
+        self.parities = {"C":0, "P":1, "T":-1}
+
     def test_reassign_cpt_parities( self ):
         pq = Mock( spec = PhysicalQuantity )
         pq.parities = self.parities
@@ -40,6 +40,19 @@ class TestPhysicalQuantity( unittest.TestCase ):
             pq.parities = cpt_test[i]
             for key in keys:
                 self.assertEqual( pq.parities[key], cpt_test[i][key] )
+    
+    def test_add_new_parity( self ):
+        pq = Mock( spec = PhysicalQuantity )
+        parities_test = self.parities
+        pq.parities = parities_test
+        # mass inversion parity
+        pq.parities["M"] = -1
+        # make sure that the CPT parities stay the same
+        keys = parities_test.keys()
+        for key in keys:
+            self.assertEqual( pq.parities[key], parities_test[key] )
+        # test mass inversion parity
+        self.assertEqual( pq.parities["M"], -1 )
 
 if __name__ == '__main__':
     unittest.main()
