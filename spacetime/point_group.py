@@ -1,4 +1,5 @@
 #
+# Copyright (C) 2015, 2021 Benjamin J. Morgan
 # Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
 #
 # This file is part of spacetime-sym.
@@ -17,9 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import numpy as np
 from spacetime import SymmetryGroup
 
-class SpaceTimeGroup( SymmetryGroup ):
+class PointGroup( SymmetryGroup ):
 
-    class_str = 'SpaceTimeGroup'
+    class_str = 'PointGroup'

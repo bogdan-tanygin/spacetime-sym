@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
 #
-# This file is part of Spacetime-sym.
+# This file is part of spacetime-sym.
 #
 # Spacetime-sym is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -26,6 +26,8 @@ class TestPhysicalQuantity( unittest.TestCase ):
 
     def setUp( self ):
         self.parities = {"C":0, "P":1, "T":-1}
+        self.scalar = 42.42e+3
+        self.vector = np.array( [-1/2, 0.4, 637e-8] )
 
     def test_reassign_cpt_parities( self ):
         pq = Mock( spec = PhysicalQuantity )
