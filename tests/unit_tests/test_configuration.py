@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
-from bsym.configuration import Configuration
-from bsym import SymmetryOperation
+from spacetime.configuration import Configuration
+from spacetime import SymmetryOperation
 import numpy as np
 
 class TestConfiguration( unittest.TestCase ):
@@ -79,7 +79,7 @@ class TestConfiguration( unittest.TestCase ):
         self.assertEqual( self.configuration.numeric_equivalents( symmetry_operations ), [ 4, 2 ] )
 
     def test_as_number( self ):
-        with patch( 'bsym.configuration.Configuration.tolist' ) as mock_tolist:
+        with patch( 'spacetime.configuration.Configuration.tolist' ) as mock_tolist:
             mock_tolist.side_effect = [ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ] ]
             self.assertEqual( Configuration( [ 1, 0, 0 ] ).as_number, 100 )
             self.assertEqual( Configuration( [ 0, 1, 0 ] ).as_number, 10 )

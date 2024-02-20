@@ -1,5 +1,5 @@
 import unittest
-from bsym import permutations
+from spacetime import permutations
 
 class PermutationsTestCase( unittest.TestCase ):
     """Tests for permutations functions"""

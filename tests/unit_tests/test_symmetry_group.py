@@ -1,5 +1,5 @@
 import unittest
-from bsym import SymmetryGroup, SymmetryOperation
+from spacetime import SymmetryGroup, SymmetryOperation
 from unittest.mock import Mock, patch, call
 import numpy as np
 
@@ -16,7 +16,7 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         s0, s1 = Mock( spec=SymmetryOperation ), Mock( spec=SymmetryOperation )
         with patch( 'numpy.loadtxt' ) as mock_np_loadtxt:
             mock_np_loadtxt.return_value = np.array( [ [ 1, 2 ], [ 2, 1 ] ] )
-            with patch( 'bsym.symmetry_operation.SymmetryOperation.from_vector' ) as mock_from_vector:
+            with patch( 'spacetime.symmetry_operation.SymmetryOperation.from_vector' ) as mock_from_vector:
                 mock_from_vector.side_effect = [ s0, s1 ]
                 sg = SymmetryGroup.read_from_file( 'mock_filename' )
                 self.assertEqual( sg.symmetry_operations[0], s0 )
@@ -28,7 +28,7 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         s0, s1 = Mock( spec=SymmetryOperation ), Mock( spec=SymmetryOperation )
         with patch( 'numpy.genfromtxt' ) as mock_np_genfromtxt:
             mock_np_genfromtxt.return_value = np.array( [ [ 'E', '1', '2' ], [ 'C2', '2', '1' ] ] )
-            with patch( 'bsym.symmetry_operation.SymmetryOperation.from_vector' ) as mock_from_vector:
+            with patch( 'spacetime.symmetry_operation.SymmetryOperation.from_vector' ) as mock_from_vector:
                 mock_from_vector.side_effect = [ s0, s1 ]
                 sg = SymmetryGroup.read_from_file_with_labels( 'mock_filename' )
                 self.assertEqual( sg.symmetry_operations[0], s0 )

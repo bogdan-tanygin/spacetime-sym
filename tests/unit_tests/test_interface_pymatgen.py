@@ -4,7 +4,7 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.operations import SymmOp
-from bsym.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from_structure, 
+from spacetime.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from_structure, 
                                       space_group_from_structure, 
                                       parse_site_distribution, 
                                       unique_structure_substitutions, 
@@ -16,7 +16,7 @@ from bsym.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from
                                       molecule_cartesian_coordinates_mapping )
 
 from itertools import permutations
-from bsym import SymmetryOperation, Configuration, SpaceGroup, PointGroup, ConfigurationSpace
+from spacetime import SymmetryOperation, Configuration, SpaceGroup, PointGroup, ConfigurationSpace
 
 class TestPymatgenInterface( unittest.TestCase ):
 

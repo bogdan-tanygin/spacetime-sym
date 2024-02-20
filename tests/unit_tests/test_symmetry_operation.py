@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
-from bsym import SymmetryOperation, Configuration
+from spacetime import SymmetryOperation, Configuration
 from unittest.mock import patch
 import io
-from bsym.symmetry_operation import is_square, is_permutation_matrix
+from spacetime.symmetry_operation import is_square, is_permutation_matrix
 
 class SymmetryOperationTestCase( unittest.TestCase ):
     """Tests for symmetry operation functions"""

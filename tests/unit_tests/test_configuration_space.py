@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
-from bsym import ConfigurationSpace, SymmetryGroup, SymmetryOperation, Configuration
-from bsym.configuration_space import permutation_as_config_number, colourings_generator
+from spacetime import ConfigurationSpace, SymmetryGroup, SymmetryOperation, Configuration
+from spacetime.configuration_space import permutation_as_config_number, colourings_generator
 import numpy as np
 
 class ConfigurationSpaceTestCase( unittest.TestCase ):
@@ -45,9 +45,9 @@ class ConfigurationSpaceTestCase( unittest.TestCase ):
         site_distribution = { 1:2, 2:1 }
         mock_configuration = Mock( spec=Configuration )
         configuration_space.enumerate_configurations = Mock( return_value=[ mock_configuration ] )
-        with patch( 'bsym.configuration_space.flatten_list' ) as mock_flatten_list:
+        with patch( 'spacetime.configuration_space.flatten_list' ) as mock_flatten_list:
             mock_flatten_list.return_value = [ 1, 1, 2 ] 
-            with patch( 'bsym.configuration_space.unique_permutations' ) as mock_unique_permutations:
+            with patch( 'spacetime.configuration_space.unique_permutations' ) as mock_unique_permutations:
                 mock_unique_permutations.return_value = [ [ 1, 1, 2 ], [ 1, 2, 1 ], [ 2, 1, 1 ] ]
                 configurations = configuration_space.unique_configurations( site_distribution )
                 mock_unique_permutations.assert_called_with( [ 1, 1, 2 ] )
@@ -62,7 +62,7 @@ class ConfigurationSpaceTestCase( unittest.TestCase ):
         mock_configuration = Mock( spec=Configuration )
         mock_configuration.dim = 3
         configuration_space.enumerate_configurations = Mock( return_value=[ mock_configuration ] )
-        with patch( 'bsym.configuration_space.colourings_generator' ) as mock_colourings_generator:
+        with patch( 'spacetime.configuration_space.colourings_generator' ) as mock_colourings_generator:
             mock_colourings_generator.return_values = [ [ 1, 1, 2 ], [ 1, 2, 1 ], [ 2, 1, 1 ] ]
             colourings = configuration_space.unique_colourings( colours=[ 1, 2 ] )
             mock_colourings_generator.assert_called_with( [1, 2], mock_configuration.dim )    

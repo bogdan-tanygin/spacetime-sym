@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from bsym import ColourOperation, Configuration
+from spacetime import ColourOperation, Configuration
 from unittest.mock import patch
 
 class ColourOperationTestCase( unittest.TestCase ):
