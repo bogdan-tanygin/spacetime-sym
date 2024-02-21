@@ -3,7 +3,7 @@ from unittest.mock import Mock, MagicMock, patch, call
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
-from bsym.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from_structure, 
+from spacetime.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from_structure, 
                                       space_group_from_structure, 
                                       parse_site_distribution, 
                                       unique_structure_substitutions, 
@@ -13,7 +13,7 @@ from bsym.interface.pymatgen import ( unique_symmetry_operations_as_vectors_from
                                       configuration_space_from_molecule )
 
 from itertools import permutations
-from bsym import ( SymmetryOperation, 
+from spacetime import ( SymmetryOperation, 
                    Configuration, 
                    SpaceGroup, 
                    PointGroup, 
@@ -62,9 +62,9 @@ class TestPymatgenInterface( unittest.TestCase ):
         for l in [ [ 1, 2, 3, 4 ], [ 2, 1, 4, 3 ] ]:
             self.assertEqual( l in mappings, True )
 
-    @patch( 'bsym.interface.pymatgen.unique_symmetry_operations_as_vectors_from_structure' )
-    @patch( 'bsym.symmetry_operation.SymmetryOperation.from_vector' )
-    @patch( 'bsym.interface.pymatgen.SpaceGroup' )
+    @patch( 'spacetime.interface.pymatgen.unique_symmetry_operations_as_vectors_from_structure' )
+    @patch( 'spacetime.symmetry_operation.SymmetryOperation.from_vector' )
+    @patch( 'spacetime.interface.pymatgen.SpaceGroup' )
     def test_space_group_from_structure( self, mock_SpaceGroup, mock_symmetry_operation_from_vector, mock_symmetry_operations_from_structure ):
         mock_symmetry_operations_from_structure.return_value=[ [ 1, 2 ], [ 2, 1 ] ]
         mock_symmetry_operation_from_vector.side_effect = [ Mock( spec=SymmetryOperation ), Mock( spec=SymmetryOperation) ]
@@ -73,8 +73,8 @@ class TestPymatgenInterface( unittest.TestCase ):
         self.assertEqual( space_group, mock_SpaceGroup.return_value )
         self.assertEqual( mock_symmetry_operation_from_vector.call_args_list, [call([1, 2]), call([2, 1])] )
 
-    @patch( 'bsym.interface.pymatgen.space_group_from_structure' )
-    @patch( 'bsym.interface.pymatgen.ConfigurationSpace' )
+    @patch( 'spacetime.interface.pymatgen.space_group_from_structure' )
+    @patch( 'spacetime.interface.pymatgen.ConfigurationSpace' )
     def test_configuration_space_from_structure( self, mock_ConfigurationSpace, mock_space_group_from_structure ):
         mock_space_group = Mock( spec=SpaceGroup )
         mock_space_group_from_structure.return_value = mock_space_group
@@ -85,8 +85,8 @@ class TestPymatgenInterface( unittest.TestCase ):
         mock_space_group_from_structure.assert_called_with( self.structure, subset=None, atol=1e-5 )
         mock_ConfigurationSpace.assert_called_with( objects=[ 1, 2, 3, 4 ], symmetry_group=mock_space_group )
 
-    @patch( 'bsym.interface.pymatgen.point_group_from_molecule' )
-    @patch( 'bsym.interface.pymatgen.ConfigurationSpace' )
+    @patch( 'spacetime.interface.pymatgen.point_group_from_molecule' )
+    @patch( 'spacetime.interface.pymatgen.ConfigurationSpace' )
     def test_configuration_space_from_molecule( self, mock_ConfigurationSpace, mock_point_group_from_molecule ):
         mock_point_group = Mock( spec=PointGroup )
         mock_point_group_from_molecule.return_value = mock_point_group
@@ -97,9 +97,9 @@ class TestPymatgenInterface( unittest.TestCase ):
         mock_point_group_from_molecule.assert_called_with( self.molecule, subset=None, atol=1e-5 )
         mock_ConfigurationSpace.assert_called_with( objects=[ 1, 2, 3, 4 ], symmetry_group=mock_point_group )
  
-    @patch( 'bsym.interface.pymatgen.unique_symmetry_operations_as_vectors_from_structure' )
-    @patch( 'bsym.symmetry_operation.SymmetryOperation.from_vector' )
-    @patch( 'bsym.interface.pymatgen.SpaceGroup' )
+    @patch( 'spacetime.interface.pymatgen.unique_symmetry_operations_as_vectors_from_structure' )
+    @patch( 'spacetime.symmetry_operation.SymmetryOperation.from_vector' )
+    @patch( 'spacetime.interface.pymatgen.SpaceGroup' )
     def test_space_group_from_structure_with_subset_calls_with_subset( self, mock_SpaceGroup, mock_symmetry_operation_from_vector, mock_symmetry_operations_from_structure ):
         mock_symmetry_operations_from_structure.return_value=[ [ 1, 2, ], [ 2, 1 ] ]
         mock_symmetry_operation_from_vector.side_effect = [ Mock( spec=SymmetryOperation ), Mock( spec=SymmetryOperation) ]

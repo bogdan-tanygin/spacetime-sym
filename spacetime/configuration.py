@@ -84,7 +84,7 @@ class Configuration:
         Test whether this configuration is in a list of configurations.
 
         Args:
-            list (list(bsym.Comfiguration)): A list of Configuration instances.
+            list (list(spacetime.Comfiguration)): A list of Configuration instances.
 
         Returns:
             (bool): True | False
@@ -97,8 +97,8 @@ class Configuration:
         in a list of configurations.
 
         Args:
-            list (list(bsym.Configuration)): A list of :any:`Configuration` instances.
-            symmetry_operations (list(bsym.SymmetryOperation)): A list of :any:`SymmetryOperation` objects.
+            list (list(spacetime.Configuration)): A list of :any:`Configuration` instances.
+            symmetry_operations (list(spacetime.SymmetryOperation)): A list of :any:`SymmetryOperation` objects.
 
         Returns:
             (bool): True | False 
