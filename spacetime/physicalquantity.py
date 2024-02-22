@@ -23,6 +23,7 @@ class PhysicalQuantity:
 
     class_str = 'Spacetime Physical Quantity'
 
+    # By default -- undefined parities
     def __init__(self, parities = {"C":0, "P":0, "T":0}):
         self.parities = parities
 
@@ -41,7 +42,7 @@ class PhysicalQuantity:
     
     @value.setter
     def value(self, value):
-        self._value = value
+        self._value = np.array(value)
 
     @property
     def parities( self ):

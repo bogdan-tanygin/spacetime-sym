@@ -27,7 +27,7 @@ class TestPhysicalQuantity( unittest.TestCase ):
     def setUp( self ):
         self.parities = {"C":0, "P":1, "T":-1}
         self.scalar = 42.42e+3
-        self.vector = np.array( [-1/2, 0.4, 637e-8] )
+        self.vector = [-1/2, 0.4, 637e-8]
 
     def test_reassign_cpt_parities( self ):
         pq = Mock( spec = PhysicalQuantity )
@@ -55,6 +55,21 @@ class TestPhysicalQuantity( unittest.TestCase ):
             self.assertEqual( pq.parities[key], parities_test[key] )
         # test mass inversion parity
         self.assertEqual( pq.parities["M"], -1 )
+
+    def test_reassign_scalar_value( self ):
+        pq = Mock( spec = PhysicalQuantity )
+        pq.value = self.scalar
+        scalar_test = - np.sqrt(3.0)
+        pq.value = scalar_test
+        self.assertEqual( pq.value, scalar_test)
+
+    def test_reassign_vector_value( self ):
+        pq = Mock( spec = PhysicalQuantity )
+        pq.value = self.vector
+        vector_test =[np.sqrt(3.0), np.exp(-2.3), 0]
+        pq.value = vector_test
+        for i in range(len(vector_test)):
+            self.assertEqual( pq.value[i], vector_test[i])
 
 if __name__ == '__main__':
     unittest.main()
