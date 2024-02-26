@@ -35,7 +35,7 @@ config = {
     'version': VERSION,
     'install_requires': open( 'requirements.txt' ).read(),
     'python_requires': '>=3.9.18',
-    'license': 'MIT',
+    'license': 'GPL-3.0',
     'packages': ['spacetime', 'spacetime.interface'],
     'scripts': [],
     'name': 'spacetime-sym'
