@@ -32,4 +32,4 @@ from .colour_operation import ColourOperation
 
 # spacetime imports
 from .symmetry import SpaceTimeGroup
-from .physicalquantity import PhysicalQuantity
+from .physical_quantity import PhysicalQuantity
