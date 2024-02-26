@@ -25,13 +25,13 @@ import numpy as np
 class TestPhysicalQuantity( unittest.TestCase ):
 
     def setUp( self ):
-        self.parities = {"C":0, "P":1, "T":-1}
+        self.dis = {"C":0, "P":1, "T":-1}
         self.scalar = 42.42e+3
         self.vector = [-1/2, 0.4, 637e-8]
 
-    def test_reassign_cpt_parities( self ):
+    def test_reassign_cpt_dis( self ):
         pq = Mock( spec = PhysicalQuantity )
-        pq.parities = self.parities
+        pq.dis = self.dis
         cpt_test = [
             {"C":-1, "P":-1, "T":-1},
             {"C":-1, "P": 0, "T": 0},
@@ -39,22 +39,22 @@ class TestPhysicalQuantity( unittest.TestCase ):
         ]
         keys = cpt_test[0].keys()
         for i in range(len(cpt_test)):
-            pq.parities = cpt_test[i]
+            pq.dis = cpt_test[i]
             for key in keys:
-                self.assertEqual( pq.parities[key], cpt_test[i][key] )
+                self.assertEqual( pq.dis[key], cpt_test[i][key] )
     
-    def test_add_new_parity( self ):
+    def test_add_new_dis_symmetry( self ):
         pq = Mock( spec = PhysicalQuantity )
-        parities_test = self.parities
-        pq.parities = parities_test
+        dis_test = self.dis
+        pq.dis = dis_test
         # mass inversion parity
-        pq.parities["M"] = -1
-        # make sure that the CPT parities stay the same
-        keys = parities_test.keys()
+        pq.dis["M"] = -1
+        # make sure that the CPT symmetry stay the same
+        keys = dis_test.keys()
         for key in keys:
-            self.assertEqual( pq.parities[key], parities_test[key] )
+            self.assertEqual( pq.dis[key], dis_test[key] )
         # test mass inversion parity
-        self.assertEqual( pq.parities["M"], -1 )
+        self.assertEqual( pq.dis["M"], -1 )
 
     def test_reassign_scalar_value( self ):
         pq = Mock( spec = PhysicalQuantity )

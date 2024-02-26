@@ -20,12 +20,20 @@
 import numpy as np
 
 class PhysicalQuantity:
+    """
+    This class describes a physical quantity supplemented by its 
+    dichromatic symmetry properties (hereinafter, "dis") against
+    selected symmetry operations. The default dis are specified
+    against charge conjugation (C-symmetry), spatial mirror or
+    inversion operation (parity, P), and the time reversal symmetry
+    (T-symmetry).
+    """
 
     class_str = 'Spacetime Physical Quantity'
 
-    # By default -- undefined parities
-    def __init__(self, parities = {"C":0, "P":0, "T":0}):
-        self.parities = parities
+    # By default -- undefined dis-properties
+    def __init__(self, dis = {"C":0, "P":0, "T":0}):
+        self.dis = dis
 
     @property
     def value( self ):
@@ -45,24 +53,24 @@ class PhysicalQuantity:
         self._value = np.array(value)
 
     @property
-    def parities( self ):
+    def dis( self ):
         """
-        Parities of :any:`PhysicalQuantity` with respect to
-        defined conjugations.
+        dis of :any:`PhysicalQuantity` with respect to
+        defined symmetry operations.
 
         Args:
             None
 
         Returns:
             (dict):  {'key1': 'value1', ...}, where
-            values are 1 for even, -1 for odd, and 0 for undefined.
+            values are 1 for symmetry, -1 for asymmetry, and 0 for undefined.
         """
-        return self._parities
+        return self._dis
     
-    @parities.setter
-    def parities(self, value):
-        parity_types = list(value.keys())
-        for parity in parity_types:
-            if value[parity] not in {1, -1, 0}:
-                raise ValueError('Wrong {} parity value!'.format(parity))
-        self._parities = value
+    @dis.setter
+    def dis(self, value):
+        dis_types = list(value.keys())
+        for dis_type in dis_types:
+            if value[dis_type] not in {1, -1, 0}:
+                raise ValueError('Wrong {}\'s dichromatic symmetry property value!'.format(dis_type))
+        self._dis = value
