@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/bsym.svg)](https://badge.fury.io/py/bsym)
 [![DOI](https://zenodo.org/badge/19279643.svg)](https://zenodo.org/badge/latestdoi/19279643)
 [![status](http://joss.theoj.org/papers/6696543fc631bf66feb99a9cde808a39/status.svg)](http://joss.theoj.org/papers/6696543fc631bf66feb99a9cde808a39)
-[![Build](https://github.com/psci2195/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/psci2195/spacetime-sym/actions/workflows/build.yml)
+[![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
 [![Test Coverage](https://codeclimate.com/github/bogdan-tanygin/spacetime-sym/badges/coverage.svg)](https://codeclimate.com/github/bogdan-tanygin/spacetime-sym/coverage)
 [![Documentation Status](https://readthedocs.org/projects/bsym/badge/?version=latest)](http://bsym.readthedocs.io/en/latest/?badge=latest)
 
