@@ -19,7 +19,7 @@
 
 import numpy as np
 
-class PhysicalQuantity:
+class PhysicalQuantity(object):
     """
     This class describes a physical quantity supplemented by its 
     dichromatic symmetry properties (hereinafter, "dis") against
@@ -30,10 +30,6 @@ class PhysicalQuantity:
     """
 
     class_str = 'Spacetime Physical Quantity'
-
-    # By default -- undefined dis-properties
-    def __init__(self, dis = {"C":0, "P":0, "T":0}):
-        self.dis = dis
 
     @property
     def value( self ):
