@@ -19,6 +19,10 @@
 #
 
 import numpy as np
+from numpy.linalg import det
+from numpy import abs
+from scipy.spatial.transform import Rotation
+
 from spacetime.configuration import Configuration
 
 def is_square( m ):
@@ -31,7 +35,7 @@ def is_square( m ):
     Returns:
         (bool): True | False.
     """
-    return m.shape[0] == m.shape[1]
+    return ((m.shape[0] == m.shape[1]) and (m.ndim == 2))
 
 def is_permutation_matrix( m ):
     """
@@ -56,7 +60,7 @@ class SymmetryOperation:
     `SymmetryOperation` class.
     """
 
-    def __init__( self, matrix, label=None ):
+    def __init__( self, matrix, label=None, force_permutation = True ):
         """
         Initialise a `SymmetryOperation` object
 
@@ -65,10 +69,13 @@ class SymmetryOperation:
             `numpy.matrix`, `numpy.ndarray`, or `list`.
             for this symmetry operation.
             label (default=None) (str): optional string label for this `SymmetryOperation` object.
+            force_permutation (default = True) (bool): whether permutation
+            matrix is a requirement.
         Raises:
             TypeError: if matrix is not `numpy.matrix`, `numpy.ndarray`, or `list`.
             ValueError: if matrix is not square.
-            ValueError: if matrix is not a `permutation matrix`_.
+            ValueError: if matrix is not a `permutation matrix`_
+              assuming force_permutation is kept True.
 
             .. _permutation_matrix: https://en.wikipedia.org/wiki/Permutation_matrix
 
@@ -85,14 +92,17 @@ class SymmetryOperation:
             self.matrix = np.array( matrix )
         elif isinstance( matrix, list):
             self.matrix = np.array( matrix )
+        elif isinstance( matrix, Rotation):
+            self.matrix = matrix.as_matrix()
         else:
             raise TypeError
         if not is_square( self.matrix ):
             raise ValueError('Not a square matrix')
-        if not is_permutation_matrix( self.matrix ):
+        if force_permutation and not is_permutation_matrix( self.matrix ):
             raise ValueError('Not a permutation matrix')
         self.label = label
-        self.index_mapping = np.array( [ np.array(row).tolist().index(1) for row in matrix ] )
+        self.index_mapping = np.array( [ np.array(row).tolist().index(1) for row in self.matrix 
+                                         if 1 in np.array(row).tolist()] )
 
     def __mul__( self, other ):
         """
@@ -123,7 +133,7 @@ class SymmetryOperation:
         Returns:
             A new `SymmetryOperation` object corresponding to the inverse matrix operation.
         """
-        return SymmetryOperation( np.linalg.inv( self.matrix ).astype( int ), label=label )
+        return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label=label )
 
     @classmethod
     def from_vector( cls, vector, count_from_zero=False, label=None ):
@@ -230,3 +240,93 @@ class SymmetryOperation:
     def __repr__( self ):
         label = self.label if self.label else '---'
         return 'SymmetryOperation\nlabel(' + label + ")\n" + self.matrix.__repr__()
+
+class SymmetryOperationO3(SymmetryOperation):
+    """
+    `SymmetryOperationO3` class.
+    """
+    def __init__( self, matrix, label = None, force_permutation = False,
+                  det_rtol = 1e-6 ):
+        """
+        Initialise a `SymmetryOperationO3` object, that contains a symmetry
+        transformation of O(3) group of proper and improper rotations.
+        The latter implies the chirality-changing reflection/inversion
+        transformation. This class supports Euclidean space only.
+
+        Args:
+            matrix (numpy.matrix|numpy.ndarray|list): square 2D array as either a
+            `numpy.matrix`, `numpy.ndarray`, or `list`.
+            for this symmetry operation.
+            label (default=None) (str): optional string label for this object.
+            force_permutation (default = False) (bool): whether permutation
+            matrix is a requirement. It is not for an Euclidean space matrices.
+            det_rtol (default = 1e-3) (float): determinant check relative
+            tolerance.
+        Raises:
+            TypeError: if matrix is not `numpy.matrix`, `numpy.ndarray`, or `list`.
+            ValueError: if matrix is not square.
+            ValueError: if determinant is not unitary
+
+        Returns:
+            None
+        """
+        super(SymmetryOperationO3, self).__init__(matrix, label, force_permutation)
+        det_check = det(self.matrix)
+        # assuming unitary value
+        if abs(abs(det_check) - 1) > det_rtol:
+            raise ValueError('Not a rotation matrix')
+        # set the improper location flag
+        if det_check < 0:
+            # the symmetry operation belongs to O(3)
+            self._improper = True
+        else:
+            # the symmetry operation belongs to SO(3)
+            self._improper = False
+
+    def invertO3( self, label=None ):
+        """
+        Invert this `SymmetryOperationO3` object.
+
+        Args:
+            None
+ 
+        Returns:
+            A new `SymmetryOperationO3` object corresponding to the inverse matrix operation.
+        """
+        return SymmetryOperationO3( np.linalg.inv( self.matrix ).astype( float ), label=label )
+
+    @property
+    def improper(self):
+        """
+        Improper rotation flag of :any:`SymmetryOperationO3`.
+
+        Args:
+            None
+
+        Returns:
+            (bool): True | False.
+        """
+        return self._improper
+
+    @improper.setter
+    def improper(self, value):
+        if isinstance( value, bool):
+            self._improper = value
+        else:
+            raise TypeError
+
+    def __mul__( self, other ):
+        """
+        Multiply this `SymmetryOperationO3` matrix with another `SymmetryOperationO3`.
+
+        Args:
+            other (SymmetryOperationO3, Configuration): the other symmetry operation or configuration or matrix
+            for the matrix multiplication self * other.
+
+        Returns:
+            (SymmetryOperationO3): a new `SymmetryOperationO3` instance with the resultant matrix.
+        """
+        if isinstance( other, SymmetryOperationO3 ):
+            return SymmetryOperationO3( self.matrix.dot( other.matrix ) )
+        else:
+            raise TypeError
