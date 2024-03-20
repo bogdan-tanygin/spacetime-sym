@@ -49,10 +49,10 @@ class PhysicalQuantity(object):
         self._value = np.array(value)
 
     @property
-    def dis( self ):
+    def dis(self):
         """
-        dis of :any:`PhysicalQuantity` with respect to
-        defined symmetry operations.
+        Dichromatic symmetry properties of :any:`PhysicalQuantity`
+        with respect to defined symmetry operations.
 
         Args:
             None
