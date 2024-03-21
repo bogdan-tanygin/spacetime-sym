@@ -1,7 +1,9 @@
 import unittest
 import numpy as np
+from numpy.linalg import det
 from scipy.spatial.transform import Rotation
 from spacetime import SymmetryOperation, SymmetryOperationO3, Configuration
+from spacetime import SymmetryOperationSO3
 from unittest.mock import patch
 import io
 from spacetime.symmetry_operation import is_square, is_permutation_matrix
@@ -189,6 +191,10 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
     def setUp(self):
         # absolute tolerance
         self.atol = 1e-6
+        # decimal power tolerance 10**(-ptol)
+        self.ptol = 6
+        # random scalar
+        self.scalar_0 = - 2.57297 * np.sqrt(5.0)
         # rotational angle to compare to
         self.angle_0 = 2 * np.pi / np.sqrt(26.643)
         # rotational matrix (as a list object) to compare to
@@ -245,7 +251,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
     def test_mul_raises_TypeError_with_invalid_type( self ):
         so = SymmetryOperationO3.from_vector( [ 2, 3, 1 ] )
         with self.assertRaises( TypeError ):
-            new_conf = so * 'foo'
+            new_so = so * 'foo'
 
     def test_invertO3( self ):
         matrix_a = self.array_0
@@ -324,5 +330,49 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertNotEqual( this_repr.find( 'L' ), 0 )
         self.assertNotEqual( this_repr.find( "[[1, 0],\n[0, 1]]" ), 0 )
     
+    def test_ensure_unit_det_properO3( self ):
+        #first, let's check the regular proper rotation
+        so_1 = SymmetryOperationO3( self.rotation_0 )
+        det_1 = det( so_1.matrix )
+        np.testing.assert_approx_equal( det_1, 1, self.ptol )
+        #now, let's modify the transformation matrix by a random coefficient
+        with self.assertRaises( ValueError ):
+            so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
+    
+    def test_ensure_unit_det_properSO3( self ):
+        #first, let's check the regular proper rotation
+        so_1 = SymmetryOperationSO3( self.rotation_0 )
+        det_1 = det( so_1.matrix )
+        np.testing.assert_approx_equal( det_1, 1, self.ptol )
+        #now, let's modify the transformation matrix by a random coefficient
+        with self.assertRaises( ValueError ):
+            so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
+    
+    def test_ensure_unit_det_improper( self ):
+        #first, let's check the regular improper rotation
+        so_1 = SymmetryOperationO3( - 1 * self.array_0 )
+        det_1 = det( so_1.matrix )
+        np.testing.assert_approx_equal(det_1, - 1, self.ptol)
+        #now, let's modify the transformation matrix by a random coefficient
+        with self.assertRaises( ValueError ):
+            so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
+    
+    def test_improper_flag( self ):
+        #first, let's set the regular proper rotation
+        so_1 = SymmetryOperationO3( self.rotation_0 )
+        #then, let's set the regular improper rotation
+        so_2 = SymmetryOperationO3( - 1 * self.array_0 )
+        self.assertEqual(so_1.improper, False)
+        self.assertEqual(so_2.improper, True)
+        so_1.improper = True
+        self.assertEqual(so_1.improper, True)
+        with self.assertRaises( TypeError ):
+            so_1.improper = 0
+    
+    def test_ensure_SO3_is_proper_rot( self ):
+        with self.assertRaises( ValueError ):
+            #the regular proper rotation class with wrong matrix
+            so_1 = SymmetryOperationSO3( - 1 * self.array_0 )
+        
 if __name__ == '__main__':
     unittest.main()

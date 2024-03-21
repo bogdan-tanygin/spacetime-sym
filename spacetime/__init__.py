@@ -21,7 +21,7 @@
 from .version import __version__
 
 # original bsym imports
-from .symmetry_operation import SymmetryOperation, SymmetryOperationO3
+from .symmetry_operation import SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
 from .symmetry_group import SymmetryGroup
 from .space_group import SpaceGroup
 from .point_group import PointGroup

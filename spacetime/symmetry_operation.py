@@ -270,10 +270,10 @@ class SymmetryOperationO3(SymmetryOperation):
         Returns:
             None
         """
-        super(SymmetryOperationO3, self).__init__(matrix, label, force_permutation)
-        det_check = det(self.matrix)
+        super( SymmetryOperationO3, self ).__init__( matrix, label, force_permutation )
+        det_check = det( self.matrix )
         # assuming unitary value
-        if abs(abs(det_check) - 1) > det_rtol:
+        if abs( abs( det_check ) - 1) > det_rtol:
             raise ValueError('Not a rotation matrix')
         # set the improper location flag
         if det_check < 0:
@@ -320,7 +320,7 @@ class SymmetryOperationO3(SymmetryOperation):
         Multiply this `SymmetryOperationO3` matrix with another `SymmetryOperationO3`.
 
         Args:
-            other (SymmetryOperationO3, Configuration): the other symmetry operation or configuration or matrix
+            other (SymmetryOperationO3): the other symmetry operation 
             for the matrix multiplication self * other.
 
         Returns:
@@ -328,5 +328,61 @@ class SymmetryOperationO3(SymmetryOperation):
         """
         if isinstance( other, SymmetryOperationO3 ):
             return SymmetryOperationO3( self.matrix.dot( other.matrix ) )
+        else:
+            raise TypeError
+
+class SymmetryOperationSO3(SymmetryOperationO3):
+    """
+    `SymmetryOperationSO3` class.
+    """
+    def __init__( self, matrix, label = None, force_permutation = False,
+                  det_rtol = 1e-6 ):
+        """
+        Initialise a `SymmetryOperationSO3` object, that contains a symmetry
+        transformation of SO(3) group of proper rotations.
+        This class supports Euclidean space only.
+
+        Args:
+            matrix (numpy.matrix|numpy.ndarray|list): square 2D array as either a
+            `scipy.spatial.transform.Rotation`, `numpy.matrix`, `numpy.ndarray`, 
+            or `list` for this symmetry operation.
+            label (default=None) (str): optional string label for this object.
+            force_permutation (default = False) (bool): whether permutation
+            matrix is a requirement. It is not for an Euclidean space matrices.
+            det_rtol (default = 1e-3) (float): determinant check relative
+            tolerance.
+        Raises:
+            TypeError: if matrix is not of the allowed above types.
+            ValueError: if matrix is not square.
+            ValueError: if determinant is not unitary
+
+        Returns:
+            None
+        """
+        super(SymmetryOperationSO3, self).__init__(matrix, label, force_permutation)
+        det_check = det(self.matrix)
+        # assuming unitary value
+        if abs(det_check - 1) > det_rtol:
+            raise ValueError('Not a proper rotation matrix')
+
+    def __mul__( self, other ):
+        """
+        Multiply this `SymmetryOperationSO3` matrix with
+        `SymmetryOperationO3` or its derived type's matrix.
+
+        Args:
+            other (SymmetryOperationO3): the other symmetry operation
+            for the matrix multiplication self * other.
+
+        Returns:
+            (SymmetryOperationO3) or  (SymmetryOperationSO3): a new symmetry
+            operation instance with the resultant matrix.
+        """
+        if isinstance( other, SymmetryOperationO3 ):
+            # Multiplying proper and improper rotation gives an improper one
+            return SymmetryOperationO3( self.matrix.dot( other.matrix ) )
+        elif isinstance( other, SymmetryOperationSO3 ):
+            # Multiplying proper rotations gives a proper one
+            return SymmetryOperationSO3( self.matrix.dot( other.matrix ) )
         else:
             raise TypeError
