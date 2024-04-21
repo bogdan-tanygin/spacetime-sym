@@ -24,55 +24,74 @@ import numpy as np
 class TestPhysicalQuantity( unittest.TestCase ):
 
     def setUp( self ):
-        self.dis = {"C":0, "P":1, "T":-1}
+        self.dich = {"C":1, "P":1, "T":-1}
         self.scalar = 42.42e+3
         self.vector = [-1/2, 0.4, 637e-8]
+        self.label = 'velocity'
 
     def test_reassign_cpt_dis( self ):
         pq = PhysicalQuantity()
-        pq.dis = self.dis
+        pq.dich = self.dich
         cpt_test = [
             {"C":-1, "P":-1, "T":-1},
-            {"C":-1, "P": 0, "T": 0},
-            {"T": 1, "C": 1, "P": 0}
+            {"C":-1, "P": 1, "T": -1},
+            {"T": 1, "C": 1, "P": 1}
         ]
         keys = cpt_test[0].keys()
         for i in range(len(cpt_test)):
-            pq.dis = cpt_test[i]
+            pq.dich = cpt_test[i]
             for key in keys:
-                self.assertEqual( pq.dis[key], cpt_test[i][key] )
+                self.assertEqual( pq.dich[key], cpt_test[i][key] )
+    
+    def test_label( self ):
+        pq = PhysicalQuantity(label = self.label)
+        self.assertEqual( pq.label, self.label )
+        test_label = 'temperature'
+        pq.label = test_label
+        self.assertEqual( pq.label, test_label )
     
     def test_add_new_dis_symmetry( self ):
         pq = PhysicalQuantity()
         # default dis
-        dis_test = self.dis
-        pq.dis = dis_test
+        dich_test = self.dich
+        pq.dich = dich_test
         # mass inversion dis
-        pq.dis["M"] = -1
+        pq.dich["M"] = -1
         # make sure that the CPT symmetry stay the same
-        keys = dis_test.keys()
+        keys = dich_test.keys()
         for key in keys:
-            self.assertEqual( pq.dis[key], dis_test[key] )
+            self.assertEqual( pq.dich[key], dich_test[key] )
         # test mass inversion dis
-        self.assertEqual( pq.dis["M"], -1 )
+        self.assertEqual( pq.dich["M"], -1 )
     
-    def test_assigning_dis_with_wrong_value( self ):
+    def test_assigning_dich_with_wrong_value( self ):
         pq = PhysicalQuantity()
         # new incorrect dis value
-        dis_test = {"X":-2}
+        dich_test = {"X":-2}
         with self.assertRaises( ValueError ):
-            # new incorrect dis setting
-            pq.dis = dis_test
+            # new incorrect dich setting
+            pq.dich = dich_test
+
+    def test_init_dich_with_wrong_value( self ):
+        # incorrect dich value
+        dich_test = {"X":-2}
+        with self.assertRaises( ValueError ):
+            # object init with incorrect dich
+            pq = PhysicalQuantity(dich = dich_test)
+        dich_test = {2:-2}
+        with self.assertRaises( TypeError ):
+            # object init with incorrect dich
+            pq = PhysicalQuantity(dich = dich_test)
 
     def test_reassigning_dis_with_wrong_value( self ):
         pq = PhysicalQuantity()
         # default dis
-        pq.dis = self.dis
+        pq.dich = self.dich
         # new incorrect dis value
-        dis_test = {"X":-2}
+        dich_test = {"X":-2}
         with self.assertRaises( ValueError ):
             # extra incorrect dis setting
-            pq.dis = dis_test
+            pq.dich = dich_test
 
     def test_reassign_scalar_value( self ):
         pq = PhysicalQuantity()
@@ -89,5 +108,16 @@ class TestPhysicalQuantity( unittest.TestCase ):
         for i in range(len(vector_test)):
             self.assertEqual( pq.value[i], vector_test[i])
 
+    def test_init_scalar_value( self ):
+        pq = PhysicalQuantity( value = self.scalar )
+        scalar_test = self.scalar
+        self.assertEqual( pq.value, scalar_test)
+    
+    def test_init_vector_value( self ):
+        pq = PhysicalQuantity( value = self.vector )
+        vector_test = self.vector
+        for i in range(len(vector_test)):
+            self.assertEqual( pq.value[i], vector_test[i])
+    
 if __name__ == '__main__':
     unittest.main()
