@@ -3,21 +3,21 @@
   "@type": "Code",
   "author": [
     {
-      "@id": "http://orcid.org/0000-0002-3056-8233",
+      "@id": "https://orcid.org/0000-0003-4042-1144",
       "@type": "Person",
-      "email": "b.j.morgan@bath.ac.uk",
-      "name": "Benjamin Morgan",
-      "affiliation": "Department of Chemistry, University of Bath, Bath, BA2 7AY, United Kingdom."
+      "email": "bogdan@tanygin-holding.com",
+      "name": "Dr. Bogdan Tanygin",
+      "affiliation": "Independent scientist."
     }
   ],
   "identifier": "",
-  "codeRepository": "https://github.com/bjmorgan/bsym",
-  "datePublished": "2017-07-22",
-  "dateModified": "2017-07-22",
-  "dateCreated": "2017-07-22",
-  "description": "bsym - A basic symmetry module",
-  "keywords": "symmetry, configurations, disorder",
-  "license": "MIT",
-  "title": "bsym",
-  "version": "1.0.b1"
+  "codeRepository": "https://github.com/bogdan-tanygin/spacetime-sym",
+  "datePublished": "2024-04-22",
+  "dateModified": "2024-04-22",
+  "dateCreated": "2024-04-22",
+  "description": "spacetime-sym - a Python module introducing symmetry theory formalism into data science and natural sciences",
+  "keywords": "symmetry",
+  "license": "GPL-3.0, commercial option",
+  "title": "spacetime-sym",
+  "version": "0.0.1"
 }

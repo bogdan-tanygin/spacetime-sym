@@ -4,7 +4,7 @@ authors:
 - family-names: "Bogdan"
   given-names: "Tanygin"
   orcid: "https://orcid.org/0000-0003-4042-1144"
-title: "spacetime-sym: a Python module introducing symmetry theory formalism into natural sciences."
+title: "spacetime-sym: a Python module introducing symmetry theory formalism into data science and natural sciences"
 version: 0.0.1
 date-released: 2024-04-21
 url: "https://github.com/bogdan-tanygin/spacetime-sym"
