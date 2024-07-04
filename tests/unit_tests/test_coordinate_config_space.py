@@ -1,3 +1,10 @@
+#
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
+# Copyright (C) 2015, 2021 Benjamin J. Morgan
+#
+# This file is part of spacetime-sym.
+#
+
 import unittest
 from unittest.mock import Mock, patch, call
 from spacetime import CoordinateConfigSpace, SymmetryGroup, ConfigurationSpace

@@ -1,3 +1,10 @@
+#
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
+# Copyright (C) 2015, 2021 Benjamin J. Morgan
+#
+# This file is part of spacetime-sym.
+#
+
 import unittest
 from unittest.mock import Mock, patch
 from spacetime import ConfigurationSpace, SymmetryGroup, SymmetryOperation, Configuration
@@ -31,13 +38,13 @@ class ConfigurationSpaceTestCase( unittest.TestCase ):
         object_list = [ 'A', 'B' ]
         configuration_space = ConfigurationSpace( objects=object_list )
         self.assertEqual( configuration_space.symmetry_group.size, 1 )
-        self.assertEqual( configuration_space.symmetry_group.symmetry_operations[0].label, 'E' )
-        np.testing.assert_array_equal( configuration_space.symmetry_group.symmetry_operations[0].matrix, np.array( [[1,0],[0,1]] ) )
+        self.assertEqual( list( configuration_space.symmetry_group.symmetry_operations )[0].label, 'E' )
+        np.testing.assert_array_equal( list( configuration_space.symmetry_group.symmetry_operations )[0].matrix, np.array( [[1,0],[0,1]] ) )
 
-    def test_configuration_space_initialised_with_no_symmetry_group_creates_sym_op_with_ints( self ):
+    def test_configuration_space_initialised_with_no_symmetry_group_creates_sym_op_with_flts( self ):
         object_list = [ 'A', 'B' ]
         configuration_space = ConfigurationSpace( objects=object_list )
-        self.assertEqual( issubclass( configuration_space.symmetry_group.symmetry_operations[0].matrix.dtype.type, np.integer ), True )
+        self.assertEqual( issubclass( list( configuration_space.symmetry_group.symmetry_operations )[0].matrix.dtype.type, np.float_ ), True )
 
     def test_unique_configurations( self ):
         object_list = [ 1, 1, 2 ]

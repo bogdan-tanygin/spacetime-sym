@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
 #
 # This file is part of Spacetime-sym.
 #

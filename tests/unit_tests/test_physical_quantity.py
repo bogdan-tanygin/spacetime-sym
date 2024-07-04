@@ -1,20 +1,7 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
 #
-# This file is part of Spacetime-sym.
-#
-# Spacetime-sym is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Spacetime-sym is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# This file is part of spacetime-sym.
 #
 
 import unittest
@@ -119,5 +106,12 @@ class TestPhysicalQuantity( unittest.TestCase ):
         for i in range(len(vector_test)):
             self.assertEqual( pq.value[i], vector_test[i])
     
+    def test_init_scalar_value_as_tensor( self ):
+        tensor = np.identity( 3 ) * self.scalar
+        pq = PhysicalQuantity( value = tensor )
+        scalar_test = self.scalar
+        pq_test = PhysicalQuantity( value = scalar_test )
+        self.assertEqual( ( pq == pq_test ), True )
+
 if __name__ == '__main__':
     unittest.main()

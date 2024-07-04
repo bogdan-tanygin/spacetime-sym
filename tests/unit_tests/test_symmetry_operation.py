@@ -1,21 +1,8 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
 # Copyright (C) 2015, 2021 Benjamin J. Morgan
 #
 # This file is part of spacetime-sym.
-#
-# Spacetime-sym is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Spacetime-sym is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 import unittest
@@ -281,7 +268,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
     def test_invertO3( self ):
         matrix_a = self.array_0
         so = SymmetryOperationO3( matrix_a )
-        so_inv = so.invertO3()
+        so_inv = so.invert()
         np.testing.assert_allclose( (so * so_inv).matrix, np.identity( 3 ),
                                      atol = self.atol)
 
@@ -631,10 +618,10 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationSO3 ( self.scalar_0 * self.array_0 )
     
-    def test_invertO3( self ):
+    def test_invert( self ):
         matrix_a = self.array_0
         so = SymmetryOperationSO3( matrix_a )
-        so_inv = so.invertO3()
+        so_inv = so.invert()
         np.testing.assert_allclose( (so * so_inv).matrix, np.identity( 3 ),
                                      atol = self.atol)
     

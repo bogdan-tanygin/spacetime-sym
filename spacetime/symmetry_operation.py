@@ -1,21 +1,8 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@tanygin-holding.com>
+# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
 # Copyright (C) 2015, 2021 Benjamin J. Morgan
 #
 # This file is part of spacetime-sym.
-#
-# Spacetime-sym is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Spacetime-sym is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 import numpy as np
@@ -33,7 +20,7 @@ class SymmetryOperation:
     `SymmetryOperation` class.
     """
 
-    def __init__( self, matrix, label=None, force_permutation = True ):
+    def __init__( self, matrix, label=None, force_permutation = False ):
         """
         Initialise a `SymmetryOperation` object
 
@@ -143,6 +130,9 @@ class SymmetryOperation:
             other (SymmetryOperation, Configuration): the other symmetry operation or configuration or matrix
             for the matrix multiplication self * other.
 
+        Raises:
+            TypeError: in case of operands belong to incompatible types.
+
         Returns:
             (SymmetryOperation): a new `SymmetryOperation` instance with the resultant matrix.
             (Configuration): if `other` is a `Configuration`.
@@ -164,7 +154,7 @@ class SymmetryOperation:
         Returns:
             A new `SymmetryOperation` object corresponding to the inverse matrix operation.
         """
-        return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label=label )
+        return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label = label)
 
     @classmethod
     def from_vector( cls, vector, count_from_zero=False, label=None ):
@@ -334,7 +324,7 @@ class SymmetryOperationO3(SymmetryOperation):
             if 'P' in self._dich_operations:
                 self._dich_operations.remove('P')
 
-    def invertO3( self, label=None ):
+    def invert( self, label=None ):
         """
         Invert this `SymmetryOperationO3` object.
 
@@ -344,7 +334,10 @@ class SymmetryOperationO3(SymmetryOperation):
         Returns:
             A new `SymmetryOperationO3` object corresponding to the inverse matrix operation.
         """
-        return SymmetryOperationO3( np.linalg.inv( self.matrix ).astype( float ), label=label )
+        so = super( SymmetryOperationO3, self ).invert( label = label )
+        #dich operations are applied same way both directions
+        so.dich_operations = self._dich_operations
+        return so
 
     @property
     def matrix( self ):
@@ -452,7 +445,7 @@ class SymmetryOperationO3(SymmetryOperation):
             (option 1)
             other (SymmetryOperationO3):
             other symmetry operation for the matrix multiplication
-            self * other.
+            self * other. Derived classes are also supported, e.g. (SymmetryOperationSO3)
             (option 2)
             other (PhysicalQuantity): a physical quantity of the proper
             dimension to act on.
@@ -465,10 +458,15 @@ class SymmetryOperationO3(SymmetryOperation):
             (PhysicalQuantity): a new physical quantity after operating
             the symmetry operation on it.
         """
-        if isinstance( other, SymmetryOperationO3 ):
-            do_united = self._dich_operations.union( other.dich_operations )
-            return SymmetryOperationO3( matrix = self.matrix.dot( other.matrix ),
+        if type( other ) is SymmetryOperationO3:
+            # symmetric difference to exclude compensating dich operations
+            do_united = self._dich_operations ^ other.dich_operations
+            return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
                                         dich_operations = do_united )
+        elif type( other ) is SymmetryOperation:
+            do_united = self._dich_operations
+            return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
+                                         dich_operations = do_united )
         elif isinstance( other, PhysicalQuantity ):
             # Dot-multiplaying (acting on) the PhysicalQuantity
             return self.operate_on( other )
@@ -518,7 +516,7 @@ class SymmetryOperationO3(SymmetryOperation):
                     raise TypeError( 'Mismatch of dimensions' )
                 # matrix transformation acting on tensor T:
                 # M T M^-1
-                new_value = deepcopy( ( self.matrix.dot( pq.value ) ).dot( ( self.invertO3() ).matrix ) )
+                new_value = deepcopy( ( self.matrix.dot( pq.value ) ).dot( ( self.invert() ).matrix ) )
         for dich_oper in self._dich_operations:
             if dich_oper in pq.dich.keys():
                 # keep or reverse the physical quantity's value for each
@@ -583,15 +581,20 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             (PhysicalQuantity): a new physical quantity after operating
             the symmetry operation on it.
         """
-        if isinstance( other, SymmetryOperationO3 ):
-            # Multiplying proper and improper rotation can give an improper one
-            do_united = self._dich_operations.union( other.dich_operations )
-            return SymmetryOperationO3( matrix = self.matrix.dot( other.matrix ),
+        if type( other ) is SymmetryOperationO3:
+            # Multiplying proper and improper rotation might give an improper one
+            do_united = self._dich_operations ^ other.dich_operations
+            return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
                                         dich_operations = do_united )
-        elif isinstance( other, SymmetryOperationSO3 ):
+        elif type( other ) is SymmetryOperationSO3:
             # Multiplying proper rotations gives a proper one
-            do_united = self._dich_operations.union( other.dich_operations )
-            return SymmetryOperationSO3( matrix = self.matrix.dot( other.matrix ),
+            do_united = self._dich_operations ^ other.dich_operations
+            return SymmetryOperationSO3( matrix = self._matrix.dot( other.matrix ),
+                                         dich_operations = do_united )
+        elif type( other ) is SymmetryOperation:
+            # Multiplying proper and unknown rotation might give an improper one
+            do_united = self._dich_operations
+            return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
                                          dich_operations = do_united )
         elif isinstance( other, PhysicalQuantity ):
             # Dot-multiplaying (acting on) the PhysicalQuantity

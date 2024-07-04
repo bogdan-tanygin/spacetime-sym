@@ -53,7 +53,5 @@ Indices and tables
    :target: https://zenodo.org/badge/latestdoi/19279643
 .. |Build Status| image:: https://travis-ci.org/bjmorgan/bsym.svg?branch=master
    :target: https://travis-ci.org/bjmorgan/bsym
-.. |Test Coverage| image:: https://codeclimate.com/github/bjmorgan/bsym/badges/coverage.svg
-   :target: https://codeclimate.com/github/bjmorgan/bsym/coverage
 .. |Documentation Status| image:: https://readthedocs.org/projects/bsym/badge/?version=latest
    :target: http://bsym.readthedocs.io/en/latest/?badge=latest

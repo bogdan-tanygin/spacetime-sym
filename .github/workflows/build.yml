@@ -24,15 +24,9 @@ jobs:
         pip3 install pytest-cov
         pip3 install .
         pip3 list
-    - name: Run unit tests, publish code coverage
-      uses: paambaati/codeclimate-action@v5.0.0
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_REPO_TOKEN }}
-      with:
-        coverageCommand: pytest tests/unit_tests --cov-config .coveragerc --cov=spacetime --cov-report xml 
-        debug: true
     - name: Run tests
       run: |
+        pytest tests/unit_tests
         pytest tests/integration_tests
         pytest tests/notebook_tests
 

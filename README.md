@@ -1,5 +1,4 @@
 [![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
-[![Test Coverage](https://codeclimate.com/github/bogdan-tanygin/spacetime-sym/badges/coverage.svg)](https://codeclimate.com/github/bogdan-tanygin/spacetime-sym/coverage)
 
 `spacetime-sym` is a Python module introducing symmetry theory formalism into data science and natural sciences. It is a fork of [bsym][githubbsym]. It consists of core classes that describe configuration vector and Euclidean 3D spaces, their symmetry operations (e.g. `O(3)` and `SO(3)` groups), specific configurations of objects within these spaces, and physical quantities. The module also contains an interface for working with [`pymatgen`](https://pymatgen.org) `Structure` objects, to allow simple generation of disordered symmetry-inequivalent structures from a symmetric parent crystal structure.
 
@@ -50,7 +49,7 @@ The `spacetime-sym` can be used as an open-source software according to the term
 
 ### Option 2: commercial license
 
-After signing the written agreement with Dr. Bogdan Tanygin (info@tanygin-holding.com), the `spacetime-sym` can be used in a proprietary software project.
+After signing the written agreement with Dr. Bogdan Tanygin (info@deeptech.business), the `spacetime-sym` can be used in a proprietary software project.
 
 ## Citing
 
