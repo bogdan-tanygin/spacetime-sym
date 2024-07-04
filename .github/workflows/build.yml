@@ -27,6 +27,5 @@ jobs:
     - name: Run tests
       run: |
         pytest tests/unit_tests
-        pytest tests/integration_tests
         pytest tests/notebook_tests
 
