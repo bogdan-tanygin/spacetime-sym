@@ -44,7 +44,7 @@ class ConfigurationSpaceTestCase( unittest.TestCase ):
     def test_configuration_space_initialised_with_no_symmetry_group_creates_sym_op_with_flts( self ):
         object_list = [ 'A', 'B' ]
         configuration_space = ConfigurationSpace( objects=object_list )
-        self.assertEqual( issubclass( list( configuration_space.symmetry_group.symmetry_operations )[0].matrix.dtype.type, np.float_ ), True )
+        self.assertEqual( issubclass( list( configuration_space.symmetry_group.symmetry_operations )[0].matrix.dtype.type, np.float64 ), True )
 
     def test_unique_configurations( self ):
         object_list = [ 1, 1, 2 ]
