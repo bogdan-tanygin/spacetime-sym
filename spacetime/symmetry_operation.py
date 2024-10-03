@@ -279,7 +279,7 @@ class SymmetryOperationO3(SymmetryOperation):
             `numpy.matrix`, `numpy.ndarray`, or `list` for this symmetry operation.
             The default is an identity matrix.
             dich_operations (default = {}): a set of dichromatic symmetry reversal
-            operations market by string names.
+            operations marked by string names.
             label (default = None) (str): optional string label for this object.
             force_permutation (default = False) (bool): whether permutation
             matrix is a requirement. It is not for an Euclidean space matrices.
@@ -544,7 +544,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             `numpy.matrix`, `numpy.ndarray`, or `list` for this symmetry operation.
             The default is an identity matrix.
             dich_operations (default = {}): a set of dichromatic symmetry reversal
-            operations market by string names.
+            operations marked by string names.
             label (default=None) (str): optional string label for this object.
             force_permutation (default = False) (bool): whether permutation
             matrix is a requirement. It is not for an Euclidean space matrices.
