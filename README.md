@@ -85,3 +85,4 @@ Morgan, Benjamin J. (2017). *bsym - a Basic Symmetry Module*. The Journal of Ope
 }
 ```
 [github]: https://github.com/bogdan-tanygin/spacetime-sym
+[githubbsym]: https://github.com/bjmorgan/bsym
