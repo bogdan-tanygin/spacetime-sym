@@ -60,7 +60,7 @@ class SymmetryOperation:
 
         Args:
             m: a square 2D vector as either a
-            `numpy.matrix`, `numpy.ndarray`, `Rotation`, or `list`.
+            `numpy.ndarray`, `Rotation`, or `list`.
             for this symmetry operation.
 
         Raises:
@@ -72,9 +72,7 @@ class SymmetryOperation:
             None.
         """
         m = deepcopy( m0 )
-        if isinstance( m, np.matrix ):
-            self._matrix = np.array( m )
-        elif isinstance( m, np.ndarray ):
+        if isinstance( m, np.ndarray ):
             self._matrix = np.array( m )
         elif isinstance( m, list):
             self._matrix = np.array( m )

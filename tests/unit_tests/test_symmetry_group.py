@@ -31,7 +31,6 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self.list_0 = [[ 1, 0,                      0                    ],
                        [ 0, np.cos(self.angle_0), - np.sin(self.angle_0) ],
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
-        self.matrix_0 = np.matrix( self.list_0 )
         # same as an NumPy array
         self.array_0 = np.array( self.list_0 )
         # as advanced SciPy Rotation object

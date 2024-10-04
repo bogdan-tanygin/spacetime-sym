@@ -20,11 +20,6 @@ from spacetime.symmetry_operation import is_square, is_permutation_matrix
 class SymmetryOperationTestCase( unittest.TestCase ):
     """Tests for symmetry operation functions"""
 
-    def test_symmetry_operation_is_initialised_from_a_matrix( self ):
-        matrix = np.matrix( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperation( matrix )
-        np.testing.assert_array_equal( so.matrix, np.array(matrix) )
-
     def test_symmetry_operation_is_initialised_from_an_array( self ):
         array = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperation( array )
@@ -212,17 +207,12 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.list_0 = [[ 1, 0,                      0                    ],
                        [ 0, np.cos(self.angle_0), - np.sin(self.angle_0) ],
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
-        self.matrix_0 = np.matrix( self.list_0 )
         # same as an NumPy array
         self.array_0 = np.array( self.list_0 )
         # as advanced SciPy Rotation object
         self.rotation_0 = Rotation.from_matrix( self.list_0 )
         # rotational vector along direction [111], mag = 2pi/3 rad
         self.rot_vec_111_2pi_3 = (2 * pi / 3) * np.array( [1, 1, 1] ) / sqrt(3)
-
-    def test_symmetry_operation_is_initialised_from_a_matrix( self ):
-        so = SymmetryOperationO3( self.matrix_0 )
-        np.testing.assert_allclose( so.matrix, self.matrix_0)
 
     def test_symmetry_operation_is_initialised_from_an_array( self ):
         so = SymmetryOperationO3( self.array_0 )
@@ -588,7 +578,6 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         self.list_0 = [[ 1, 0,                      0                    ],
                        [ 0, np.cos(self.angle_0), - np.sin(self.angle_0) ],
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
-        self.matrix_0 = np.matrix( self.list_0 )
         # same as an NumPy array
         self.array_0  =   np.array( self.list_0 )
         # as advanced SciPy Rotation object
