@@ -6,7 +6,7 @@
 #
 
 import unittest
-from spacetime import permutations
+from spacetime import linear_algebra as permutations
 
 class PermutationsTestCase( unittest.TestCase ):
     """Tests for permutations functions"""

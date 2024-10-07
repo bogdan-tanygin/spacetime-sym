@@ -11,7 +11,7 @@ from math import pi, sqrt
 from numpy.linalg import det
 from copy import deepcopy
 from scipy.spatial.transform import Rotation
-from spacetime import SymmetryOperation, SymmetryOperationO3, Configuration
+from spacetime import SymmetryOperation, SymmetryOperationO3
 from spacetime import SymmetryOperationSO3, PhysicalQuantity
 from unittest.mock import patch
 import io
@@ -53,13 +53,6 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so_a = SymmetryOperation( matrix_a )
         so_b = SymmetryOperation( matrix_b )
         np.testing.assert_array_equal( ( so_a * so_b ).matrix , np.array( [ [ 0, 1 ], [ 1, 0 ] ] ) )
-
-    def test_mul_with_configuration( self ):
-        so = SymmetryOperation.from_vector( [ 2, 3, 1 ] )
-        conf = Configuration( [ 1, 2, 3 ] )
-        new_conf = so * conf
-        self.assertEqual( type( new_conf ), Configuration )
-        self.assertEqual( new_conf.matches( Configuration( [ 3, 1, 2 ] ) ), True )
 
     def test_mul_raises_TypeError_with_invalid_type( self ):
         so = SymmetryOperation.from_vector( [ 2, 3, 1 ] )
@@ -116,19 +109,6 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so_b = SymmetryOperation( matrix_b )
         label = 'foo'
         np.testing.assert_array_equal( so_a.similarity_transform( so_b, label=label ).label, label )
-
-    def test_operate_on( self ):
-        matrix = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
-        so = SymmetryOperation( matrix )
-        configuration = Configuration( [ 1, 2, 3 ] )
-        so.operate_on( configuration )
-        np.testing.assert_array_equal( so.operate_on( configuration ).vector, np.array( [ 2, 3, 1 ] ) )  
-
-    def test_operate_on_raises_TypeError_with_invalid_type( self ):
-        matrix = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
-        so = SymmetryOperation( matrix )
-        with self.assertRaises( TypeError ):
-            so.operate_on( 'foo' )
 
     def test_character( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )

@@ -13,8 +13,17 @@ class TestSpacetimesymTopLevelClasses( unittest.TestCase ):
     def test_spacetimesym_imports_PhysicalQuantity( self ):
         from spacetime import PhysicalQuantity
     
-    def test_spacetimesym_imports_PhysicalQuantity( self ):
-        from spacetime import SpaceTimeGroup
+    def test_spacetimesym_imports_SG( self ):
+        from spacetime import SymmetryGroup
+    
+    def test_spacetimesym_imports_SymmetryOperation( self ):
+        from spacetime import SymmetryOperation
+
+    def test_spacetimesym_imports_SymmetryOperationO3( self ):
+        from spacetime import SymmetryOperationO3
+
+    def test_spacetimesym_imports_SymmetryOperationSO3( self ):
+        from spacetime import SymmetryOperationSO3
 
 if __name__ == '__main__':
     unittest.main()

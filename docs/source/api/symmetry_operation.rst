@@ -1,7 +1,7 @@
-bsym\.symmetry\_operation
+spacetime\.symmetry\_operation
 -------------------------
 
-.. automodule:: bsym.symmetry_operation
+.. automodule:: spacetime.symmetry_operation
     :members:
     :undoc-members:
     :show-inheritance:

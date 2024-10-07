@@ -1,7 +1,7 @@
-bsym\.interface.pymatgen
+spacetime\.interface.pymatgen
 ------------------------
 
-.. automodule:: bsym.interface.pymatgen
+.. automodule:: spacetime.interface.pymatgen
     :members:
     :undoc-members:
     :show-inheritance:
