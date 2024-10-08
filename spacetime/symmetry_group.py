@@ -81,7 +81,7 @@ class SymmetryGroup:
             self._symmetry_operations.append( so )
             self._gen_flag = True
     
-    #TODO add dich functionality to _validate_and_correct, _add_so_if_new, and add_and_generate
+    #TODO add dich functionality to _validate_and_correct, _add_so_if_new, and add_and_generate in the derived class
 
     def _validate_and_correct( self, group_atol = 1e-4 ):
         # identity check / add if needed
@@ -187,7 +187,7 @@ class SymmetryGroup:
             # default 3-dimensional group. Can be changed after reassignment of symmetry_operations
             dim_0 = 3
             self._save_basic_identity_so( dim_0 )
-            self._symmetry_operations = { self._e_0 }
+            self._symmetry_operations = [ self._e_0 ]
 
     @classmethod
     def read_from_file( cls, filename ):
@@ -283,10 +283,6 @@ class SymmetryGroup:
         for so in self._symmetry_operations:
             to_return += "{}\t{}\n".format( so.label, so.as_vector() )
         return to_return
-
-    @property
-    def size( self ):
-        return len( self._symmetry_operations )
 
     def __mul__( self, other ):
         """

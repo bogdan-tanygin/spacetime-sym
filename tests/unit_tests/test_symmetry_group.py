@@ -11,6 +11,7 @@ from spacetime import SymmetryGroup, SymmetryOperation, SymmetryOperationO3, Sym
 from unittest.mock import Mock, MagicMock, patch, call
 import numpy as np
 from scipy.spatial.transform import Rotation
+from numpy.linalg import det, matrix_rank
 from copy import deepcopy
 
 class SymmetryGroupTestCase( unittest.TestCase ):
@@ -87,6 +88,13 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         if len( res_message ) > 0:
             self.assertEqual( True, False, res_message)
 
+    def test_init_group_wo_operations( self ):
+        sg = SymmetryGroup()
+        self.assertEqual( sg.order(), 1 )
+        # single 3-dim identity element by default
+        self.assertEqual( det( sg.symmetry_operations[ 0 ].matrix ), 1 )
+        self.assertEqual( matrix_rank( sg.symmetry_operations[ 0 ].matrix ), 3 )
+
     def test_symmetry_group_is_initialised_w_duplicated_opers( self ):
         m1 = np.identity( 2 )
         m2 = np.identity( 2 )
@@ -158,6 +166,6 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         s1.label = 'B'
         sg = SymmetryGroup( symmetry_operations=[ s0, s1 ] )
         self.assertEqual( set( sg.labels ), { 'A', 'B' } )
-  
+    
 if __name__ == '__main__':
     unittest.main()
