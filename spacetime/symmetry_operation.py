@@ -239,7 +239,7 @@ class SymmetryOperation:
 
     def __repr__( self ):
         label = self.label if self.label else '---'
-        return 'SymmetryOperation\nlabel(' + label + ")\n" + self.matrix.__repr__()
+        return 'SymmetryOperation\nlabel(' + label + ")\n{}".format(self.matrix)
 
 class SymmetryOperationO3(SymmetryOperation):
     """
@@ -269,7 +269,7 @@ class SymmetryOperationO3(SymmetryOperation):
         """
         super( SymmetryOperationO3, self ).__init__( matrix = matrix, label = label,
                                                      force_permutation = force_permutation )
-        self._dich_operations = deepcopy( dich_operations )
+        self._dich_operations = set ( deepcopy( dich_operations ) )
         self._det_check_and_init( matrix = self._matrix )
 
     def _det_check_and_init( self, matrix, det_rtol = 1e-6 ):
@@ -303,7 +303,7 @@ class SymmetryOperationO3(SymmetryOperation):
             if 'P' in self._dich_operations:
                 self._dich_operations.remove('P')
 
-    def invert( self, label=None ):
+    def invert( self, label = None ):
         """
         Invert this `SymmetryOperationO3` object.
 
@@ -313,9 +313,8 @@ class SymmetryOperationO3(SymmetryOperation):
         Returns:
             A new `SymmetryOperationO3` object corresponding to the inverse matrix operation.
         """
-        so = super( SymmetryOperationO3, self ).invert( label = label )
         #dich operations are applied same way both directions
-        so.dich_operations = self._dich_operations
+        so = SymmetryOperationO3( np.linalg.inv( self.matrix ).astype( float ), dich_operations = self._dich_operations, label = label)
         return so
 
     @property
@@ -437,11 +436,12 @@ class SymmetryOperationO3(SymmetryOperation):
             (PhysicalQuantity): a new physical quantity after operating
             the symmetry operation on it.
         """
-        if type( other ) is SymmetryOperationO3:
+        if isinstance( other, SymmetryOperationO3 ):
             # symmetric difference to exclude compensating dich operations
             do_united = self._dich_operations ^ other.dich_operations
             return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
                                         dich_operations = do_united )
+            # one returns a more complex class
         elif type( other ) is SymmetryOperation:
             do_united = self._dich_operations
             return SymmetryOperationO3( matrix = self._matrix.dot( other.matrix ),
@@ -580,7 +580,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             return self.operate_on( other )
         else:
             raise TypeError
-    
+
     @property
     def matrix( self ):
         """
@@ -612,6 +612,20 @@ class SymmetryOperationSO3(SymmetryOperationO3):
         """
         self._ensure_proper_rotation( matrix = value )
         self._matrix_check_and_assign( value )
+
+    def invert( self, label = None ):
+        """
+        Invert this `SymmetryOperationSO3` object.
+
+        Args:
+            None
+ 
+        Returns:
+            A new `SymmetryOperationSO3` object corresponding to the inverse matrix operation.
+        """
+        #dich operations are applied same way both directions
+        so = SymmetryOperationSO3( np.linalg.inv( self.matrix ).astype( float ), dich_operations = self._dich_operations, label = label)
+        return so
 
     def _ensure_proper_rotation( self, matrix, det_rtol = 1e-6 ):
         """

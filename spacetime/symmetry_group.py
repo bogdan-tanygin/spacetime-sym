@@ -77,16 +77,40 @@ class SymmetryGroup:
         return len( self._symmetry_operations )
 
     def _add_so_if_new( self, so, group_atol ):
+        self._gen_flag = False
+        # if the matrix is new, we add symmetry operation anyway
         if not any( np.allclose( so.matrix, so_0_.matrix, atol = group_atol ) for so_0_ in self._symmetry_operations ):
             self._symmetry_operations.append( so )
             self._gen_flag = True
-    
-    #TODO add dich functionality to _validate_and_correct, _add_so_if_new, and add_and_generate in the derived class
+        # if there is already such matrix, we need to compare dich properties
+        elif isinstance( so, SymmetryOperationO3 ):
+            # default inside this logical branch
+            self._gen_flag = True
+            for so_0_ in self._symmetry_operations:
+                # this must be true for some operations if we are here
+                if np.allclose( so.matrix, so_0_.matrix, atol = group_atol ):
+                    # if the existing symmetry operation is not dichromatic, we add the new one anyway
+                    # note: we enabled dichromatic properties for the group O3 and its subgroups only
+                    # allowing us automatic (spatial) parity control, etc.
+                    if isinstance( so_0_, SymmetryOperationO3 ):
+                        if ( so.dich_operations == so_0_.dich_operations ) or ( len( so.dich_operations ) == 0 
+                                                                                and len( so_0_.dich_operations ) == 0 ):
+                            # at least one match is enough to skip adding a new one
+                            self._gen_flag = False
+                            break
+            if ( self._gen_flag ):
+                self._symmetry_operations.append( so )
 
     def _validate_and_correct( self, group_atol = 1e-4 ):
         # identity check / add if needed
-        if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) for so in self._symmetry_operations):
-            self.add_and_generate( self._e_0 )
+        if not self.identity_w_dich_flag:
+            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) for so in self._symmetry_operations):
+                self.add_and_generate( self._e_0 )
+        else:
+            # identity operation must contain empty list of dichromatic reversals
+            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) and len( so.dich_operations ) == 0 
+                       for so in self._symmetry_operations):
+                self.add_and_generate( self._e_0 )
         # first, let's deduplicate the group
         # group order (as of here and now):
         g_order = len( self._symmetry_operations )
@@ -99,7 +123,13 @@ class SymmetryGroup:
                             so = self._symmetry_operations[i]
                             so_1 = self._symmetry_operations[j]
                             if np.allclose( so.matrix, so_1.matrix, atol = group_atol ):
-                                indx_for_remove.append( j )
+                                if type(so) is SymmetryOperation and type(so_1) is SymmetryOperation:
+                                    indx_for_remove.append( j )
+                                # for SymmetryOperationO3 and its subclasses, hence, isinstance(), not type()
+                                elif isinstance( so, SymmetryOperationO3 ) and isinstance( so_1, SymmetryOperationO3 ):
+                                    if ( so.dich_operations == so_1.dich_operations ) or ( len( so.dich_operations ) == 0 
+                                                                                and len( so_1.dich_operations ) == 0 ):
+                                        indx_for_remove.append( j )
             for i in sorted(indx_for_remove, reverse = True):
                 del self._symmetry_operations[i]
         # second, let's regenerate it. To do it, let's remove the symmetry operations & add them again.
@@ -142,9 +172,13 @@ class SymmetryGroup:
                 self.add_and_generate( so_2 )
                 self.add_and_generate( so_2_inv )
 
-    def _save_basic_identity_so( self, dim_0 ):
+    def _save_basic_identity_so( self, dim_0, identity_w_dich_flag ):
         #identity is a must by the group definition
-        e = SymmetryOperation( matrix = np.identity( dim_0 ))
+        if not identity_w_dich_flag:
+            e = SymmetryOperation( matrix = np.identity( dim_0 ))
+        else:
+            #TODO set() everywhere instead of {}
+            e = SymmetryOperationSO3( matrix = np.identity( dim_0 ), dich_operations = set() )
         self._e_0 = e
     
     def _symmetry_operations_check_and_init( self, symmetry_operations={} ):
@@ -165,6 +199,7 @@ class SymmetryGroup:
         symmetry_operations = list( symmetry_operations )
         # number of symmetry operations given at the init stage
         n_0 = len( symmetry_operations )
+        self.identity_w_dich_flag = False
         if n_0 > 0:
             # type check
             if any( not isinstance( so, SymmetryOperation ) for so in symmetry_operations ):
@@ -182,11 +217,13 @@ class SymmetryGroup:
                     raise ValueError('Different dimensions of input symmetry operations')
             # set the number of dimensions of the group's transformation
             self._symmetry_operations = symmetry_operations
-            self._save_basic_identity_so( dim_0 )
+            if any(  isinstance( so, SymmetryOperationO3 ) for so in symmetry_operations ):
+                self.identity_w_dich_flag = True
+            self._save_basic_identity_so( dim_0, self.identity_w_dich_flag )
         else:
             # default 3-dimensional group. Can be changed after reassignment of symmetry_operations
             dim_0 = 3
-            self._save_basic_identity_so( dim_0 )
+            self._save_basic_identity_so( dim_0, False )
             self._symmetry_operations = [ self._e_0 ]
 
     @classmethod
@@ -281,7 +318,7 @@ class SymmetryGroup:
     def __repr__( self ):
         to_return = '{}\n'.format( self.__class__.class_str )
         for so in self._symmetry_operations:
-            to_return += "{}\t{}\n".format( so.label, so.as_vector() )
+            to_return += "{}\t{}\n".format( so.label, so.matrix )
         return to_return
 
     def __mul__( self, other ):

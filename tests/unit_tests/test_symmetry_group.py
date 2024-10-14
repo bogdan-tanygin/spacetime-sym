@@ -36,8 +36,12 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self.array_0 = np.array( self.list_0 )
         # as advanced SciPy Rotation object
         self.rotation_0 = Rotation.from_matrix( self.list_0 )
+        # rotational vector along direction [111], mag = pi rad
+        self.rot_vec_111_pi = pi * np.array( [1, 1, 1] ) / sqrt(3)
         # rotational vector along direction [111], mag = 2pi/3 rad
         self.rot_vec_111_2pi_3 = (2 * pi / 3) * np.array( [1, 1, 1] ) / sqrt(3)
+        # rotational vector along direction [111], mag = 2pi/6 rad
+        self.rot_vec_111_2pi_6 = (2 * pi / 6) * np.array( [1, 1, 1] ) / sqrt(3)
 
     def _compare_lists_of_sym_opers( self, so_list, so_list_expected ):
         so_exp_matched = set()
@@ -46,27 +50,44 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         expected_so_txt = ''
         for so_exp in so_list_expected:
             expected_so_txt += '\n{}'.format( so_exp.matrix )
+            if isinstance( so_exp, SymmetryOperationO3 ):
+                expected_so_txt += '\n dichromatic reversals: {} \n\n'.format( so_exp.dich_operations )
         matched_indxs_of_expected_so = set()
         indx_exp_so = set( range( len( so_list_expected ) ) )
         for so in so_list:
             so_txt += '\n{}'.format( so.matrix )
+            if isinstance( so, SymmetryOperationO3 ):
+                so_txt += '\n dichromatic reversals: {} \n\n'.format( so.dich_operations )
             so_matched_flag = False
             for i_exp in range( len( so_list_expected ) ):
                 so_exp = so_list_expected[i_exp]
                 if np.allclose( so.matrix, so_exp.matrix, atol = self.atol):
-                    so_exp_matched.add( so_exp )
-                    so_matched_flag = True
-                    matched_indxs_of_expected_so.add( i_exp )
-                    break
+                    # default
+                    dich_match_flag = True
+                    if isinstance( so_exp, SymmetryOperationO3 ) or isinstance( so, SymmetryOperationO3 ):
+                        if ( not isinstance( so_exp, SymmetryOperationO3 ) ) or ( not isinstance( so, SymmetryOperationO3 ) ):
+                            dich_match_flag = False
+                        elif ( so.dich_operations != so_exp.dich_operations ) and ( len( so.dich_operations ) > 0
+                                                                                   or len( so_exp.dich_operations ) >0 ):
+                            dich_match_flag = False
+                    if dich_match_flag:
+                        so_exp_matched.add( so_exp )
+                        so_matched_flag = True
+                        matched_indxs_of_expected_so.add( i_exp )
+                        break
             if not so_matched_flag:
                 so_unexpected.add( so )
         missed_indxs_of_expected_so = indx_exp_so - matched_indxs_of_expected_so
         missed_exp_so_txt = ''
         for i_exp in missed_indxs_of_expected_so:
             missed_exp_so_txt += '\n{}'.format( so_list_expected[i_exp].matrix )
+            if isinstance( so_list_expected[i_exp], SymmetryOperationO3 ):
+                missed_exp_so_txt += '\n dichromatic reversals: {} \n\n'.format( so_list_expected[i_exp].dich_operations )
         unexpected_so_txt = ''
         for so_unexp in so_unexpected:
             unexpected_so_txt += '\n{}'.format( so_unexp.matrix )
+            if isinstance( so_unexp, SymmetryOperationO3 ):
+                unexpected_so_txt += '\n dichromatic reversals: {} \n\n'.format( so_unexp.dich_operations )
         res_message = ''
         if len( so_unexpected ) > 0 and len( so_exp_matched ) < len( so_list_expected ):
             res_message = 'The symmetry operations are not expected' \
@@ -104,6 +125,55 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         # after deduplication in the group
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [s0] )
 
+    def test_symmetry_group_is_initialised_w_duplicated_opers_dich( self ):
+        m0 = np.identity( 3 )
+        m1 = np.identity( 3 )
+        m2 = np.identity( 3 )
+        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'P','C'} ), \
+                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
+                 SymmetryOperationO3( matrix = m0 )
+        sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )
+        # after deduplication in the group
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [s2, e] )
+        self.assertEqual( len( s2.dich_operations ), 1 )
+        self.assertEqual( len( e.dich_operations ), 0 )
+
+        m0 = np.identity( 3 )
+        m1 = np.identity( 3 )
+        m2 = np.identity( 3 )
+        s1, s2, e = SymmetryOperationSO3( matrix = m1, dich_operations = {'P','C'} ), \
+                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
+                 SymmetryOperationSO3( matrix = m0 )
+        sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )
+        # after deduplication in the group
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [s2, e] )
+        self.assertEqual( len( s2.dich_operations ), 1 )
+        self.assertEqual( len( e.dich_operations ), 0 )
+
+        m0 = np.identity( 3 )
+        m1 = - np.identity( 3 )
+        m2 = - np.identity( 3 )
+        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'P','C'} ), \
+                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
+                 SymmetryOperationSO3( matrix = m0 )
+        sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )
+        # after deduplication in the group
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [s2, e] )
+        self.assertEqual( len( s2.dich_operations ), 2 )
+        self.assertEqual( len( e.dich_operations ), 0 )
+
+        m0 = np.identity( 3 )
+        rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
+        rot_120m = Rotation.from_rotvec( - self.rot_vec_111_2pi_3, degrees = False )
+        e = SymmetryOperationO3( matrix = m0, dich_operations = {} )
+        s_120 = SymmetryOperationO3( matrix = rot_120)
+        s_120_2 = SymmetryOperationO3( matrix = rot_120)
+        s_120m = SymmetryOperationO3( matrix = rot_120m)
+        sg = SymmetryGroup( symmetry_operations = [ s_120, s_120_2 ] )
+        # after deduplication in the group
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [s_120, e, s_120m] )
+        self.assertEqual( len( e.dich_operations ), 0 )
+
     def test_symmetry_group_is_initialised_w_different_opers( self ):
         m1 = np.identity( 2 )
         m2 = - np.identity( 2 )
@@ -112,6 +182,63 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         sg = SymmetryGroup( symmetry_operations = [ s0, s1 ] )
         # after deduplication in the group
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [s1, s0] ) 
+
+    def test_symmetry_group_is_initialised_w_different_opers_dich( self ):
+        m0 = np.identity( 3 )
+        m_inv = - np.identity( 3 )
+        rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
+        rot_120m = Rotation.from_rotvec( - self.rot_vec_111_2pi_3, degrees = False )
+        e = SymmetryOperationSO3( matrix = m0, dich_operations = {} )
+        e_T = SymmetryOperationSO3( matrix = m0, dich_operations = {'T'} )
+        inv = SymmetryOperationO3( matrix = m_inv, dich_operations = {} )
+        inv_T = inv * e_T
+        s_120 = SymmetryOperationO3( matrix = rot_120, dich_operations = {})
+        s_120_inv = inv * s_120
+        s_120_T = s_120 * e_T
+        s_120_inv_T = inv * s_120_T
+        s_120m = SymmetryOperationO3( matrix = rot_120m, dich_operations = {})
+        s_120m_inv = inv * s_120m
+        s_120m_T = s_120m * e_T
+        s_120m_inv_T = inv * s_120m_T
+        sg = SymmetryGroup( symmetry_operations = [ s_120, inv, e_T ] )
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [e, e_T, inv, inv_T,
+                                                                    s_120, s_120m,
+                                                                    s_120_T, s_120m_T,
+                                                                    s_120_inv, s_120m_inv,
+                                                                    s_120_inv_T, s_120m_inv_T ] )
+        self.assertEqual( sg.order(), 12 )
+        sg2 = SymmetryGroup( symmetry_operations = [ s_120_inv_T ] )
+        self._compare_lists_of_sym_opers( sg2.symmetry_operations, [e, inv_T,
+                                                                    s_120, s_120m,
+                                                                    s_120_inv_T, s_120m_inv_T ] )
+        self.assertEqual( sg2.order(), 6 )
+
+    def test_symmetry_group_is_initialised_w_rotational_axis_6_dich( self ):
+        #first, let's set the regular proper rotation
+        # 60-degrees rotation around direction [111]
+        m0 = np.identity( 3 )
+        e = SymmetryOperationO3( matrix = m0 )
+        e_T = SymmetryOperationSO3( matrix = m0, dich_operations = {'T'} )
+        rot_60 = Rotation.from_rotvec( self.rot_vec_111_2pi_6, degrees = False )
+        s_60 = SymmetryOperationO3( matrix = rot_60)
+        s_60_T = s_60 * e_T
+        sg = SymmetryGroup( symmetry_operations = [ s_60_T ] )
+        # expected extra symmetry operations to be generated
+        rot_minus60 = Rotation.from_rotvec( - self.rot_vec_111_2pi_6, degrees = False )
+        s_minus_60 = SymmetryOperationO3( matrix = rot_minus60 )
+        s_minus_60_T = e_T * s_minus_60
+        rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
+        s_120 = SymmetryOperationO3( matrix = rot_120)
+        rot_minus120 = Rotation.from_rotvec( - self.rot_vec_111_2pi_3, degrees = False )
+        s_minus_120 = SymmetryOperationO3( matrix = rot_minus120 )
+        rot_180 = Rotation.from_rotvec( self.rot_vec_111_pi, degrees = False )
+        s_180 = SymmetryOperationO3( matrix = rot_180)
+        s_180_T = e_T * s_180
+        expected_sym_opers = [s_60_T, s_minus_60_T, e,
+                              s_120, s_minus_120,
+                              s_180_T]
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, expected_sym_opers ) 
+        self.assertEqual( sg.order(), 6 )
 
     def test_symmetry_group_is_initialised_w_rotational_axis_3( self ):
         #first, let's set the regular proper rotation
@@ -127,8 +254,6 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         expected_sym_opers = [s_120, s_minus_120, e]
         self._compare_lists_of_sym_opers( sg.symmetry_operations, expected_sym_opers ) 
         self.assertEqual( sg.order(), 3 )
-
-    #TODO same as above init -- with dich
 
     def test_add( self ):
         rot_120p = Rotation.from_rotvec(   self.rot_vec_111_2pi_3, degrees = False )
@@ -166,6 +291,8 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         s1.label = 'B'
         sg = SymmetryGroup( symmetry_operations=[ s0, s1 ] )
         self.assertEqual( set( sg.labels ), { 'A', 'B' } )
+    
+    #TODO same as above init -- with dich
     
 if __name__ == '__main__':
     unittest.main()
