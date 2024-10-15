@@ -177,7 +177,6 @@ class SymmetryGroup:
         if not identity_w_dich_flag:
             e = SymmetryOperation( matrix = np.identity( dim_0 ))
         else:
-            #TODO set() everywhere instead of {}
             e = SymmetryOperationSO3( matrix = np.identity( dim_0 ), dich_operations = set() )
         self._e_0 = e
     
@@ -225,70 +224,6 @@ class SymmetryGroup:
             dim_0 = 3
             self._save_basic_identity_so( dim_0, False )
             self._symmetry_operations = [ self._e_0 ]
-
-    @classmethod
-    def read_from_file( cls, filename ):
-        """
-        Create a :any:`SymmetryGroup` object from a file.
-       
-        The file format should be a series of numerical mappings representing each symmetry operation.
-
-        e.g. for a pair of equivalent sites::
-
-            # example input file to define the spacegroup for a pair of equivalent sites
-            1 2
-            2 1
-
-        Args:
-            filename (str): Name of the file to be read in.
-
-        Returns:
-            spacegroup (SymmetryGroup)	
-        """
-        data = np.loadtxt( filename, dtype=int )
-        symmetry_operations = [ SymmetryOperation.from_vector( row.tolist() ) for row in data ]
-        return( cls( symmetry_operations = symmetry_operations ) )
-
-    @classmethod
-    def read_from_file_with_labels( cls, filename ):
-        """
-        Create a :any:`SymmetryGroup` object from a file, with labelled symmetry operations.
-
-        The file format should be a series of numerical mappings representing each symmetry operation, prepended with a string that will be used as a label.
-
-        e.g. for a pair of equivalent sites::
-
-            # example input file to define the spacegroup for a pair of equivalent sites
-            E  1 2
-            C2 2 1
-
-        Args:
-            filename (str): Name of the file to be read in.
-
-        Returns:
-            spacegroup (SymmetryGroup)
-        """
-        data = np.genfromtxt( filename, dtype=str )
-        labels = [ row[0] for row in data ]
-        vectors = [ [ float(s) for s in row[1:] ] for row in data ]
-        symmetry_operations = [ SymmetryOperation.from_vector( v ) for v in vectors ]
-        [ so.set_label( l ) for (l, so) in zip( labels, symmetry_operations ) ]
-        return( cls( symmetry_operations=symmetry_operations ) )
-
-    def save_symmetry_operation_vectors_to( self, filename ):
-        """
-        Save the set of vectors describing each symmetry operation in this :any:`SymmetryGroup` to a file.
-
-        Args:
-            filename (str): Name of the file to save to.
-
-        Returns:
-            None
-        """
-        operation_list = []
-        for symmetry_operation in self._symmetry_operations:
-            operation_list.append( symmetry_operation.as_vector() )
-        np.savetxt( filename, np.array( operation_list ), fmt='%i' )
 
     def by_label( self, label ):
         """

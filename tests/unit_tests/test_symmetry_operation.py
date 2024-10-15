@@ -54,11 +54,6 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so_b = SymmetryOperation( matrix_b )
         np.testing.assert_array_equal( ( so_a * so_b ).matrix , np.array( [ [ 0, 1 ], [ 1, 0 ] ] ) )
 
-    def test_mul_raises_TypeError_with_invalid_type( self ):
-        so = SymmetryOperation.from_vector( [ 2, 3, 1 ] )
-        with self.assertRaises( TypeError ):
-            new_conf = so * 'foo'
-
     def test_invert( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         matrix_b = np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] )
@@ -69,29 +64,12 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         so = SymmetryOperation( matrix_a ).invert( label='A' )
         self.assertEqual( so.label, 'A' )
-    
-    def test_from_vector( self ):
-        vector = [ 2, 3, 1 ]
-        so = SymmetryOperation.from_vector( vector )
-        np.testing.assert_array_equal( so.matrix, np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] ) )    
-
-    def test_from_vector_with_label( self ):
-        vector = [ 2, 3, 1 ]
-        label = 'A'
-        so = SymmetryOperation.from_vector( vector, label=label )
-        np.testing.assert_array_equal( so.matrix, np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] ) )
-        self.assertEqual( so.label, label )
 
     def test_symmetry_operation_is_initialised_with_label( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         label = 'E'
         so = SymmetryOperation( matrix, label=label )
         self.assertEqual( so.label, label )
-
-    def test_from_vector_counting_from_zero( self ):
-        vector = [ 1, 2, 0 ]
-        so = SymmetryOperation.from_vector( vector, count_from_zero=True )
-        np.testing.assert_array_equal( so.matrix, np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] ) )    
 
     def test_similarity_transform( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
@@ -115,35 +93,11 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so = SymmetryOperation( matrix )
         self.assertEqual( so.character(), 2 )
 
-    def test_as_vector( self ):
-        matrix = np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] )
-        so = SymmetryOperation( matrix )
-        self.assertEqual( so.as_vector(), [ 2, 3, 1 ] )
-  
-    def test_as_vector_counting_from_zero( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperation( matrix )
-        self.assertEqual( so.as_vector( count_from_zero=True ), [ 0, 1 ] )
-
     def test_se_label( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperation( matrix )
         so.set_label( 'new_label' )
         self.assertEqual( so.label, 'new_label' )
-
-    def test_pprint( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperation( matrix )
-        with patch( 'sys.stdout', new=io.StringIO() ) as mock_stdout:
-            so.pprint()
-            self.assertEqual( mock_stdout.getvalue(), '--- : 1 2\n' ) 
-
-    def test_pprint_with_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperation( matrix, label='L' )
-        with patch( 'sys.stdout', new=io.StringIO() ) as mock_stdout:
-            so.pprint()
-            self.assertEqual( mock_stdout.getvalue(), 'L : 1 2\n' ) 
 
     def test_repr( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
@@ -230,11 +184,6 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3( rot_2 )
         np.testing.assert_allclose( ( so_0 * so_0 ).matrix , so_2.matrix )
 
-    def test_mul_raises_TypeError_with_invalid_type( self ):
-        so = SymmetryOperationO3.from_vector( [ 2, 3, 1 ] )
-        with self.assertRaises( TypeError ):
-            new_so = so * 'foo'
-
     def test_invertO3( self ):
         matrix_a = self.array_0
         so = SymmetryOperationO3( matrix_a )
@@ -275,35 +224,11 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so = SymmetryOperationO3( matrix )
         self.assertEqual( so.character(), 2 )
 
-    def test_as_vector( self ):
-        matrix = np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] )
-        so = SymmetryOperationO3( matrix )
-        self.assertEqual( so.as_vector(), [ 2, 3, 1 ] )
-  
-    def test_as_vector_counting_from_zero( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperationO3( matrix )
-        self.assertEqual( so.as_vector( count_from_zero=True ), [ 0, 1 ] )
-
     def test_se_label( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperationO3( matrix )
         so.set_label( 'new_label' )
         self.assertEqual( so.label, 'new_label' )
-
-    def test_pprint( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperationO3( matrix )
-        with patch( 'sys.stdout', new=io.StringIO() ) as mock_stdout:
-            so.pprint()
-            self.assertEqual( mock_stdout.getvalue(), '--- : 1 2\n' ) 
-
-    def test_pprint_with_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperationO3( matrix, label='L' )
-        with patch( 'sys.stdout', new=io.StringIO() ) as mock_stdout:
-            so.pprint()
-            self.assertEqual( mock_stdout.getvalue(), 'L : 1 2\n' ) 
 
     def test_repr( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )

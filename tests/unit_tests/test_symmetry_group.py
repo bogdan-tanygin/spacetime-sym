@@ -292,7 +292,5 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         sg = SymmetryGroup( symmetry_operations=[ s0, s1 ] )
         self.assertEqual( set( sg.labels ), { 'A', 'B' } )
     
-    #TODO same as above init -- with dich
-    
 if __name__ == '__main__':
     unittest.main()

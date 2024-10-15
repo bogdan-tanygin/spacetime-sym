@@ -39,10 +39,6 @@ class SymmetryOperation:
 
             .. _permutation_matrix: https://en.wikipedia.org/wiki/Permutation_matrix
 
-        Notes:
-            To construct a `SymmetryOperation` object from a vector of site mappings
-            use the `SymmetryOperation.from_vector()` method.
-
         Returns:
             None
         """
@@ -150,28 +146,6 @@ class SymmetryOperation:
         """
         return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label = label)
 
-    @classmethod
-    def from_vector( cls, vector, count_from_zero=False, label=None ):
-        """
-        Initialise a SymmetryOperation object from a vector of site mappings.
-
-        Args:
-            vector (list): vector of integers defining a symmetry operation mapping.
-            count_from_zero (default = False) (bool): set to True if the site index counts from zero.
-            label (default=None) (str): optional string label for this `SymmetryOperation` object.
-   
-        Returns:
-            a new SymmetryOperation object
-        """
-        if not count_from_zero:
-            vector = [ x - 1 for x in vector ]
-        dim = len( vector )
-        matrix = np.zeros( ( dim, dim ) )
-        for index, element in enumerate( vector ):
-            matrix[ element, index ] = 1
-        new_symmetry_operation = cls( matrix, label=label )
-        return new_symmetry_operation
-
     def similarity_transform( self, s, label=None ):
         """
         Generate the SymmetryOperation produced by a similarity transform S^{-1}.M.S
@@ -200,19 +174,6 @@ class SymmetryOperation:
         """
         return np.trace( self.matrix )
 
-    def as_vector( self, count_from_zero=False ):
-        """
-        Return a vector representation of this symmetry operation
-
-        Args:
-            count_from_zero (default = False) (bool): set to True if the vector representation counts from zero
-      
-        Returns:
-            a vector representation of this symmetry operation (as a list)
-        """
-        offset = 0 if count_from_zero else 1
-        return [ row.tolist().index( 1 ) + offset for row in self.matrix.T ]
-
     def set_label( self, label ):
         """
         Set the label for this symmetry operation.
@@ -224,18 +185,6 @@ class SymmetryOperation:
         """
         self.label = label
         return self
-
-    def pprint( self ):
-        """
-        Pretty print for this symmetry operation
-
-        Args:
-            None
-        Returns:
-            None
-        """
-        label = self.label if self.label else '---'
-        print( label + ' : ' + ' '.join( [ str(e) for e in self.as_vector() ] ) )
 
     def __repr__( self ):
         label = self.label if self.label else '---'
