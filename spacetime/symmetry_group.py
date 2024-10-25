@@ -176,8 +176,10 @@ class SymmetryGroup:
         #identity is a must by the group definition
         if not identity_w_dich_flag:
             e = SymmetryOperation( matrix = np.identity( dim_0 ))
+            e.label = 'E'
         else:
             e = SymmetryOperationSO3( matrix = np.identity( dim_0 ), dich_operations = set() )
+            e.label = 'E'
         self._e_0 = e
     
     def _symmetry_operations_check_and_init( self, symmetry_operations={} ):
@@ -253,7 +255,7 @@ class SymmetryGroup:
     def __repr__( self ):
         to_return = '{}\n'.format( self.__class__.class_str )
         for so in self._symmetry_operations:
-            to_return += "{}\t{}\n".format( so.label, so.matrix )
+            to_return += "{}\n".format( so )
         return to_return
 
     def __mul__( self, other ):

@@ -188,7 +188,8 @@ class SymmetryOperation:
 
     def __repr__( self ):
         label = self.label if self.label else '---'
-        return 'SymmetryOperation\nlabel(' + label + ")\n{}".format(self.matrix)
+        output = 'SymmetryOperation\nlabel(' + label + ")\n{}".format(self.matrix)
+        return output
 
 class SymmetryOperationO3(SymmetryOperation):
     """
@@ -455,6 +456,11 @@ class SymmetryOperationO3(SymmetryOperation):
                 raise ValueError( 'Physical quantity does not have the dichromatic symmetry specified: {}'.format(dich_oper) )
         pq_res.value = new_value
         return pq_res
+    
+    def __repr__( self ):
+        output = super(SymmetryOperationO3, self).__repr__()
+        output += '\nDichromatic reversals: {}'.format( self.dich_operations )
+        return output
 
 class SymmetryOperationSO3(SymmetryOperationO3):
     """
