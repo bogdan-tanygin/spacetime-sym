@@ -10,6 +10,7 @@ from collections import Counter
 from math import factorial
 from functools import reduce
 from operator import mul
+from copy import deepcopy
 
 def is_square( m ):
     """
@@ -188,3 +189,16 @@ def unique_permutations( seq ):
         # including k, also efficiently.                     0 0 1 1 0 0 1 1
         seq[k + 1:] = seq[-1:k:-1]
 
+def set_copy_assignment( value ):
+        set_value = deepcopy( value )
+        if isinstance( set_value, set ):
+            # if the type is right
+            return_set = set_value
+        elif set_value is None:
+            # empty set for None
+            return_set = set()
+        else:
+            # in case it is a single-value reversal assignment
+            # or another sequence type
+            return_set = set( set_value )
+        return return_set

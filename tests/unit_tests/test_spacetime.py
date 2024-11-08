@@ -24,6 +24,12 @@ class TestSpacetimesymTopLevelClasses( unittest.TestCase ):
 
     def test_spacetimesym_imports_SymmetryOperationSO3( self ):
         from spacetime import SymmetryOperationSO3
+    
+    def test_spacetimesym_imports_LimitingSymmetryOperationO3( self ):
+        from spacetime import LimitingSymmetryOperationO3
+    
+    def test_spacetimesym_imports_LimitingSymmetryOperationSO3( self ):
+        from spacetime import LimitingSymmetryOperationSO3
 
 if __name__ == '__main__':
     unittest.main()

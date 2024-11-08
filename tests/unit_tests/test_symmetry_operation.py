@@ -11,8 +11,8 @@ from math import pi, sqrt
 from numpy.linalg import det
 from copy import deepcopy
 from scipy.spatial.transform import Rotation
-from spacetime import SymmetryOperation, SymmetryOperationO3
-from spacetime import SymmetryOperationSO3, PhysicalQuantity
+from spacetime import SymmetryOperation, SymmetryOperationO3, LimitingSymmetryOperationO3
+from spacetime import SymmetryOperationSO3, LimitingSymmetryOperationSO3, PhysicalQuantity
 from unittest.mock import patch
 import io
 from spacetime.symmetry_operation import is_square, is_permutation_matrix
@@ -280,7 +280,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3( matrix = self.rotation_0 ) * so_inv
         # let's add charge-reversal operation here
         # it must have no effect on this scalar
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         #test cases
         pq_updated = so_1 * pq
         self.assertEqual( pq_updated.value, scalar_test )
@@ -310,7 +310,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3( matrix = self.rotation_0 ) * so_inv
         # let's add charge-reversal operation here
         # it must have no effect on this pseudoscalar
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         #test cases
         pq_updated = PhysicalQuantity()
         pq_updated = so_1 * pq
@@ -360,13 +360,13 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3() * so_inv
         # let's add charge-reversal operation here
         # it must reverse electric field
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         
         #now, let's do just charge inversion
         so_3 = SymmetryOperationO3()
         # let's add charge-reversal operation here
         # it must reverse electric field
-        so_3.dich_operations.add("C")
+        so_3.add_dich_operations("C")
 
         #now, let's do just spatial inversion
         so_inv = SymmetryOperationO3( matrix = ( -1 ) * np.identity( 3 ) )
@@ -423,14 +423,14 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3() * so_inv
         # let's add charge-reversal operation here
         # it must reverse magnetic field
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         vec_test_updated_2 = - vec_test_0
         
         #now, let's do just charge inversion
         so_3 = SymmetryOperationO3()
         # let's add charge-reversal operation here
         # it must reverse magnetic field
-        so_3.dich_operations.add("C")
+        so_3.add_dich_operations("C")
         vec_test_updated_3 = - vec_test_0
 
         #now, let's do just spatial inversion
@@ -494,7 +494,12 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
             #the regular proper rotation class with wrong matrix
             so_1 = SymmetryOperationSO3( matrix = - 1 * self.array_0 )
-    
+
+    def test_ensure_SO3_is_proper_rot_dich( self ):
+        with self.assertRaises( ValueError ):
+            #the regular proper rotation class with wrong dichromatic reversal
+            so_1 = SymmetryOperationSO3( matrix = self.array_0, dich_operations = { 'P' } )
+
     def test_symmetry_operation_is_initialised_from_a_list( self ):
         so = SymmetryOperationSO3( self.list_0 )
         np.testing.assert_allclose( so.matrix, np.array( self.list_0 ) )
@@ -547,7 +552,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationSO3( matrix = self.rotation_0 )
         # let's add charge-reversal operation here
         # it must have no effect on this scalar
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         #test cases
         pq_updated = so_1 * pq
         self.assertEqual( pq_updated.value, scalar_test )
@@ -638,7 +643,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationSO3()
         # let's add charge-reversal operation here
         # it must reverse electric field
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
 
         so_3 = SymmetryOperationSO3()
         # let's an additional reversal operation here
@@ -684,7 +689,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationSO3()
         # let's add charge-reversal operation here
         # it must reverse magnetic field
-        so_2.dich_operations.add("C")
+        so_2.add_dich_operations("C")
         vec_test_updated_2 = - vec_test_0
 
         so_3 = SymmetryOperationSO3()
@@ -711,6 +716,154 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
                                      atol = self.atol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
+
+class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
+    """Tests for limiting O(3) symmetry operation functions"""
+    def setUp(self):
+        # absolute tolerance
+        self.atol = 1e-6
+        # decimal power tolerance 10**(-ptol)
+        self.ptol = 6
+        # axis of an infinitesimal rotation operation
+        self.array_0 = np.array( [0.4578, - 1.639, - 4.25] )
+        self.list_0 = [0.4578, - 1.639, - 4.25]
+        self.array_Z = np.array( [0, 0, 1] )
+
+    def test_symmetry_operation_is_initialised_from_an_array( self ):
+        so = LimitingSymmetryOperationO3( self.array_0 )
+        np.testing.assert_allclose( so.axis, self.array_0 )
+    
+    def test_symmetry_operation_is_initialised_from_a_list( self ):
+        so = LimitingSymmetryOperationO3( self.list_0 )
+        np.testing.assert_allclose( so.axis, self.array_0 )
+
+    def test_symmetry_operation_is_initialised_by_defaults( self ):
+        so = LimitingSymmetryOperationO3()
+        np.testing.assert_allclose( so.axis, self.array_Z )
+
+    def test_symmetry_operation_raises_errors_for_invalid_type( self ):
+        objects = [ 'foo', None, 1 ]
+        for o in objects:
+            with self.assertRaises( TypeError ):
+                LimitingSymmetryOperationO3( o )
+        with self.assertRaises( ValueError ):
+                LimitingSymmetryOperationO3( [1, 2] )
+    
+    def test_limiting_sym_operation_matrix( self ):
+        so = LimitingSymmetryOperationO3()
+        with self.assertRaises( ValueError ):
+            so.matrix
+    
+    def test_repr_sym_oper( self ):
+        so = LimitingSymmetryOperationO3( self.list_0 )
+        print_io = io.StringIO()
+        print( so, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = 'SymmetryOperation\nlabel(∞)' + \
+                       '\nAxis: [ 0.4578 -1.639  -4.25  ]' + \
+                       '\nDichromatic reversals: \n'
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_sym_oper_w_dich( self ):
+        so = LimitingSymmetryOperationO3( self.list_0 )
+        so.dich_operations = {'P','C'}
+        so.add_dich_operations('T')
+        so.add_dich_operations('P')
+        so.add_dich_operations({'P','C'})
+        print_io = io.StringIO()
+        print( so, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = 'SymmetryOperation\nlabel(∞-\'*)' + \
+                       '\nAxis: [ 0.4578 -1.639  -4.25  ]' + \
+                       '\nDichromatic reversals: [\'C\', \'P\', \'T\']\n'
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_sym_oper_w_dich_var2( self ):
+        so = LimitingSymmetryOperationO3( self.list_0 )
+        so.add_dich_operations('T')
+        so.add_dich_operations('P')
+        so.add_dich_operations({'P','C'})
+        print_io = io.StringIO()
+        print( so, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = 'SymmetryOperation\nlabel(∞-\'*)' + \
+                       '\nAxis: [ 0.4578 -1.639  -4.25  ]' + \
+                       '\nDichromatic reversals: [\'C\', \'P\', \'T\']\n'
+        self.assertEqual( printed_str, expected_str )
+
+#TODO
+class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
+    """Tests for limiting SO(3) symmetry operation functions"""
+    def setUp(self):
+        # absolute tolerance
+        self.atol = 1e-6
+        # decimal power tolerance 10**(-ptol)
+        self.ptol = 6
+        # axis of an infinitesimal rotation operation
+        self.array_0 = np.array( [0.4578, - 1.639, - 4.25] )
+        self.list_0 = [0.4578, - 1.639, - 4.25]
+        self.array_Z = np.array( [0, 0, 1] )
+
+    def test_symmetry_operation_is_initialised_from_an_array( self ):
+        so = LimitingSymmetryOperationSO3( self.array_0 )
+        np.testing.assert_allclose( so.axis, self.array_0 )
+    
+    def test_symmetry_operation_is_initialised_from_a_list( self ):
+        so = LimitingSymmetryOperationSO3( self.list_0 )
+        np.testing.assert_allclose( so.axis, self.array_0 )
+
+    def test_symmetry_operation_is_initialised_by_defaults( self ):
+        so = LimitingSymmetryOperationSO3()
+        np.testing.assert_allclose( so.axis, self.array_Z )
+
+    def test_symmetry_operation_raises_errors_for_invalid_type( self ):
+        objects = [ 'foo', None, 1 ]
+        for o in objects:
+            with self.assertRaises( TypeError ):
+                LimitingSymmetryOperationSO3( o )
+        with self.assertRaises( ValueError ):
+                LimitingSymmetryOperationSO3( [1, 2] )
+    
+    def test_limiting_sym_operation_matrix( self ):
+        so = LimitingSymmetryOperationSO3()
+        with self.assertRaises( ValueError ):
+            so.matrix
+    
+    def test_repr_sym_oper( self ):
+        so = LimitingSymmetryOperationSO3( self.list_0 )
+        print_io = io.StringIO()
+        print( so, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = 'SymmetryOperation\nlabel(∞)' + \
+                       '\nAxis: [ 0.4578 -1.639  -4.25  ]' + \
+                       '\nDichromatic reversals: \n'
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_sym_oper_w_dich( self ):
+        so = LimitingSymmetryOperationSO3( self.list_0 )
+        so.add_dich_operations('T')
+        so.add_dich_operations('C')
+        so.add_dich_operations({'C'})
+        print_io = io.StringIO()
+        print( so, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = 'SymmetryOperation\nlabel(∞\'*)' + \
+                       '\nAxis: [ 0.4578 -1.639  -4.25  ]' + \
+                       '\nDichromatic reversals: [\'C\', \'T\']\n'
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_sym_oper_w_wrong_dich( self ):
+        with self.assertRaises( ValueError ):
+            so = LimitingSymmetryOperationSO3( self.list_0, dich_operations = {'C','P'} )
+        so = LimitingSymmetryOperationSO3( self.list_0 )
+        so.add_dich_operations('T')
+        with self.assertRaises( ValueError ):
+            so.add_dich_operations('P')
 
 if __name__ == '__main__':
     unittest.main()

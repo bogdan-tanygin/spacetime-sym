@@ -4,7 +4,7 @@
 #
 # This file is part of spacetime-sym.
 #
-
+#TODO UT for all the assertRaises
 from math import pi, sqrt
 import unittest
 from spacetime import SymmetryGroup, SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
@@ -141,7 +141,7 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         m0 = np.identity( 3 )
         m1 = np.identity( 3 )
         m2 = np.identity( 3 )
-        s1, s2, e = SymmetryOperationSO3( matrix = m1, dich_operations = {'P','C'} ), \
+        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'P','C'} ), \
                  SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
                  SymmetryOperationSO3( matrix = m0 )
         sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )

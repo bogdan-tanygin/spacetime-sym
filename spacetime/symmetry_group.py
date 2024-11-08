@@ -74,6 +74,7 @@ class SymmetryGroup:
     """
     def order( self, group_atol = 1e-4 ):
         self._validate_and_correct(group_atol = group_atol)
+        #TODO UT of 1' x 1* x 1- x 1 generation of the order 8. Also with m -> 16
         return len( self._symmetry_operations )
 
     def _add_so_if_new( self, so, group_atol ):
@@ -252,6 +253,7 @@ class SymmetryGroup:
         """
         return [ so.label for so in self._symmetry_operations ] 
 
+    #TODO UT 
     def __repr__( self ):
         to_return = '{}\n'.format( self.__class__.class_str )
         for so in self._symmetry_operations:
