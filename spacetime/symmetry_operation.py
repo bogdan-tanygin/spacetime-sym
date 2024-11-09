@@ -751,7 +751,6 @@ class LimitingSymmetryOperationO3(SymmetryOperationO3):
         output += self._dich_output()
         return output
 
-#TODO UTs
 class LimitingSymmetryOperationSO3(LimitingSymmetryOperationO3):
     """
     `LimitingSymmetryOperationSO3` class.

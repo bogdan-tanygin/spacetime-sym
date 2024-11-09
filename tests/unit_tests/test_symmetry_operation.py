@@ -794,7 +794,6 @@ class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
                        '\nDichromatic reversals: [\'C\', \'P\', \'T\']\n'
         self.assertEqual( printed_str, expected_str )
 
-#TODO
 class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
     """Tests for limiting SO(3) symmetry operation functions"""
     def setUp(self):

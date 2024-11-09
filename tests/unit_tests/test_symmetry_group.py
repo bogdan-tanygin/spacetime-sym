@@ -4,7 +4,6 @@
 #
 # This file is part of spacetime-sym.
 #
-#TODO UT for all the assertRaises
 from math import pi, sqrt
 import unittest
 from spacetime import SymmetryGroup, SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
@@ -13,6 +12,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from numpy.linalg import det, matrix_rank
 from copy import deepcopy
+import io
 
 class SymmetryGroupTestCase( unittest.TestCase ):
     """Tests for SymmetryGroup class"""
@@ -255,6 +255,16 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self._compare_lists_of_sym_opers( sg.symmetry_operations, expected_sym_opers ) 
         self.assertEqual( sg.order(), 3 )
 
+    def test_symmetry_group_is_initialized_w_errors(self):
+        e = SymmetryOperation( matrix = np.identity( 3 ) )
+        e_4d = SymmetryOperation( matrix = np.identity( 4 ) )
+        # init w/ mismatched dimensions
+        with self.assertRaises( ValueError ):
+            sg = SymmetryGroup( symmetry_operations = [e, e_4d] )
+        # init w/ a wrong types (non-symmetry operations)
+        with self.assertRaises( TypeError ):
+            sg = SymmetryGroup( symmetry_operations = [e, 6.3] )
+
     def test_add( self ):
         rot_120p = Rotation.from_rotvec(   self.rot_vec_111_2pi_3, degrees = False )
         rot_120m = Rotation.from_rotvec( - self.rot_vec_111_2pi_3, degrees = False )
@@ -270,6 +280,10 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         sg.add_and_generate( s_inv )
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [ s_0, s_inv, s_rot_120p, s_rot_120m,
                                                                     s_rot_120p_inv, s_rot_120m_inv ] )
+        # adding a symmetry operation of the wrong dimensionality must raise an error
+        s_0_4d = SymmetryOperation( matrix = np.identity( 4 ))
+        with self.assertRaises( ValueError ):
+            sg.add_and_generate( s_0_4d )
 
     def test_by_label( self ):
         m1 = np.identity( 2 )
@@ -291,6 +305,45 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         s1.label = 'B'
         sg = SymmetryGroup( symmetry_operations=[ s0, s1 ] )
         self.assertEqual( set( sg.labels ), { 'A', 'B' } )
+    
+    def test_repr_symmetry_group( self ):
+        e = SymmetryOperationO3( )
+        e_T = SymmetryOperationO3( dich_operations = 'T' )
+        inv = SymmetryOperationO3( matrix = - np.identity(3) )
+        sg = SymmetryGroup( symmetry_operations = [e_T, inv] )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+SymmetryGroup
+SymmetryOperation
+label(---)
+[[-1. -0. -0.]
+ [-0. -1. -0.]
+ [-0. -0. -1.]]
+Dichromatic reversals: ['P']
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: ['T']
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
+Dichromatic reversals: ['P', 'T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
     
 if __name__ == '__main__':
     unittest.main()
