@@ -12,6 +12,7 @@ from functools import reduce
 from operator import mul
 from copy import deepcopy
 
+#TODO UT
 def is_square( m ):
     """
     Test whether a numpy matrix is square.
@@ -29,7 +30,7 @@ def is_square( m ):
     m = np.array( m )
     shape0 = m.shape
     if len( shape0 ) != 2:
-        raise TypeError( 'Not a 2D array (matrix)' )
+        return False
     return all ( len ( rw ) == len ( m ) for rw in m )
 
 def is_permutation_matrix( m ):
@@ -51,6 +52,8 @@ def is_permutation_matrix( m ):
             (m.sum(axis=1) == 1).all() and
             ((m == 1) | (m == 0)).all())
 
+#TODO UT
+#TODO refactor: make it tolerance based
 def is_diagonal( m ):
     """
     Test whether a numpy matrix is diagonal.
@@ -97,6 +100,35 @@ def is_scalar( x ):
     else:
         return False
 
+#TODO UT
+def is_scalar_extended( x, atol = 1e-6 ):
+    """
+    Test whether x is a scalar.
+    Including the case when x is a diagonal matrix representation of a scalar.
+
+    Args:
+        x (int|float|numpy.ndarray): an argument to test.
+        atol (float): absolute tolerance for elements of the matrix/tensor
+
+    Returns:
+        (bool): True | False.
+    """
+    # ensure the numpy type
+    x = np.array( x )
+    if is_scalar( x ):
+        return True
+    elif is_square( x ):
+        if is_diagonal( x ):
+            trace = np.trace( x )
+            av_element = trace / x.shape[0]
+            expected = np.identity( x.shape[0] ) * av_element
+            return np.allclose( x, expected, atol = atol )
+        else:
+            return False
+    else:
+        return False
+
+#TODO UT
 def make_0D_scalar( x ):
     """
     Transform scalar to the simplest 0-dimensional type.
@@ -121,12 +153,18 @@ def make_0D_scalar( x ):
         else:
             return x
     # transform the diagonal matrix with constant diagonal elements into the 0D-scalar
-    elif is_diagonal( x ) and all( x[i][i] == x[i + 1][i + 1] for i in range (x.ndim) ):
-        if is_scalar( x[0,0] ):
-            x = np.array( x[0,0] )
-            return x
-        else:
-            raise TypeError( 'Not a scalar!' )
+    elif is_scalar_extended( x ):
+        # all are equal, one returns the first diagonal elements
+        return np.array( x[0,0] )
+    #elif is_diagonal( x ):
+    #    if all( x[i][i] == x[i + 1][i + 1] for i in range (x.shape[0]) ):
+    #        if is_scalar( x[0,0] ):
+    #            x = np.array( x[0,0] )
+    #            return x
+    #        else:
+    #            raise TypeError( 'Not a scalar!' )
+    #    else:
+    #        raise TypeError( 'Not a scalar!' )
     else:
         raise TypeError( 'Not a scalar!' )
 

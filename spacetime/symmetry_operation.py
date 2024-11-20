@@ -11,7 +11,7 @@ from numpy import abs
 from scipy.spatial.transform import Rotation
 from copy import deepcopy
 
-from spacetime.linear_algebra import is_square, is_permutation_matrix, is_scalar, set_copy_assignment
+from spacetime.linear_algebra import is_square, is_permutation_matrix, is_scalar, is_scalar_extended, set_copy_assignment
 from spacetime.physical_quantity import PhysicalQuantity
 
 class SymmetryOperation:
@@ -249,7 +249,8 @@ class SymmetryOperationO3(SymmetryOperation):
             self._improper = False
             # automatic setting of the space parity
             if 'P' in self._dich_operations:
-                self._dich_operations.remove('P')
+                #TODO UT reassignment of matrix and dich in general
+                raise ValueError('Mismatch: proper rotation matrix and parity reversal among dichromatic reversals')
 
     def invert( self, label = None ):
         """
@@ -337,6 +338,7 @@ class SymmetryOperationO3(SymmetryOperation):
         
         Raises:
             TypeError: if labels are not strings
+            TypeError: if the input is not a set
 
         Returns:
             None
@@ -345,19 +347,25 @@ class SymmetryOperationO3(SymmetryOperation):
 
     def _dich_operations_setter_impl( self, value ):
         dich_oper = set_copy_assignment( value )
+        #TODO UT
+        if not isinstance( dich_oper, set ):
+            raise TypeError('Must be a set of dichromatic reversal string labels')
         # let's validate its elements type
         for dich_label in dich_oper:
             if not isinstance( dich_label, str ):
                 raise TypeError( 'Dichromatic symmetry reversal operation label must be string' )
         # to avoid reassignment of the read-only (automatic) space parity
+        #TODO UT reassignment of matrix and dich in general
+        #TODO (keep the comment) matrix reassignment changes parity. But parity reassignment must be consistent with the matrix
         if hasattr( self, '_improper' ): # avoid at the init stage, it's handled by _det_check_and_init()
             if self._improper:
                 dich_oper.add('P')
             elif 'P' in dich_oper:
-                dich_oper.remove('P')
+                raise ValueError('Mismatch: proper rotation matrix and parity reversal among dichromatic reversals')
         self._dich_operations = dich_oper
 
-    """
+    def add_dich_operations( self, new_dich_operations ):
+        """
         A setter to add extra dichromatic symmetry reversal operations.
 
         Args:
@@ -368,8 +376,7 @@ class SymmetryOperationO3(SymmetryOperation):
 
         Returns:
             None
-    """
-    def add_dich_operations( self, new_dich_operations ):
+        """
         new_dich_operations = set_copy_assignment( new_dich_operations )
         dich_operations = self.dich_operations
         dich_operations |= new_dich_operations
@@ -436,7 +443,8 @@ class SymmetryOperationO3(SymmetryOperation):
         else:
             # a physical quantity after this symmetry transformation is applied
             pq_res = deepcopy(pq)
-        if is_scalar( pq.value ):
+        #TODO UT extended cases
+        if is_scalar_extended( pq.value ):
             # physical scalars (including pseudoscalars) will not be changed
             # by O3 operations here
             # until dich properties are accounted for below
@@ -476,7 +484,6 @@ class SymmetryOperationO3(SymmetryOperation):
         else: dich_oper_print = ''
         return '\nDichromatic reversals: {}'.format( dich_oper_print )
 
-    #UT
     def __repr__( self ):
         output = super(SymmetryOperationO3, self).__repr__()
         output += self._dich_output()
@@ -500,7 +507,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             dich_operations (default = {}): a set of dichromatic symmetry reversal
             operations marked by string names. The spatial inversion 'P'
             cannot be among them.
-            label (default=None) (str): optional string label for this object.
+            label (default = None) (str): optional string label for this object.
             force_permutation (default = False) (bool): whether permutation
             matrix is a requirement. It is not for an Euclidean space matrices.
         Raises:
@@ -633,8 +640,8 @@ class LimitingSymmetryOperationO3(SymmetryOperationO3):
     """
     def __init__( self, axis = [ 0, 0, 1 ], dich_operations = set()):
         """
-        Initialise a `LimitingSymmetryOperationO3` object, that contains a symmetry
-        transformation of limit Curie subgroup of O(3) group of proper and
+        Initialise a `LimitingSymmetryOperationO3` object, that represents a symmetry
+        transformation of limiting Curie subgroup of O(3) group of proper and
         improper rotations. It is based on the infinity-fold rotation axis.
         As a subclass of O3, it support dichromatic symmetry reversal operations.
         One of them, 'P', introduces spatial inversion that makes this rotation
@@ -673,7 +680,7 @@ class LimitingSymmetryOperationO3(SymmetryOperationO3):
                 if 'T' in self._dich_operations:
                     label += "'"
                 if 'C' in self._dich_operations:
-                    label += "*"
+                    label += '*'
                 self.label = label
             else:
                 raise ValueError('Must be 3D non-zero vector')
@@ -757,8 +764,8 @@ class LimitingSymmetryOperationSO3(LimitingSymmetryOperationO3):
     """
     def __init__( self, axis = [ 0, 0, 1 ], dich_operations = set()):
         """
-        Initialise a `LimitingSymmetryOperationSO3` object, that contains a symmetry
-        transformation of limit Curie subgroup of SO(3) group of proper rotations.
+        Initialise a `LimitingSymmetryOperationSO3` object, that represents a symmetry
+        transformation of limiting Curie subgroup of SO(3) group of proper rotations.
         It is based on the infinitfold rotation axis.
 
         Args:

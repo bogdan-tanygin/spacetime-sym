@@ -66,6 +66,7 @@ class PhysicalQuantity(object):
         if shape_1 == shape_2:
             return self._value == other.value
         # compare scalar and diagonal matrix
+        #TODO UT
         elif is_scalar( self._value ) and is_diagonal( other.value ):
             return self._value == make_0D_scalar( other.value )
         elif is_scalar( other.value ) and is_diagonal( self._value ):

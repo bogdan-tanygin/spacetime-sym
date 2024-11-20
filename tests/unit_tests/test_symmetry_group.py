@@ -129,25 +129,25 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         m0 = np.identity( 3 )
         m1 = np.identity( 3 )
         m2 = np.identity( 3 )
-        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'P','C'} ), \
-                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
+        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'T','C'} ), \
+                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','T'} ), \
                  SymmetryOperationO3( matrix = m0 )
         sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )
         # after deduplication in the group
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [s2, e] )
-        self.assertEqual( len( s2.dich_operations ), 1 )
+        self.assertEqual( len( s2.dich_operations ), 2 )
         self.assertEqual( len( e.dich_operations ), 0 )
 
         m0 = np.identity( 3 )
         m1 = np.identity( 3 )
         m2 = np.identity( 3 )
-        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'P','C'} ), \
-                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','P'} ), \
+        s1, s2, e = SymmetryOperationO3( matrix = m1, dich_operations = {'T','C'} ), \
+                 SymmetryOperationO3( matrix = m2, dich_operations = {'C','T'} ), \
                  SymmetryOperationSO3( matrix = m0 )
         sg = SymmetryGroup( symmetry_operations = [ s1, s2 ] )
         # after deduplication in the group
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [s2, e] )
-        self.assertEqual( len( s2.dich_operations ), 1 )
+        self.assertEqual( len( s2.dich_operations ), 2 )
         self.assertEqual( len( e.dich_operations ), 0 )
 
         m0 = np.identity( 3 )

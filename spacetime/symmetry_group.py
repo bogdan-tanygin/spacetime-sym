@@ -7,7 +7,8 @@
 
 import numpy as np
 from spacetime import SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
-from spacetime.linear_algebra import is_scalar
+from spacetime.physical_quantity import PhysicalQuantity
+from spacetime.linear_algebra import is_scalar, is_scalar_extended
 from itertools import product
 from copy import deepcopy
 
@@ -252,6 +253,30 @@ class SymmetryGroup:
         """
         return [ so.label for so in self._symmetry_operations ] 
 
+    #TODO UT
+    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+        """
+        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+
+        Args:
+            physical_quantity (PhysicalQuantity): a physical quantity to check.
+            atol (float): a tolerance of the comparing
+
+        Raises:
+            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+
+        Return:
+            (bool): True | False
+        """
+        if not isinstance( physical_quantity, PhysicalQuantity ):
+            raise TypeError('physical_quantity must belongs to the class PhysicalQuantity')
+        invariant_flag = True
+        for so in self.symmetry_operations:
+            pq_updated = so * physical_quantity
+            if not np.allclose( pq_updated.value, physical_quantity.value ):
+                invariant_flag = False
+        return invariant_flag
+
     def __repr__( self ):
         to_return = '{}\n'.format( self.__class__.class_str )
         for so in self._symmetry_operations:
@@ -263,3 +288,89 @@ class SymmetryGroup:
         Direct product.
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
+
+#TODO UT/check impl. of the operate_on() in the limiting classes
+
+#TODO UT
+class LimitingSymmetryGroupScalar(SymmetryGroup):
+    """
+    `LimitingSymmetryGroupScalar` class.
+    """
+
+    class_str = 'LimitingSymmetryGroupScalar'
+
+    def __init__( self, scalar_symmetry_operations = list() ):
+        """
+        Create a :any:`LimitingSymmetryGroupPoint` object of a symmetry group of a point or a (pseudo)scalar.
+        Using Hermann-Mauguin notation, it is one of two limiting Curie groups:
+        ∞∞ or ∞∞m (default). In terms of a physical quantity that is invariant under these groups'
+        transformations, ∞∞m describes a scalar and ∞∞ describes a pseudoscalar.
+
+        Args:
+            scalar_symmetry_operations (list): a list of identity- or inversion-based symmetry operations
+                with (optionally) dichromatic reversals which make the group "grey" for the given property.
+                For instance, 'T' for time-reversal makes ∞∞1' or ∞∞m1'
+                The group ∞∞m is defined by 'P' reversal, i.e. a spatial inversion.
+                If an only set of dichromatic reversals form a combined
+                reversals with an improper rotation, it defines a noninvariant chirality.
+                For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞∞m'.
+        Raises:
+
+        Returns:
+            None
+        """
+        self._scalar_symmetry_operations_check( scalar_symmetry_operations = scalar_symmetry_operations)
+        super(LimitingSymmetryGroupScalar, self).__init__( symmetry_operations = scalar_symmetry_operations)
+        self._assign_label()
+    
+    def _scalar_symmetry_operations_check( self, scalar_symmetry_operations, atol = 1e-6 ):
+        if not isinstance( scalar_symmetry_operations, list ):
+            raise TypeError('Must be a list of SymmetryOperation objects')
+        for so in scalar_symmetry_operations:
+            if not isinstance( so, SymmetryOperation ):
+                TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
+            n_dim = so.matrix.shape[0]
+            if not ( np.allclose( so.matrix,   np.identity( n_dim ), atol = atol) or
+                     np.allclose( so.matrix, - np.identity( n_dim ), atol = atol) ):
+                raise ValueError('Must be an identity or inversion matrix')
+
+    #TODO UT, including dich
+    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+        """
+        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+
+        Args:
+            physical_quantity (PhysicalQuantity): a physical quantity to check.
+            atol (float): a tolerance of the comparing
+
+        Raises:
+            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+
+        Return:
+            (bool): True | False
+        """
+        invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity )
+        #TODO UT extended cases
+        if not is_scalar_extended( physical_quantity.value ):
+            invariant_flag = False
+        return invariant_flag
+
+    def _assign_label( self ):
+        label = '∞∞'
+        for so in self.symmetry_operations:
+            # for O3 and its subgroups
+            if isinstance( so, SymmetryOperationO3 ):
+                if 'P' in so.dich_operations:
+                    label += 'm'
+                    remaining_dich_set = so.dich_operations - { 'P' }
+                else:
+                    label += '1'
+                    remaining_dich_set = so.dich_operations
+                for dich in remaining_dich_set:
+                    if dich == 'T':
+                        label += "'"
+                    elif dich == 'C':
+                        label += '*'
+                    else:
+                        label += dich
+        self.label = label
