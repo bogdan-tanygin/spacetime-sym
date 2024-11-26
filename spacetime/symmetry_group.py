@@ -253,7 +253,6 @@ class SymmetryGroup:
         """
         return [ so.label for so in self._symmetry_operations ] 
 
-    #TODO UT
     def is_invariant( self, physical_quantity, atol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
@@ -273,7 +272,7 @@ class SymmetryGroup:
         invariant_flag = True
         for so in self.symmetry_operations:
             pq_updated = so * physical_quantity
-            if not np.allclose( pq_updated.value, physical_quantity.value ):
+            if not np.allclose( pq_updated.value, physical_quantity.value, atol = atol ):
                 invariant_flag = False
         return invariant_flag
 
@@ -289,8 +288,6 @@ class SymmetryGroup:
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
 
-#TODO UT/check impl. of the operate_on() in the limiting classes
-
 #TODO UT
 class LimitingSymmetryGroupScalar(SymmetryGroup):
     """
@@ -299,11 +296,11 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
 
     class_str = 'LimitingSymmetryGroupScalar'
 
-    def __init__( self, scalar_symmetry_operations = list() ):
+    def __init__( self, scalar_symmetry_operations = [ SymmetryOperationSO3( ) ] ):
         """
         Create a :any:`LimitingSymmetryGroupPoint` object of a symmetry group of a point or a (pseudo)scalar.
         Using Hermann-Mauguin notation, it is one of two limiting Curie groups:
-        ∞∞ or ∞∞m (default). In terms of a physical quantity that is invariant under these groups'
+        ∞∞ (default) or ∞∞m. In terms of a physical quantity that is invariant under these groups'
         transformations, ∞∞m describes a scalar and ∞∞ describes a pseudoscalar.
 
         Args:
@@ -334,7 +331,6 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
                      np.allclose( so.matrix, - np.identity( n_dim ), atol = atol) ):
                 raise ValueError('Must be an identity or inversion matrix')
 
-    #TODO UT, including dich
     def is_invariant( self, physical_quantity, atol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
@@ -350,7 +346,6 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
             (bool): True | False
         """
         invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity )
-        #TODO UT extended cases
         if not is_scalar_extended( physical_quantity.value ):
             invariant_flag = False
         return invariant_flag
@@ -364,8 +359,10 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
                     label += 'm'
                     remaining_dich_set = so.dich_operations - { 'P' }
                 else:
-                    label += '1'
+                    #label += '1'
                     remaining_dich_set = so.dich_operations
+                remaining_dich_set = list( remaining_dich_set )
+                remaining_dich_set.sort()
                 for dich in remaining_dich_set:
                     if dich == 'T':
                         label += "'"
@@ -374,3 +371,8 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
                     else:
                         label += dich
         self.label = label
+    
+    def __repr__( self ):
+        to_return = '{}\n'.format( self.label )
+        to_return += super( LimitingSymmetryGroupScalar, self ).__repr__()
+        return to_return

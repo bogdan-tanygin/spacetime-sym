@@ -183,7 +183,6 @@ class SymmetryOperation:
         self.label = label
         return self
 
-    #UT
     def __repr__( self ):
         label = self.label if self.label else '---'
         output = 'SymmetryOperation\nlabel(' + label + ")\n{}".format(self.matrix)
@@ -249,7 +248,6 @@ class SymmetryOperationO3(SymmetryOperation):
             self._improper = False
             # automatic setting of the space parity
             if 'P' in self._dich_operations:
-                #TODO UT reassignment of matrix and dich in general
                 raise ValueError('Mismatch: proper rotation matrix and parity reversal among dichromatic reversals')
 
     def invert( self, label = None ):
@@ -347,7 +345,6 @@ class SymmetryOperationO3(SymmetryOperation):
 
     def _dich_operations_setter_impl( self, value ):
         dich_oper = set_copy_assignment( value )
-        #TODO UT
         if not isinstance( dich_oper, set ):
             raise TypeError('Must be a set of dichromatic reversal string labels')
         # let's validate its elements type
@@ -355,8 +352,6 @@ class SymmetryOperationO3(SymmetryOperation):
             if not isinstance( dich_label, str ):
                 raise TypeError( 'Dichromatic symmetry reversal operation label must be string' )
         # to avoid reassignment of the read-only (automatic) space parity
-        #TODO UT reassignment of matrix and dich in general
-        #TODO (keep the comment) matrix reassignment changes parity. But parity reassignment must be consistent with the matrix
         if hasattr( self, '_improper' ): # avoid at the init stage, it's handled by _det_check_and_init()
             if self._improper:
                 dich_oper.add('P')
@@ -443,7 +438,6 @@ class SymmetryOperationO3(SymmetryOperation):
         else:
             # a physical quantity after this symmetry transformation is applied
             pq_res = deepcopy(pq)
-        #TODO UT extended cases
         if is_scalar_extended( pq.value ):
             # physical scalars (including pseudoscalars) will not be changed
             # by O3 operations here

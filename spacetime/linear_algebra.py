@@ -12,7 +12,6 @@ from functools import reduce
 from operator import mul
 from copy import deepcopy
 
-#TODO UT
 def is_square( m ):
     """
     Test whether a numpy matrix is square.
@@ -52,8 +51,6 @@ def is_permutation_matrix( m ):
             (m.sum(axis=1) == 1).all() and
             ((m == 1) | (m == 0)).all())
 
-#TODO UT
-#TODO refactor: make it tolerance based
 def is_diagonal( m ):
     """
     Test whether a numpy matrix is diagonal.
@@ -63,20 +60,18 @@ def is_diagonal( m ):
 
     Returns:
         (bool): True | False.
-
-    Raise:
-        TypeError: non-square type
     """
     # ensure the numpy type
     m = np.array( m )
     if not is_square( m ):
-        raise TypeError( 'Not square matrix!' )
+        return False
     # indices of nonzero values
-    nonzero_inds = np.nonzero(m)
-    for k in range( len( nonzero_inds[0] ) ):
-        # check whether indices of non-diagonal elements exist
-        if nonzero_inds[0][k] != nonzero_inds[1][k]:
-            return False
+    nonzero_inds = np.nonzero( m )
+    if len( nonzero_inds[0] ) > 0:
+        for k in range( len( nonzero_inds[0] ) ):
+            # check whether indices of non-diagonal elements exist
+            if nonzero_inds[0][k] != nonzero_inds[1][k]:
+                return False
     return True
 
 def is_scalar( x ):
@@ -89,6 +84,8 @@ def is_scalar( x ):
     Returns:
         (bool): True | False.
     """
+    if x is None:
+        return False
     # ensure the numpy type
     x = np.array( x )
     # both 0 or 1 dimension scalars
@@ -100,7 +97,6 @@ def is_scalar( x ):
     else:
         return False
 
-#TODO UT
 def is_scalar_extended( x, atol = 1e-6 ):
     """
     Test whether x is a scalar.
@@ -113,6 +109,8 @@ def is_scalar_extended( x, atol = 1e-6 ):
     Returns:
         (bool): True | False.
     """
+    if x is None:
+        return False
     # ensure the numpy type
     x = np.array( x )
     if is_scalar( x ):
@@ -128,7 +126,6 @@ def is_scalar_extended( x, atol = 1e-6 ):
     else:
         return False
 
-#TODO UT
 def make_0D_scalar( x ):
     """
     Transform scalar to the simplest 0-dimensional type.

@@ -111,7 +111,13 @@ class TestPhysicalQuantity( unittest.TestCase ):
         pq = PhysicalQuantity( value = tensor )
         scalar_test = self.scalar
         pq_test = PhysicalQuantity( value = scalar_test )
+        scalar_test_2 = (-1) * self.scalar
+        pq_test_2 = PhysicalQuantity( value = scalar_test_2 )
         self.assertEqual( ( pq == pq_test ), True )
+        self.assertEqual( ( pq_test == pq ), True )
+        self.assertEqual( ( pq_test != pq ), False )
+        self.assertEqual( ( pq == pq_test_2 ), False )
+        self.assertEqual( ( pq != pq_test_2 ), True )
 
 if __name__ == '__main__':
     unittest.main()

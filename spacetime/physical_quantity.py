@@ -6,7 +6,7 @@
 
 import numpy as np
 from copy import deepcopy
-from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar
+from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar, is_scalar_extended
 
 class PhysicalQuantity(object):
     """
@@ -18,7 +18,7 @@ class PhysicalQuantity(object):
     spatial mirror reflection or inversion operation (parity, P), and
     the time reversal symmetry (T-symmetry).
     """
-    def __init__( self, value = None, dich = None, label = None):
+    def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, label = None):
         """
         Initialise a `PhysicalQuantity` object.
 
@@ -66,10 +66,9 @@ class PhysicalQuantity(object):
         if shape_1 == shape_2:
             return self._value == other.value
         # compare scalar and diagonal matrix
-        #TODO UT
-        elif is_scalar( self._value ) and is_diagonal( other.value ):
+        elif is_scalar( self._value ) and is_scalar_extended( other.value ):
             return self._value == make_0D_scalar( other.value )
-        elif is_scalar( other.value ) and is_diagonal( self._value ):
+        elif is_scalar( other.value ) and is_scalar_extended( self._value ):
             return other.value == make_0D_scalar( self._value )
         else:
             TypeError( 'Dimensions or types of values of physical quantities do not match' )

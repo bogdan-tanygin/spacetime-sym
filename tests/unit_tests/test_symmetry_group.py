@@ -7,6 +7,8 @@
 from math import pi, sqrt
 import unittest
 from spacetime import SymmetryGroup, SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
+from spacetime import LimitingSymmetryGroupScalar
+from spacetime import PhysicalQuantity
 from unittest.mock import Mock, MagicMock, patch, call
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -40,8 +42,20 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self.rot_vec_111_pi = pi * np.array( [1, 1, 1] ) / sqrt(3)
         # rotational vector along direction [111], mag = 2pi/3 rad
         self.rot_vec_111_2pi_3 = (2 * pi / 3) * np.array( [1, 1, 1] ) / sqrt(3)
+        # rotational vector along direction [100], mag = 2pi/6 rad
+        self.rot_vec_100_2pi_6 = (2 * pi / 6) * np.array( [1, 0, 0] )
         # rotational vector along direction [111], mag = 2pi/6 rad
         self.rot_vec_111_2pi_6 = (2 * pi / 6) * np.array( [1, 1, 1] ) / sqrt(3)
+        # reflection (mirror) plane (100)
+        self.m001 = np.array( [ [  1, 0, 0 ],
+                                 [ 0, 1, 0 ],
+                                 [ 0, 0, -1 ] ] )
+        # random vector
+        self.vector_0 = np.array( [ -1, np.sqrt( np.pi ), 1.3454675432e6 ] )
+        # random tensor
+        self.tensor_0 = np.array( [ [ -1, np.sqrt( np.pi ), 1.3454675432e6 ],
+                                    [ 743.3566, 0, -1.456 ],
+                                    [ 1.4567, -877865, np.exp( -4 ) ] ] )
 
     def _compare_lists_of_sym_opers( self, so_list, so_list_expected ):
         so_exp_matched = set()
@@ -207,6 +221,13 @@ class SymmetryGroupTestCase( unittest.TestCase ):
                                                                     s_120_inv, s_120m_inv,
                                                                     s_120_inv_T, s_120m_inv_T ] )
         self.assertEqual( sg.order(), 12 )
+        sg = SymmetryGroup( symmetry_operations = [ e_T, s_120_inv ] )
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [s_120m_inv, e, e_T, inv, inv_T,
+                                                                    s_120, s_120m,
+                                                                    s_120_T, s_120m_T,
+                                                                    s_120_inv,
+                                                                    s_120_inv_T, s_120m_inv_T ] )
+        self.assertEqual( sg.order(), 12 )
         sg2 = SymmetryGroup( symmetry_operations = [ s_120_inv_T ] )
         self._compare_lists_of_sym_opers( sg2.symmetry_operations, [e, inv_T,
                                                                     s_120, s_120m,
@@ -345,5 +366,154 @@ Dichromatic reversals: ['P', 'T']
 '''.format(length='multi-line')
         self.assertEqual( printed_str, expected_str )
     
+    def test_invariants_symmetry_group_axis_3( self ):
+        #first, let's set the regular proper rotation
+        # 120-degrees rotation around direction [111]
+        rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
+        s_120 = SymmetryOperationSO3( matrix = rot_120)
+        sg = SymmetryGroup( symmetry_operations = [ s_120 ] )
+        # now, let's test invariants
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_tensor = PhysicalQuantity( value = np.ones( ( 3, 3 ) ) )
+        self.assertTrue( sg.is_invariant( pq_tensor ) )
+        pq_tensor = PhysicalQuantity( value = self.tensor_0 )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        # time-odd polar vector
+        pq_vector = PhysicalQuantity( value = [ 1, 1, 1 ], dich = { 'P':1, 'T':-1 })
+        self.assertTrue( sg.is_invariant( pq_vector ) )
+        # axial vector
+        pq_axial_vector = PhysicalQuantity( value = [ 1, 1, 1 ], dich = { 'P':-1 } )
+        self.assertTrue( sg.is_invariant( pq_axial_vector ) )
+        pq_vector = PhysicalQuantity( value = [ 1, 1, -1 ] )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        pq_vector = PhysicalQuantity( value = self.vector_0 )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # assuming tolerance atol = 1e-6
+        pq_vector = PhysicalQuantity( value = [ 1 + 1e-10, 1, 1 ] )
+        self.assertTrue( sg.is_invariant( pq_vector ) )
+        # assuming tolerance atol = 1e-6
+        pq_vector = PhysicalQuantity( value = [ 1 + 2e-5, 1, 1 ] )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+
+    def test_invariants_symmetry_group_axis_refl_6m_dich( self ):
+        #first, let's set the regular proper rotation
+        # 120-degrees rotation around direction [100]
+        rot_120 = Rotation.from_rotvec( self.rot_vec_100_2pi_6, degrees = False )
+        # rotation with time-reversal 6'
+        s_120 = SymmetryOperationSO3( matrix = rot_120, dich_operations = { 'T' } )
+        s_m001 = SymmetryOperationO3( matrix = self.m001)
+        sg = SymmetryGroup( symmetry_operations = [ s_120, s_m001 ] )
+        # now, let's test invariants
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_pseudoscalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        pq_tensor = PhysicalQuantity( value = self.tensor_0 )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        # time-even polar vector
+        pq_vector = PhysicalQuantity( value = [ 1, 0, 0 ] )
+        self.assertTrue( sg.is_invariant( pq_vector ) )
+        # time-odd polar vector
+        pq_vector = PhysicalQuantity( value = [ 1, 0, 0 ], dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # time-even axial vector
+        pq_axial_vector = PhysicalQuantity( value = [ 1, 0, 0 ], dich = { 'P':-1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_axial_vector ) )
+        pq_vector = PhysicalQuantity( value = [ 1, 1, 1 ] )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        pq_vector = PhysicalQuantity( value = self.vector_0 )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # assuming tolerance atol = 1e-6
+        pq_vector = PhysicalQuantity( value = [ 1 + 1e-10, 0, 0 ] )
+        self.assertTrue( sg.is_invariant( pq_vector ) )
+        # assuming tolerance atol = 1e-6
+        pq_vector = PhysicalQuantity( value = [ 1, 2e-5, 0 ] )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+
+    def test_lim_symmetry_group_scalar(self):
+        sg = LimitingSymmetryGroupScalar()
+        # now, let's test invariants
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        pq_tensor = PhysicalQuantity( value = self.tensor_0 )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        pq_vector = PhysicalQuantity( value = self.vector_0 )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+
+    def test_lim_symmetry_group_scalar_dich(self):
+        e_T = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = {'T'} )
+        inv = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = {} )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ e_T, inv ] )
+        # now, let's test invariants
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_scalar ) )
+        # time-odd pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_pseudoscalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_pseudoscalar ) )
+
+        # space with PT-invariance
+        inv_T = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = {'T'} )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ inv_T ] )
+         # time-odd pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+         # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_pseudoscalar ) )
+
+    def test_repr_lim_scalar_symmetry_group( self ):
+        inv_CT = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = { 'C', 'T' } )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ inv_CT ] )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞∞m*'
+LimitingSymmetryGroupScalar
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[-1. -0. -0.]
+ [-0. -1. -0.]
+ [-0. -0. -1.]]
+Dichromatic reversals: ['C', 'P', 'T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
 if __name__ == '__main__':
     unittest.main()

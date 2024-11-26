@@ -255,7 +255,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
     
-    def test_improper_flag( self ):
+    def test_improper_flags( self ):
         #first, let's set the regular proper rotation
         so_1 = SymmetryOperationO3( self.rotation_0 )
         #then, let's set the regular improper rotation
@@ -264,6 +264,24 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( so_2.improper, True )
         self.assertEqual( (so_1 * so_2).improper, True )
         self.assertEqual( (so_2 * so_2).improper, False )
+        # now, let's check the dichromatic reversal flag 'P'
+        self.assertEqual( len( so_1.dich_operations ), 0 )
+        self.assertEqual( so_2.dich_operations, { 'P' } )
+        self.assertEqual( (so_1 * so_2).dich_operations, { 'P' } )
+        self.assertEqual( len( ( so_2 * so_2 ).dich_operations ), 0 )
+        so_3 = SymmetryOperationO3( - 1 * self.array_0, dich_operations = 'C' )
+        self.assertEqual( so_3.dich_operations, { 'P', 'C' } )
+        self.assertEqual( ( so_3 * so_1 ).dich_operations, { 'C', 'P' } )
+        so_3.dich_operations = { 'T', 'P' }
+        self.assertEqual( so_3.dich_operations, { 'P', 'T' } )
+        # one cannot assign the parity reversal to the proper rotation transformation
+        with self.assertRaises( ValueError ):
+            so_1.dich_operations = { 'P' }
+        with self.assertRaises( ValueError ):
+            so_1.dich_operations = { 'P', 'T' }
+        # and vice versa
+        with self.assertRaises( ValueError ):
+            so_3.matrix = self.array_0
 
     def test_mul_physical_scalar( self ):
         dich_test = {"C":1, "P":1, "T":1}
@@ -275,6 +293,9 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         # let's add time-reversal operation here
         # it must have no effect on this scalar
         so_1.dich_operations = {"T"}
+        so_1_copy = deepcopy( so_1 )
+        with self.assertRaises( ValueError ):
+            so_1_copy.dich_operations = "P"
         #then, let's set the regular improper rotation
         so_inv = SymmetryOperationO3( matrix = ( -1 ) * np.identity( 3 ) )
         so_2 = SymmetryOperationO3( matrix = self.rotation_0 ) * so_inv
@@ -298,8 +319,12 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
     def test_mul_physical_pseudoscalar( self ):
         dich_test = {"C":1, "P":-1, "T":1}
         pseudoscalar_test = sqrt( 42 )
+        pseudoscalar_test_tensor = sqrt( 42 ) * np.identity( 3 )
         pq = PhysicalQuantity( value = pseudoscalar_test, label = 'the pseudoscalar',
                                dich = dich_test )
+        pq_tensor = PhysicalQuantity( label = 'the pseudoscalar',
+                               dich = dich_test )
+        pq_tensor.value = pseudoscalar_test_tensor
         #first, let's set the regular proper rotation
         so_1 = SymmetryOperationO3( matrix = self.rotation_0 )
         # let's add time-reversal operation here
@@ -337,6 +362,12 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( pq_updated.value, - pseudoscalar_test )
         self.assertEqual( pq_updated.dich, dich_test )
         self.assertEqual( pq_updated.label, pq.label )
+
+        pq_updated = PhysicalQuantity()
+        pq_updated = so_1 * pq_tensor
+        self.assertEqual( pq_updated == pq, True )
+        self.assertEqual( pq == pq_updated, True )
+        self.assertEqual( pq != pq_updated, False )
 
     def test_mul_electric_field( self ):
         # electrical field, a polar time-even vector.
