@@ -8,9 +8,10 @@
 import numpy as np
 from spacetime import SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
 from spacetime.physical_quantity import PhysicalQuantity
-from spacetime.linear_algebra import is_scalar, is_scalar_extended
+from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector
 from itertools import product
 from copy import deepcopy
+from numpy.linalg import eig as eigen
 
 class SymmetryGroup:
     """
@@ -210,8 +211,9 @@ class SymmetryGroup:
             # it is already checked in the SymmetryOperation class that the matrix is square
             dim_0 = so_random.matrix.shape[0]
             # dimensions matching: matrix/vector case
+            # TODO UT
             if dim_0 > 1:
-                if not all( dim_0 == dim_0 for so in symmetry_operations ):
+                if not all( dim_0 == so.matrix.shape[0] for so in symmetry_operations ):
                     raise ValueError('Different dimensions of input symmetry operations')
             # dimensions matching: scalar case
             else:
@@ -253,6 +255,8 @@ class SymmetryGroup:
         """
         return [ so.label for so in self._symmetry_operations ] 
 
+    #TODO UT
+    #TODO implement bidirector close compare
     def is_invariant( self, physical_quantity, atol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
@@ -273,7 +277,10 @@ class SymmetryGroup:
         for so in self.symmetry_operations:
             pq_updated = so * physical_quantity
             if not np.allclose( pq_updated.value, physical_quantity.value, atol = atol ):
-                invariant_flag = False
+                if not physical_quantity.bidirector:
+                    invariant_flag = False
+                elif not np.allclose( pq_updated.value, - physical_quantity.value, atol = atol ):
+                    invariant_flag = False
         return invariant_flag
 
     def __repr__( self ):
@@ -288,8 +295,146 @@ class SymmetryGroup:
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
 
-#TODO UT
-class LimitingSymmetryGroupScalar(SymmetryGroup):
+#TODO UT for LimitingSymmetryGroupAxial similar to LimitingSymmetryGroupScalar
+#TODO init through decorator assignments, UTs
+class LimitingSymmetryGroupAxial(SymmetryGroup):
+    """
+    `LimitingSymmetryGroupAxial` class.
+    """
+
+    class_str = 'LimitingSymmetryGroupAxial'
+
+    def __init__( self, axis = [ 1, 0, 0 ], symmetry_operations = [ SymmetryOperationSO3( ) ] ):
+        """
+        Create a :any:`LimitingSymmetryGroupAxial` object of a symmetry group of
+        an axis/vector/straight line/plane. Using Hermann-Mauguin notation,
+        it is one of the following limiting Curie groups:
+        ∞ (default), ∞2, ∞/m, ∞mm, or ∞/mm. First two describe symmetry of chiral physical objects.
+
+        Args:
+            axis: the direction of the infinity-fold rotational symmetry axis.
+                Must be either `numpy.ndarray` or `list`.
+            symmetry_operations (list): a list of symmetry operations which supplement ∞.
+                They can be different orientations of 2, m, and, also, identity (always) and a spatial inversion 1-.
+                with (optionally) dichromatic reversals which make the group "grey" for the given property.
+                For instance, 'T' for time-reversal can make ∞/m1'.
+                If an only set of dichromatic reversals form a combined
+                reversals with an improper rotation, it defines a noninvariant chirality.
+                For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞/m'.
+        Raises:
+            ValueError: if the axis is not an invariant of the rest symmetry operations
+        Returns:
+            None
+        """
+        self._check_and_set_axis( axis = axis )
+        self._axial_symmetry_operations_check( symmetry_operations = symmetry_operations)
+        super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = symmetry_operations)
+        self._assign_label()
+    
+    def _check_and_set_axis( self, axis ):
+        axis = deepcopy( axis )
+        if isinstance( axis, np.ndarray ):
+            self._axis = np.array( axis )
+        elif isinstance( axis, list):
+            self._axis = np.array( axis )
+        else:
+            raise TypeError('Not a vector')
+        if not is_3D_vector( self._axis ):
+            raise ValueError('Not a 3D vector')
+
+    @property
+    def axis( self ):
+        return self._axis
+    
+    @axis.setter
+    def axis( self, value ):
+        """
+        The direction of the infinity-fold rotational symmetry axis.
+
+        Args:
+            value: the axis' direction (3D vector). Must be either `numpy.ndarray` or `list`.
+
+        Raises:
+            TypeError/ValueError: in cases of not a vector / 3D vector.
+
+        Returns:
+            None
+        """
+        self._check_and_set_axis( axis = value )
+
+    def _axial_symmetry_operations_check( self, symmetry_operations, atol = 1e-6 ):
+        if not isinstance( symmetry_operations, list ):
+            raise TypeError('Must be a list of SymmetryOperation objects')
+        for so in symmetry_operations:
+            if not isinstance( so, SymmetryOperation ):
+                #TODO UT
+                raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
+        # let's check that the given axis is an invariant of the rest symmetry operations
+        # TODO bidirector kind of invariance (is_invariant to be checked/improved). One needs this functionality on the PQ level.
+        self.symmetry_operations = symmetry_operations
+        physical_quantity = PhysicalQuantity( value = self.axis, bidirector = True )
+        invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
+        if not invariant_flag:
+            raise ValueError( 'The provided axis is not an invariant of the rest symmetry operations' )
+            
+    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+        """
+        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+
+        Args:
+            physical_quantity (PhysicalQuantity): a physical quantity to check.
+            atol (float): a tolerance of the comparing
+
+        Raises:
+            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+
+        Return:
+            (bool): True | False
+        """
+        invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
+        # TODO scalar or ( vector_3D  and collinear vs axis )
+        #    if not is_scalar_extended( physical_quantity.value ):
+        #    invariant_flag = False
+        return invariant_flag
+
+    def _assign_label( self ):
+        #TODO manual assignment with a check '∞' at the beginning
+        #TODO check if the rotational axes are subgroups of inf or, either, generate something extra (like 1')
+        #     other so can be filtered out.
+        #     the rotational so criteria: a single real eigenvector, collinear with the axis
+        #     to check/ignore the complex ones.
+        #TODO then, if it is a subgroup of this inf-rotation, we can just ignore it on the labeling step
+        #TODO check inv/m/2:
+        #TODO real eigenvalue cases: 111, 1-1-1, -1-1-1, -111 (or permutations). First 2 are proper rotations.
+        # eigen_list = eigen( so.matrix )
+        label = '∞∞'
+        for so in self.symmetry_operations:
+            # for O3 and its subgroups
+            if isinstance( so, SymmetryOperationO3 ):
+                if 'P' in so.dich_operations:
+                    label += 'm'
+                    remaining_dich_set = so.dich_operations - { 'P' }
+                else:
+                    #label += '1'
+                    remaining_dich_set = so.dich_operations
+                remaining_dich_set = list( remaining_dich_set )
+                remaining_dich_set.sort()
+                for dich in remaining_dich_set:
+                    if dich == 'T':
+                        label += "'"
+                    elif dich == 'C':
+                        label += '*'
+                    else:
+                        label += dich
+        self.label = label
+    
+    def __repr__( self ):
+        to_return = '{}\n'.format( self.label )
+        to_return += super( LimitingSymmetryGroupAxial, self ).__repr__()
+        return to_return
+
+#TODO init through decorator assignments, UTs
+class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
     """
     `LimitingSymmetryGroupScalar` class.
     """
@@ -325,7 +470,8 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
             raise TypeError('Must be a list of SymmetryOperation objects')
         for so in scalar_symmetry_operations:
             if not isinstance( so, SymmetryOperation ):
-                TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
+                #TODO UT
+                raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
             n_dim = so.matrix.shape[0]
             if not ( np.allclose( so.matrix,   np.identity( n_dim ), atol = atol) or
                      np.allclose( so.matrix, - np.identity( n_dim ), atol = atol) ):
@@ -351,6 +497,7 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
         return invariant_flag
 
     def _assign_label( self ):
+        #TODO UT: more cases
         label = '∞∞'
         for so in self.symmetry_operations:
             # for O3 and its subgroups
@@ -359,7 +506,8 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
                     label += 'm'
                     remaining_dich_set = so.dich_operations - { 'P' }
                 else:
-                    #label += '1'
+                    if len( so.dich_operations ) > 0:
+                        label += '1'
                     remaining_dich_set = so.dich_operations
                 remaining_dich_set = list( remaining_dich_set )
                 remaining_dich_set.sort()
@@ -376,3 +524,4 @@ class LimitingSymmetryGroupScalar(SymmetryGroup):
         to_return = '{}\n'.format( self.label )
         to_return += super( LimitingSymmetryGroupScalar, self ).__repr__()
         return to_return
+

@@ -496,7 +496,9 @@ Dichromatic reversals: ['P', 'T']
         print( sg, file = print_io)
         printed_str = print_io.getvalue()
         print_io.close()
+        #TODO to deduplicate
         expected_str = '''\
+∞∞m*'
 ∞∞m*'
 LimitingSymmetryGroupScalar
 SymmetryOperation

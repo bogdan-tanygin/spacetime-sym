@@ -24,14 +24,14 @@ class SymmetryOperation:
 
         Args:
             matrix: square 2D vector as either a
-            `numpy.matrix`, `numpy.ndarray`, `scipy.spatial.transform.Rotation` or `list`.
+            `numpy.ndarray`, `scipy.spatial.transform.Rotation` or `list`.
             for this symmetry operation.
             label (default = None) (str): optional string label for this `SymmetryOperation` object.
             force_permutation (default = True) (bool): whether permutation
             matrix is a requirement.
 
         Raises:
-            TypeError: if matrix is not `numpy.matrix`, `numpy.ndarray`, or `list`.
+            TypeError: if matrix is not of the expected type.
             ValueError: if matrix is not square.
             ValueError: if matrix is not a `permutation matrix`_
               assuming force_permutation is kept True.
@@ -202,7 +202,7 @@ class SymmetryOperationO3(SymmetryOperation):
 
         Args:
             matrix (numpy.matrix|numpy.ndarray|list): square 2D array as either a
-            `numpy.matrix`, `numpy.ndarray`, or `list` for this symmetry operation.
+            `numpy.ndarray`, or `list` for this symmetry operation.
             The default is an identity matrix.
             dich_operations (default = {}): a set of dichromatic symmetry reversal
             operations marked by string names.
@@ -415,6 +415,7 @@ class SymmetryOperationO3(SymmetryOperation):
         else:
             raise TypeError
 
+    #TODO bidirector UTs
     def operate_on( self, pq ):
         """
         Return the PhysicalQuantity (scalar or vector) 

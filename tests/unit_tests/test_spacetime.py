@@ -33,6 +33,9 @@ class TestSpacetimesymTopLevelClasses( unittest.TestCase ):
     
     def test_spacetimesym_imports_LimitingSymmetryGroupScalar( self ):
         from spacetime import LimitingSymmetryGroupScalar
+    
+    def test_spacetimesym_imports_LimitingSymmetryGroupAxial( self ):
+        from spacetime import LimitingSymmetryGroupAxial
 
 if __name__ == '__main__':
     unittest.main()
