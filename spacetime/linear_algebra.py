@@ -74,6 +74,23 @@ def is_diagonal( m ):
                 return False
     return True
 
+def is_3D_vector( x ):
+    """
+    Test whether x is a 3D vector.
+
+    Args:
+        x (numpy.ndarray): an argument to test.
+
+    Returns:
+        (bool): True | False.
+    """
+    # ensure the numpy type
+    x = np.array( x )
+    if x.ndim == 1 and x.shape[0] == 3:
+        return True
+    else:
+        return False
+
 def is_scalar( x ):
     """
     Test whether x is a scalar.
@@ -237,3 +254,21 @@ def set_copy_assignment( value ):
             # or another sequence type
             return_set = set( set_value )
         return return_set
+
+def is_equal_2D( value_1, value_2 ):
+    if not isinstance( value_1, np.ndarray ) or not isinstance( value_2, np.ndarray ):
+        raise TypeError( 'numpy arrays are expected' )
+    shape_1 = value_1.shape
+    shape_2 = value_2.shape
+    if shape_1 != shape_2:
+        raise ValueError( 'numpy arrays must have the same shape and dimensions' )
+    ndim = value_1.ndim
+    if ndim == 0:
+        eq_flag = ( value_1 == value_2 )
+    elif ndim == 1:
+        eq_flag = all( value_1[i] == value_2[i] for i in range( value_1.shape[0] ) )
+    elif ndim == 2:
+        eq_flag = all( ( value_1[i,j] == value_2[i,j] ) for i, j in np.ndindex( value_1.shape[0], value_1.shape[1] ) )
+    else:
+        raise ValueError('not implemented for higher dimensions as of now')
+    return eq_flag
