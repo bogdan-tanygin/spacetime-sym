@@ -6,7 +6,7 @@
 
 import numpy as np
 from copy import deepcopy
-from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar, is_scalar_extended
+from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar, is_scalar, is_scalar_extended, is_equal_2D
 
 class PhysicalQuantity(object):
     """
@@ -18,16 +18,19 @@ class PhysicalQuantity(object):
     spatial mirror reflection or inversion operation (parity, P), and
     the time reversal symmetry (T-symmetry).
     """
-    def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, label = None):
+    def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, bidirector = False, label = None):
         """
         Initialise a `PhysicalQuantity` object.
 
         Args:
             value: the value of the physical quantity (always as a NumPy array).
             dich: dichromatic symmetry properties in a key-value form.
-            The key is a string label. The value is an actual change when the
-            corresponding symmetry operation
-            is applied to the value: a multiplying +1 or -1.
+                  The key is a string label. The value is an actual change when the
+                  corresponding symmetry operation
+                  is applied to the value: a multiplying +1 or -1.
+            bidirector: the flag whether sign/direction makes sense for its value.
+                        For instance, if value is an axis, not a directed vector,
+                        then True. It also applies to scalars and tensors.
             label: a name of the physical quantity
         Raises:
             TypeError: if the dichromatic symmetry keys are not textual
@@ -43,9 +46,13 @@ class PhysicalQuantity(object):
             self._check_label_format( label )
         # regardless of the value's type and dimension, it is stored
         # as an numpy array
-        self._value = np.array( deepcopy( value ) )
+        if not is_scalar( value ):
+            self._value = np.array( deepcopy( value ) )
+        else:
+            self._value = np.array( value )
         self._dich = deepcopy( dich )
         self._label = label
+        self._check_and_set_bidirector_flag( bidirector = bidirector )
     
     def __eq__(self, other):
         """
@@ -56,7 +63,7 @@ class PhysicalQuantity(object):
             TypeError: attempt to compare different types of values (e.g. vectors and scalars)
         """
         if not isinstance( other, PhysicalQuantity ):
-            TypeError( 'Must be compared with other PhysicalQuantity' )
+            raise TypeError( 'Must be compared with other PhysicalQuantity' )
         # Compare dichromatic symmetry properties
         if self._dich != other.dich:
             return False
@@ -64,14 +71,24 @@ class PhysicalQuantity(object):
         shape_1 = self._value.shape
         shape_2 = other.value.shape
         if shape_1 == shape_2:
-            return self._value == other.value
+            value_1 = self._value
+            value_2 = other.value
         # compare scalar and diagonal matrix
-        elif is_scalar( self._value ) and is_scalar_extended( other.value ):
-            return self._value == make_0D_scalar( other.value )
-        elif is_scalar( other.value ) and is_scalar_extended( self._value ):
-            return other.value == make_0D_scalar( self._value )
+        elif is_scalar_extended( self._value ) and is_scalar_extended( other.value ):
+            value_1 = make_0D_scalar( self._value )
+            value_2 = make_0D_scalar( other.value )
         else:
-            TypeError( 'Dimensions or types of values of physical quantities do not match' )
+            raise TypeError( 'Dimensions or types of values of physical quantities do not match' )
+        if self.bidirector and other.bidirector:
+            # bidirectors comparison ignores their signs
+            return is_equal_2D( value_1, value_2 ) or is_equal_2D( value_1, np.array( - value_2 ) )
+        elif self.bidirector or other.bidirector:
+            # if ONLY one of them is a bidirector, comparison depends on the theory
+            raise TypeError("""Comparison of bidirector non-bidirector is ambiguous and depends on the theory
+                         Feel free to implement it here for your case""")
+        else:
+            # both are non-bidirectors
+            return is_equal_2D( value_1, value_2 )
 
     @property
     def label( self ):
@@ -123,8 +140,28 @@ class PhysicalQuantity(object):
         if not isinstance( label, str ):
             raise TypeError( 'The label must be a string' )
 
+    def _check_and_set_bidirector_flag( self, bidirector ):
+        if bidirector not in { True, False }:
+            raise ValueError( 'bidirector must be boolean' )
+        self._bidirector = bidirector
+
     @property
-    def dich(self):
+    def bidirector( self ):
+        return self._bidirector
+    
+    @bidirector.setter
+    def bidirector( self, value ):
+        """
+        The flag whether sign/direction makes sense for its value.
+
+        Raises:
+            ValueError: if not boolean
+        """
+        self._check_and_set_bidirector_flag( bidirector = value )
+
+
+    @property
+    def dich( self ):
         """
         Dichromatic symmetry properties of :any:`PhysicalQuantity`
         with respect to defined symmetry operations.
