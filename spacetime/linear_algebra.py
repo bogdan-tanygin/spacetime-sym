@@ -1,13 +1,14 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
+# Copyright (C) 2024-2025 Dr. Bogdan Tanygin <info@deeptech.business>
 # Copyright (C) 2015, 2021 Benjamin J. Morgan
 #
 # This file is part of spacetime-sym.
 #
 
 import numpy as np
+from numpy.linalg import det
 from collections import Counter
-from math import factorial
+from math import factorial, pi, sqrt
 from functools import reduce
 from operator import mul
 from copy import deepcopy
@@ -74,6 +75,53 @@ def is_diagonal( m ):
                 return False
     return True
 
+
+def is_rotational_3D( m, atol = 1e-6 ):
+    """
+    Test whether a numpy matrix is rotational O(3) or SO(3).
+
+    Args:
+        m (numpy.matrix|numpy.ndarray|list): The matrix.
+        atol (float): absolute tolerance for elements of the matrix/tensor
+
+    Returns:
+        (bool): True | False.
+    """
+    # ensure the numpy type
+    m = np.array( m )
+    if m.ndim == 2 and m.shape[0] == 3:
+        identity_check = ( m.transpose() ).dot( m )
+        expected = np.identity( m.shape[0] )
+        det_check = det( m )
+        if np.allclose( identity_check, expected, atol = atol ) and abs( abs( det_check ) - 1) < atol:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def is_rotational_proper_3D( m, atol = 1e-6 ):
+    """
+    Test whether a numpy matrix is proper SO(3).
+
+    Args:
+        m (numpy.matrix|numpy.ndarray|list): The matrix.
+        atol (float): absolute tolerance for elements of the matrix/tensor
+
+    Returns:
+        (bool): True | False.
+    """
+    if not is_rotational_3D( m ):
+        return False
+    else:
+        m = np.array( m )
+        det_check = det( m )
+        if abs( det_check - 1) < atol:
+            return True
+        else:
+            return False
+
+#TODO UT
 def is_3D_vector( x ):
     """
     Test whether x is a 3D vector.
