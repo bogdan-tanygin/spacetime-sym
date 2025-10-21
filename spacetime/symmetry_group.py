@@ -11,7 +11,8 @@ from spacetime.physical_quantity import PhysicalQuantity
 from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector
 from itertools import product
 from copy import deepcopy
-from numpy.linalg import eig as eigen
+from numpy.linalg import eig
+from numpy.linalg import det
 
 class SymmetryGroup:
     """
@@ -256,7 +257,6 @@ class SymmetryGroup:
         return [ so.label for so in self._symmetry_operations ] 
 
     #TODO UT
-    #TODO implement bidirector close compare
     def is_invariant( self, physical_quantity, atol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
@@ -295,8 +295,10 @@ class SymmetryGroup:
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
 
+#TODO
 #TODO UT for LimitingSymmetryGroupAxial similar to LimitingSymmetryGroupScalar
-#TODO init through decorator assignments, UTs
+#TODO functional UTs to cover ∞2, ∞/m, ∞mm, or ∞/mm + dich
+#TODO UTs: init through decorator assignments
 class LimitingSymmetryGroupAxial(SymmetryGroup):
     """
     `LimitingSymmetryGroupAxial` class.
@@ -370,7 +372,8 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                 #TODO UT
                 raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
         # let's check that the given axis is an invariant of the rest symmetry operations
-        # TODO bidirector kind of invariance (is_invariant to be checked/improved). One needs this functionality on the PQ level.
+        # TODO prio UTs
+        # TODO UTs to cover ∞2, ∞/m, ∞mm, or ∞/mm + dich
         self.symmetry_operations = symmetry_operations
         physical_quantity = PhysicalQuantity( value = self.axis, bidirector = True )
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
@@ -392,9 +395,18 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             (bool): True | False
         """
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
-        # TODO scalar or ( vector_3D  and collinear vs axis )
-        #    if not is_scalar_extended( physical_quantity.value ):
-        #    invariant_flag = False
+        # TODO prio UT
+        if invariant_flag:
+            if not is_scalar_extended( physical_quantity.value ):
+                if not is_3D_vector( physical_quantity.value ):
+                    invariant_flag = False
+                # here, only collinearity is required to validate the SG ∞. We check the rest of symmetry operations
+                # in the parent class, leading to ∞2, ∞/m, ∞mm, etc.
+                else:
+                    # collinearity test
+                    cross_product = np.cross( self.axis, physical_quantity.value )
+                    if not np.allclose( cross_product, np.array( np.zeros( (3) ) ), atol = atol):
+                        invariant_flag = False
         return invariant_flag
 
     def _assign_label( self ):
@@ -404,13 +416,12 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         #     the rotational so criteria: a single real eigenvector, collinear with the axis
         #     to check/ignore the complex ones.
         #TODO then, if it is a subgroup of this inf-rotation, we can just ignore it on the labeling step
-        #TODO check inv/m/2:
-        #TODO real eigenvalue cases: 111, 1-1-1, -1-1-1, -111 (or permutations). First 2 are proper rotations.
-        # eigen_list = eigen( so.matrix )
+        #TODO check inv/m/2
         label = '∞∞'
         for so in self.symmetry_operations:
             # for O3 and its subgroups
             if isinstance( so, SymmetryOperationO3 ):
+                eigenvalues, eigenvectors = eig( so.matrix )
                 if 'P' in so.dich_operations:
                     label += 'm'
                     remaining_dich_set = so.dich_operations - { 'P' }

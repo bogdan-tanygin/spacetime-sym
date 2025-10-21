@@ -7,12 +7,12 @@
 from math import pi, sqrt
 import unittest
 from spacetime import SymmetryGroup, SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
-from spacetime import LimitingSymmetryGroupScalar
+from spacetime import LimitingSymmetryGroupScalar, LimitingSymmetryGroupAxial
 from spacetime import PhysicalQuantity
 from unittest.mock import Mock, MagicMock, patch, call
 import numpy as np
 from scipy.spatial.transform import Rotation
-from numpy.linalg import det, matrix_rank
+from numpy.linalg import det, matrix_rank, norm
 from copy import deepcopy
 import io
 
@@ -441,6 +441,205 @@ Dichromatic reversals: ['P', 'T']
         # assuming tolerance atol = 1e-6
         pq_vector = PhysicalQuantity( value = [ 1, 2e-5, 0 ] )
         self.assertFalse( sg.is_invariant( pq_vector ) )
+
+    # test the limiting Curie symmetry group ∞
+    def test_lim_symmetry_group_axial_inf(self):
+        # axis ∞
+        test_axis = [-1, sqrt(3), 23]
+        sg = LimitingSymmetryGroupAxial( axis = test_axis )
+        ### let's test invariants
+        ## scalar first
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        ## test the random tensor
+        pq_tensor = PhysicalQuantity( value = self.tensor_0 )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        ## test vectors
+        # random vector
+        pq_vector = PhysicalQuantity( value = self.vector_0 )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # time-even bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':1, 'C':1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # axial time-odd vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':-1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+
+    # test the limiting symmetry group ∞1'
+    def test_lim_symmetry_group_axial_inf_T_reversal(self):
+        # axis ∞
+        test_axis = [-1, sqrt(3), 23]
+        so_T_rev = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ so_T_rev ] )
+        # let's test invariants
+        ## scalar first
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        ## test the random tensor
+        pq_tensor = PhysicalQuantity( value = self.tensor_0, dich = { 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        ## test vectors
+        # random time-even vector
+        pq_vector = PhysicalQuantity( value = self.vector_0, dich = { 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # polar time-even polar vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':1, 'C':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # axial time-odd vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':-1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # axial time-odd bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':-1, 'T':-1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+
+    # test the limiting symmetry group ∞2
+    def test_lim_symmetry_group_axial_inf2(self):
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2. Note: ∞ and 2 are perpendicular
+        test_axis_2 = np.array( [1, 1, 0] )
+        rot_vec_2 =  test_axis_2 * pi / norm( test_axis_2 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_2 ] )
+        ### let's test invariants
+        ## scalar first
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        ## test the random tensor
+        pq_tensor = PhysicalQuantity( value = self.tensor_0 )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        ## test vectors
+        # random vector
+        pq_vector = PhysicalQuantity( value = self.vector_0 )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # time-even polar vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'C':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # axial time-odd vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # time-even bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'C':1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # axial time-odd bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+
+    # test the limiting symmetry group ∞21'
+    def test_lim_symmetry_group_axial_inf2_T_reversal(self):
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2. Note: ∞ and 2 are perpendicular
+        test_axis_2 = np.array( [1, 1, 0] )
+        rot_vec_2 =  test_axis_2 * pi / norm( test_axis_2 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        so_T_rev = SymmetryOperationSO3( dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_2, so_T_rev ] )
+        ### let's test invariants
+        ## scalar first
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        ## test the random tensor
+        pq_tensor = PhysicalQuantity( value = self.tensor_0, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        ## test vectors
+        # random vector
+        pq_vector = PhysicalQuantity( value = self.vector_0, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # time-even polar vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # axial time-odd vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # time-even bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'T':1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # axial time-odd bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+
+    # test the limiting symmetry group ∞2'1
+    def test_lim_symmetry_group_axial_inf_2Treversal(self):
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2. Note: ∞ and 2 are perpendicular
+        test_axis_2 = np.array( [1, 1, 0] )
+        rot_vec_2 =  test_axis_2 * pi / norm( test_axis_2 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        so_T_rev = SymmetryOperationSO3( dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_2 * so_T_rev ] )
+        ### let's test invariants
+        ## scalar first
+        # time-even scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ) )
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_scalar ))
+        # time-odd scalar
+        pq_scalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':1, 'T':-1 } )
+        self.assertFalse( sg.is_invariant( pq_scalar ) )
+        # time-even pseudoscalar
+        pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
+        self.assertTrue( sg.is_invariant( pq_pseudoscalar ) )
+        ## test the random tensor
+        pq_tensor = PhysicalQuantity( value = self.tensor_0, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_tensor ) )
+        ## test vectors
+        # random vector
+        pq_vector = PhysicalQuantity( value = self.vector_0, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ) )
+        # time-even polar vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'T':1 } )
+        self.assertFalse( sg.is_invariant( pq_vector ))
+        # axial time-odd vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 } )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # time-even bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':1, 'T':1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
+        # axial time-odd bidirectional vector (collinear with the axis ∞)
+        pq_vector = PhysicalQuantity( value = test_axis_inf, dich = { 'P':-1, 'T':-1 }, bidirector = True )
+        self.assertTrue( sg.is_invariant( pq_vector ))
 
     def test_lim_symmetry_group_scalar(self):
         sg = LimitingSymmetryGroupScalar()

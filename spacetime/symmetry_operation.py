@@ -11,7 +11,8 @@ from numpy import abs
 from scipy.spatial.transform import Rotation
 from copy import deepcopy
 
-from spacetime.linear_algebra import is_square, is_permutation_matrix, is_scalar, is_scalar_extended, set_copy_assignment
+from spacetime.linear_algebra import is_square, is_permutation_matrix, is_scalar, is_scalar_extended,\
+                                     set_copy_assignment, is_rotational_3D, is_rotational_proper_3D
 from spacetime.physical_quantity import PhysicalQuantity
 
 class SymmetryOperation:
@@ -235,10 +236,10 @@ class SymmetryOperationO3(SymmetryOperation):
         """
         det_check = det( matrix )
         # assuming unitary magnitude
-        if abs( abs( det_check ) - 1) > det_rtol:
+        if not is_rotational_3D( matrix, atol = det_rtol * 1):
             raise ValueError('Not a rotation matrix')
         # set the improper location flag
-        if det_check < 0:
+        if not is_rotational_proper_3D( matrix, atol = det_rtol * 1):
             # the symmetry operation belongs to O(3)
             self._improper = True
             # automatic setting of the space parity
@@ -496,7 +497,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
         This class supports Euclidean space only.
 
         Args:
-            matrix (numpy.matrix|numpy.ndarray|list): square 2D array as either a
+            matrix (numpy.matrix|numpy.ndarray|list|Rotation): square 2D array as either a
             `numpy.matrix`, `numpy.ndarray`, or `list` for this symmetry operation.
             The default is an identity matrix.
             dich_operations (default = {}): a set of dichromatic symmetry reversal
@@ -622,9 +623,8 @@ class SymmetryOperationSO3(SymmetryOperationO3):
         Returns:
             None
         """
-        det_check = det( matrix )
         # assuming unitary value
-        if abs(det_check - 1) > det_rtol:
+        if not is_rotational_proper_3D( matrix, atol = det_rtol * 1 ):
             raise ValueError('Not a proper rotation matrix')
         else:
             self._det_check_and_init( matrix = matrix )

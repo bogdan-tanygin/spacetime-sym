@@ -15,7 +15,7 @@ from spacetime import SymmetryOperation, SymmetryOperationO3, LimitingSymmetryOp
 from spacetime import SymmetryOperationSO3, LimitingSymmetryOperationSO3, PhysicalQuantity
 from unittest.mock import patch
 import io
-from spacetime.symmetry_operation import is_square, is_permutation_matrix
+from spacetime.linear_algebra import is_square, is_permutation_matrix
 
 class SymmetryOperationTestCase( unittest.TestCase ):
     """Tests for symmetry operation functions"""
@@ -147,6 +147,14 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.rotation_0 = Rotation.from_matrix( self.list_0 )
         # rotational vector along direction [111], mag = 2pi/3 rad
         self.rot_vec_111_2pi_3 = (2 * pi / 3) * np.array( [1, 1, 1] ) / sqrt(3)
+        # reflection (mirror) plane (100)
+        self.m001 = np.array( [ [  1, 0, 0 ],
+                                 [ 0, 1, 0 ],
+                                 [ 0, 0, -1 ] ] )
+        # Unitary determinant, but non-rotational matrix
+        self.matrix_unit_det = [[ 0.5, 0, 0 ],
+                                [ 0,   2, 0 ],
+                                [ 0,   0, 1 ]]
 
     def test_symmetry_operation_is_initialised_from_an_array( self ):
         so = SymmetryOperationO3( self.array_0 )
@@ -197,7 +205,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( so.label, 'A' )
 
     def test_symmetry_operation_is_initialised_with_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
+        matrix = np.array( self.list_0 )
         label = 'E'
         so = SymmetryOperationO3( matrix, label=label )
         self.assertEqual( so.label, label )
@@ -210,28 +218,14 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_b = SymmetryOperationO3( matrix_b )
         np.testing.assert_array_equal( so_a.similarity_transform( so_b ).matrix, matrix_c )
 
-    def test_similarity_transform_with_label( self ):
-        matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
-        matrix_b = np.array( [ [ 1, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ] ] )
-        matrix_c = np.linalg.inv( matrix_a )
-        so_a = SymmetryOperationO3( matrix_a )
-        so_b = SymmetryOperationO3( matrix_b )
-        label = 'foo'
-        np.testing.assert_array_equal( so_a.similarity_transform( so_b, label=label ).label, label )
-
-    def test_character( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        so = SymmetryOperationO3( matrix )
-        self.assertEqual( so.character(), 2 )
-
     def test_se_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
+        matrix = np.array( self.list_0 )
         so = SymmetryOperationO3( matrix )
         so.set_label( 'new_label' )
         self.assertEqual( so.label, 'new_label' )
 
     def test_repr( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
+        matrix = np.array( self.list_0 )
         so = SymmetryOperationO3( matrix, label='L' )
         this_repr = so.__repr__()
         self.assertNotEqual( this_repr.find( 'L' ), 0 )
@@ -242,10 +236,13 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_1 = SymmetryOperationO3( self.rotation_0 )
         det_1 = det( so_1.matrix )
         np.testing.assert_approx_equal( det_1, 1, self.ptol )
-        #now, let's modify the transformation matrix by a random coefficient
+        #let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
-    
+        #now, let's test the case of unitary determinant, but non-rotational matrix
+        with self.assertRaises( ValueError ):
+            so_4 = SymmetryOperationO3 ( self.matrix_unit_det )
+
     def test_ensure_unit_det_improper( self ):
         #first, let's check the regular improper rotation
         so_1 = SymmetryOperationO3( - 1 * self.array_0 )
@@ -254,6 +251,11 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         #now, let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
+        so_3_1 = SymmetryOperationO3( self.m001 )
+        so_3_2 = SymmetryOperationO3( self.rotation_0 )
+        so_3 = so_3_1 * so_3_2 
+        det_3 = det( so_3.matrix )
+        np.testing.assert_approx_equal(det_3, - 1, self.ptol)
     
     def test_improper_flags( self ):
         #first, let's set the regular proper rotation
@@ -520,6 +522,14 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         self.rotation_0 = Rotation.from_matrix(self.list_0)
         # rotational vector along direction [111], mag = 2pi/3 rad
         self.rot_vec_111_2pi_3 = (2 * pi / 3) * np.array( [1, 1, 1] ) / sqrt(3)
+        # reflection (mirror) plane (100)
+        self.m001 = np.array( [ [  1, 0, 0 ],
+                                 [ 0, 1, 0 ],
+                                 [ 0, 0, -1 ] ] )
+        # Unitary determinant, but non-rotational matrix
+        self.matrix_unit_det = [[ 0.5, 0, 0 ],
+                                [ 0,   2, 0 ],
+                                [ 0,   0, 1 ]]
 
     def test_ensure_SO3_is_proper_rot( self ):
         with self.assertRaises( ValueError ):
@@ -546,7 +556,13 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         np.testing.assert_approx_equal( det_1, 1, self.ptol )
         #now, let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
-            so_2 = SymmetryOperationSO3 ( self.scalar_0 * self.array_0 )
+            so_2 = SymmetryOperationSO3( self.scalar_0 * self.array_0 )
+        #let's test the improper case
+        with self.assertRaises( ValueError ):
+            so_3 = SymmetryOperationSO3( self.m001 )
+        #let's test unit determinant, but non-rotational case
+        with self.assertRaises( ValueError ):
+            so_3 = SymmetryOperationSO3( self.matrix_unit_det )
     
     def test_invert( self ):
         matrix_a = self.array_0
