@@ -11,7 +11,7 @@ from pymatgen.util.coord import coord_list_mapping_pbc, coord_list_mapping
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 
-from spacetime import SpaceGroup, SymmetryOperation, ConfigurationSpace, PointGroup
+from spacetime import SymmetryOperation
 from copy import copy
 from functools import partial
 import numpy as np
