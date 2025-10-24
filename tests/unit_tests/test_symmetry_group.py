@@ -442,6 +442,43 @@ Dichromatic reversals: ['P', 'T']
         pq_vector = PhysicalQuantity( value = [ 1, 2e-5, 0 ] )
         self.assertFalse( sg.is_invariant( pq_vector ) )
 
+    # test the init of limiting Curie symmetry group ∞
+    def test_lim_symmetry_group_axial_inf_init(self):
+        ## init based on the axis only
+        # positive case
+        # axis ∞
+        test_axis = [-1, sqrt(3), 23]
+        sg = LimitingSymmetryGroupAxial( axis = test_axis )
+        # negative cases
+        with self.assertRaises( TypeError ):
+            test_axis = 1
+            sg = LimitingSymmetryGroupAxial( axis = test_axis )
+        with self.assertRaises( TypeError ):
+            test_axis = [-1, sqrt(3) ]
+            sg = LimitingSymmetryGroupAxial( axis = test_axis )
+        ## init the subgroup: axis + additional symmetry operations
+        # positive cases are covered in other test cases
+        # negative cases
+        test_axis = [-1, sqrt(3), 23]
+        # random direction
+        # rotational axis 2 that does not form a group with ∞
+        rot_vec_2 =  self.vector_0 * pi / norm( self.vector_0 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        with self.assertRaises( ValueError ):
+            sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ so_2 ] )
+        # mirror symmetry operation m that does not form a group with ∞
+        so_inv = SymmetryOperationO3( matrix = -1 * np.identity( (3) ) )
+        so_m = so_inv * so_2
+        with self.assertRaises( ValueError ):
+            sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ so_m ] )
+        # similarly inconsistent attempt to create a group ∞/m
+        with self.assertRaises( ValueError ):
+            sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ so_m, so_inv ] )
+        # providing non-symmetry operation argument
+        with self.assertRaises( TypeError ):
+            sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ 1 ] )
+
     # test the limiting Curie symmetry group ∞
     def test_lim_symmetry_group_axial_inf(self):
         # axis ∞

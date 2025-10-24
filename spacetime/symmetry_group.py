@@ -342,7 +342,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         else:
             raise TypeError('Not a vector')
         if not is_3D_vector( self._axis ):
-            raise ValueError('Not a 3D vector')
+            raise TypeError('Not a 3D vector')
 
     @property
     def axis( self ):
@@ -369,11 +369,8 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             raise TypeError('Must be a list of SymmetryOperation objects')
         for so in symmetry_operations:
             if not isinstance( so, SymmetryOperation ):
-                #TODO UT
                 raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
         # let's check that the given axis is an invariant of the rest symmetry operations
-        # TODO prio UTs
-        # TODO UTs to cover ∞2, ∞/m, ∞mm, or ∞/mm + dich
         self.symmetry_operations = symmetry_operations
         physical_quantity = PhysicalQuantity( value = self.axis, bidirector = True )
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
