@@ -33,6 +33,7 @@ config = {
     'download_url': "https://github.com/bogdan-tanygin/spacetime-sym/archive/%s.tar.gz" % (VERSION),
     'author_email': 'bogdan@tanygin-holding.com',
     'version': VERSION,
+    'setup_requires': 'numpy',
     'install_requires': open( 'requirements.txt' ).read(),
     'python_requires': '>=3.9.18',
     'license': 'GPL-3.0',
