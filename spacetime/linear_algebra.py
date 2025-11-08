@@ -10,7 +10,7 @@ from numpy.linalg import det, norm
 from scipy.linalg import issymmetric
 from scipy.spatial.transform import Rotation
 from collections import Counter
-from math import factorial, pi, sqrt, asin
+from math import factorial, pi, sqrt, asin, isclose
 from functools import reduce
 from operator import mul
 from copy import deepcopy
@@ -126,7 +126,7 @@ def is_rotational_proper_3D( m, rtol = 1e-6 ):
 #TODO UT
 def is_3D_vector( x ):
     """
-    Test whether x is a 3D vector.
+    Test whether x is a 3D-space vector.
 
     Args:
         x (numpy.ndarray): an argument to test.
@@ -141,10 +141,9 @@ def is_3D_vector( x ):
     else:
         return False
 
-#TODO UT
 def is_symmetrical_tensor( x, rtol = 1e-6, atol = 1e-15 ):
     """
-    Test whether x is a symmetrical tensor in 3D space.
+    Test whether x is a symmetrical tensor in 3D-space.
 
     Args:
         x (numpy.ndarray): an argument to test.
@@ -157,6 +156,45 @@ def is_symmetrical_tensor( x, rtol = 1e-6, atol = 1e-15 ):
     # ensure the numpy type
     x = np.array( x )
     return x.ndim == 2 and x.shape[0] == 3 and issymmetric( x, rtol = rtol, atol = atol )
+
+def get_tensor_axis( x, rtol = 1e-6, atol = 1e-14 ):
+    """
+    Test whether x is an axial tensor in 3D-space. Return corresponding axis.
+
+    Args:
+        x (numpy.ndarray): an argument to test.
+        rtol (float): relative tolerance for elements of the matrix/tensor
+        atol (float): absolute tolerance for elements of the matrix/tensor
+
+    Returns:
+        (numpy.ndarray): its axis if axial. Otherwise, null-vector.
+    """
+    # ensure the numpy type
+    x = np.array( x )
+    eigvals, eigvecs_tmp = np.linalg.eigh( x )
+    # represent the eigvecs as rows:
+    eigvecs = eigvecs_tmp.transpose()
+    # TODO prio here and in the SG -- abs value of each eig
+    eigvals_abs = np.zeros( 3 )
+    for i in range( 3 ):
+        eigvals_abs[ i ] = abs( eigvals[ i ] )
+    max_val = np.max( eigvals_abs )
+    dec_tol = int( np.log10( max_val * rtol ) )
+    if dec_tol >= 0:
+        dec_tol = 0
+    qty_unique_vals = len( np.unique( np.round( eigvals, decimals = - dec_tol ) ) )
+    # is the tensor axially symmetric?
+    if qty_unique_vals == 2:
+        three_indx = { 0, 1, 2 }
+        for i in range( 2 ):
+            for j in range( i + 1, 3 ):
+                if isclose( eigvals[i], eigvals[j], rel_tol = rtol ):
+                    # the remaining eigenvalue defines the axial vector of the given tensor
+                    indx_axial = next( iter( three_indx - { i, j } ) )
+                    tensor_axis = eigvecs[ indx_axial ]
+    else:
+        tensor_axis = np.zeros( 3 )
+    return tensor_axis
 
 def is_scalar( x ):
     """

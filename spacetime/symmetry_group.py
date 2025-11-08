@@ -9,10 +9,11 @@ from math import pi, isclose
 import numpy as np
 from spacetime import SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
 from spacetime.physical_quantity import PhysicalQuantity
-from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector, is_symmetrical_tensor
+from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector, is_symmetrical_tensor, \
+                                     get_tensor_axis
 from itertools import product
 from copy import deepcopy
-from numpy.linalg import eig, norm
+from numpy.linalg import eig, norm, det
 from scipy.spatial.transform import Rotation
 
 class SymmetryGroup:
@@ -394,6 +395,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         """
         return self._symmetry_operations
 
+    #TODO UT
     @symmetry_operations.setter
     def symmetry_operations( self, value ):
         so_list = list( value )
@@ -441,7 +443,10 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                     eigvals, eigvecs_tmp = np.linalg.eigh( physical_quantity.value )
                     # represent the eigvecs as rows:
                     eigvecs = eigvecs_tmp.transpose()
-                    max_val = np.max( eigvals )
+                    eigvals_abs = np.zeros( 3 )
+                    for i in range( 3 ):
+                        eigvals_abs[ i ] = abs( eigvals[ i ] )
+                    max_val = np.max( eigvals_abs )
                     dec_tol = int( np.log10( max_val * rtol ) )
                     if dec_tol >= 0:
                         dec_tol = 0
@@ -468,21 +473,44 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         
         return invariant_flag
 
-    def _assign_label( self ):
-        #TODO manual assignment with a check '∞' at the beginning
-        #TODO check if the rotational axes are subgroups of inf or, either, generate something extra (like 1')
-        #     other so can be filtered out.
-        #     the rotational so criteria: a single real eigenvector, collinear with the axis
-        #     to check/ignore the complex ones.
-        #TODO then, if it is a subgroup of this inf-rotation, we can just ignore it on the labeling step
-        #TODO check inv/m/2
-        label = '∞∞'
+    #TODO prio
+    def _assign_label( self , atol = 1E14 ):
+        #label = '∞'
+        label = ''
         for so in self.symmetry_operations:
             # for O3 and its subgroups
             if isinstance( so, SymmetryOperationO3 ):
-                eigenvalues, eigenvectors = eig( so.matrix )
-                if 'P' in so.dich_operations:
+                matrix_axis = get_tensor_axis( so.matrix )
+                
+                is_axial = True
+                if norm( matrix_axis ) < atol:
+                    is_axial = False
+                det_val = det( so.matrix )
+                
+                is_proper_rot = True
+                if is_axial < 0:
+                    is_proper_rot = False
+                
+                is_collinear = False
+                c = np.cross( matrix_axis, self.axis )
+                if norm( c ) < atol:
+                    is_collinear = True
+                
+                is_perpend = False
+                d = np.dot( matrix_axis, self.axis )
+                if abs( d ) < atol:
+                    is_perpend = True
+
+                if not is_proper_rot and not is_axial:
+                    label += '\\'
+                
+                if is_proper_rot and is_axial and is_perpend:
+                    label += '2'
+                
+                if not is_proper_rot and is_axial:
                     label += 'm'
+
+                if 'P' in so.dich_operations:
                     remaining_dich_set = so.dich_operations - { 'P' }
                 else:
                     #label += '1'
@@ -496,6 +524,10 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                         label += '*'
                     else:
                         label += dich
+        if '\\' in label:
+            label -= '\\'
+            label = '\\' + label
+        label = '∞' + label
         self.label = label
     
     def __repr__( self ):
