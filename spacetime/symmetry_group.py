@@ -1,18 +1,19 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
+# Copyright (C) 2024-2025 Dr. Bogdan Tanygin <info@deeptech.business>
 # Copyright (C) 2015, 2021 Benjamin J. Morgan
 #
 # This file is part of spacetime-sym.
 #
 
+from math import pi, isclose
 import numpy as np
 from spacetime import SymmetryOperation, SymmetryOperationO3, SymmetryOperationSO3
 from spacetime.physical_quantity import PhysicalQuantity
-from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector
+from spacetime.linear_algebra import is_scalar, is_scalar_extended, is_3D_vector, is_symmetrical_tensor
 from itertools import product
 from copy import deepcopy
-from numpy.linalg import eig
-from numpy.linalg import det
+from numpy.linalg import eig, norm
+from scipy.spatial.transform import Rotation
 
 class SymmetryGroup:
     """
@@ -71,18 +72,18 @@ class SymmetryGroup:
     """
     Get an order of the group. Forces the group validation before that.
     Args:
-        group_atol (float): absolute tolerance of the matrix elements comparison.
+        group_rtol (float): relative tolerance of the matrix elements comparison.
     Returns:
         Order of the symmetry group.
     """
-    def order( self, group_atol = 1e-4 ):
-        self._validate_and_correct(group_atol = group_atol)
+    def order( self, group_rtol = 1e-4 ):
+        self._validate_and_correct(group_rtol = group_rtol)
         return len( self._symmetry_operations )
 
-    def _add_so_if_new( self, so, group_atol ):
+    def _add_so_if_new( self, so, group_rtol ):
         self._gen_flag = False
         # if the matrix is new, we add symmetry operation anyway
-        if not any( np.allclose( so.matrix, so_0_.matrix, atol = group_atol ) for so_0_ in self._symmetry_operations ):
+        if not any( np.allclose( so.matrix, so_0_.matrix, rtol = group_rtol ) for so_0_ in self._symmetry_operations ):
             self._symmetry_operations.append( so )
             self._gen_flag = True
         # if there is already such matrix, we need to compare dich properties
@@ -91,7 +92,7 @@ class SymmetryGroup:
             self._gen_flag = True
             for so_0_ in self._symmetry_operations:
                 # this must be true for some operations if we are here
-                if np.allclose( so.matrix, so_0_.matrix, atol = group_atol ):
+                if np.allclose( so.matrix, so_0_.matrix, rtol = group_rtol ):
                     # if the existing symmetry operation is not dichromatic, we add the new one anyway
                     # note: we enabled dichromatic properties for the group O3 and its subgroups only
                     # allowing us automatic (spatial) parity control, etc.
@@ -104,14 +105,14 @@ class SymmetryGroup:
             if ( self._gen_flag ):
                 self._symmetry_operations.append( so )
 
-    def _validate_and_correct( self, group_atol = 1e-4 ):
+    def _validate_and_correct( self, group_rtol = 1e-4 ):
         # identity check / add if needed
         if not self.identity_w_dich_flag:
-            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) for so in self._symmetry_operations):
+            if not any( np.allclose( so.matrix, self._e_0.matrix, rtol = group_rtol) for so in self._symmetry_operations):
                 self.add_and_generate( self._e_0 )
         else:
             # identity operation must contain empty list of dichromatic reversals
-            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) and len( so.dich_operations ) == 0 
+            if not any( np.allclose( so.matrix, self._e_0.matrix, rtol = group_rtol) and len( so.dich_operations ) == 0 
                        for so in self._symmetry_operations):
                 self.add_and_generate( self._e_0 )
         # first, let's deduplicate the group
@@ -125,7 +126,7 @@ class SymmetryGroup:
                         if i != j:
                             so = self._symmetry_operations[i]
                             so_1 = self._symmetry_operations[j]
-                            if np.allclose( so.matrix, so_1.matrix, atol = group_atol ):
+                            if np.allclose( so.matrix, so_1.matrix, rtol = group_rtol ):
                                 if type(so) is SymmetryOperation and type(so_1) is SymmetryOperation:
                                     indx_for_remove.append( j )
                                 # for SymmetryOperationO3 and its subclasses, hence, isinstance(), not type()
@@ -140,14 +141,14 @@ class SymmetryGroup:
             self._symmetry_operations.remove( so )
             self.add_and_generate( so )
 
-    def add_and_generate( self, so, group_atol = 1e-4  ):
+    def add_and_generate( self, so, group_rtol = 1e-4  ):
         """
         Add a :any:`SymmetryOperation` to this :any:`SymmetryGroup` and generate
         all the remaining group operations based on consideration of the current list of
         symmetry operations as a group generator.
         Args:
             symmetry_operation (:any:`SymmetryOperation`): The :any:`SymmetryOperation` to add.
-            group_atol (float): absolute tolerance of the matrix elements comparison.
+            group_rtol (float): relative tolerance of the matrix elements comparison.
         Raises:
             ValueError: in case of numbers of dimensions mismatch.
         Returns:
@@ -158,7 +159,7 @@ class SymmetryGroup:
         if any( so_0.matrix.shape[0] != so.matrix.shape[0] for so_0 in self._symmetry_operations ):
             ValueError('Wrong dimensions of the input symmetry operation')
         # Adding part
-        self._add_so_if_new( so, group_atol )        
+        self._add_so_if_new( so, group_rtol )        
         # Generating part
         if self._gen_flag:
             # the flag is used to track whether group continues to generate new elements
@@ -191,7 +192,7 @@ class SymmetryGroup:
         If everything is correct, assigns it.
 
         Args:
-            symmetry_operations: a list of :any:`SymmetryOperation` objects.
+            symmetry_operations: a list or a set of :any:`SymmetryOperation` objects.
 
         Raises:
             TypeError: symmetry operations do not belong to :any:`SymmetryOperation` or its derived classes
@@ -257,13 +258,13 @@ class SymmetryGroup:
         return [ so.label for so in self._symmetry_operations ] 
 
     #TODO UT
-    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+    def is_invariant( self, physical_quantity, rtol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
-            atol (float): a tolerance of the comparing
+            rtol (float): a relative tolerance of the comparing
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
@@ -274,12 +275,13 @@ class SymmetryGroup:
         if not isinstance( physical_quantity, PhysicalQuantity ):
             raise TypeError('physical_quantity must belongs to the class PhysicalQuantity')
         invariant_flag = True
+        #TODO UT diagonal bidirectional asymmetric tensor test with mirror mx, my, mz
         for so in self.symmetry_operations:
             pq_updated = so * physical_quantity
-            if not np.allclose( pq_updated.value, physical_quantity.value, atol = atol ):
+            if not np.allclose( pq_updated.value, physical_quantity.value, rtol = rtol ):
                 if not physical_quantity.bidirector:
                     invariant_flag = False
-                elif not np.allclose( pq_updated.value, - physical_quantity.value, atol = atol ):
+                elif not np.allclose( pq_updated.value, - physical_quantity.value, rtol = rtol ):
                     invariant_flag = False
         return invariant_flag
 
@@ -329,25 +331,31 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             None
         """
         self._check_and_set_axis( axis = axis )
-        self._axial_symmetry_operations_check( symmetry_operations = symmetry_operations)
+        #TODO UTs - extending some of init test cases - for axis and [so] reassignemnt
         super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = symmetry_operations)
+        self._axial_symmetry_operations_check()
+        # we can generate and assign lavel after the axis and symmetry operations have been initialised
         self._assign_label()
     
     def _check_and_set_axis( self, axis ):
         axis = deepcopy( axis )
-        if isinstance( axis, np.ndarray ):
-            self._axis = np.array( axis )
-        elif isinstance( axis, list):
-            self._axis = np.array( axis )
+        if isinstance( axis, np.ndarray ) or isinstance( axis, list):
+            self._axis = np.array( axis ) / norm( np.array( axis ) )
         else:
             raise TypeError('Not a vector')
         if not is_3D_vector( self._axis ):
             raise TypeError('Not a 3D vector')
+        # the 2-fold rotational axis as a part of the axial limiting group
+        rot_vec_2 =  self.axis * pi / norm( self.axis )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        self._so_2 = so_2
 
     @property
     def axis( self ):
         return self._axis
     
+    #TODO UT
     @axis.setter
     def axis( self, value ):
         """
@@ -363,27 +371,57 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             None
         """
         self._check_and_set_axis( axis = value )
+        # we need to reinit the group if the axis has been changed
+        self._axial_symmetry_operations_check()
+        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
+        # added implicitly for the generation of the rest 
+        self._symmetry_operations.append( self._so_2 )
+        # now, the group should be regenerated (new axis)
+        super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = self.symmetry_operations)
+        # we can generate and assign lavel after the axis and symmetry operations have been initialised
+        self._assign_label()
 
-    def _axial_symmetry_operations_check( self, symmetry_operations, atol = 1e-6 ):
-        if not isinstance( symmetry_operations, list ):
-            raise TypeError('Must be a list of SymmetryOperation objects')
-        for so in symmetry_operations:
-            if not isinstance( so, SymmetryOperation ):
-                raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
+    @property
+    def symmetry_operations( self ):
+        """
+        List of symmetry transformations forming the group.
+
+        Args:
+            None
+
+        Returns:
+            List of symmetry operations.
+        """
+        return self._symmetry_operations
+
+    @symmetry_operations.setter
+    def symmetry_operations( self, value ):
+        so_list = list( value )
+        so_list.append( self._so_2 )
+        self._symmetry_operations_check_and_init( so_list )
+        self._validate_and_correct()
+        self._assign_label()
+        # with new symmetry operations, the axis should be revalidated
+        self._axial_symmetry_operations_check()
+
+    #TODO UT
+    def _axial_symmetry_operations_check( self ):
         # let's check that the given axis is an invariant of the rest symmetry operations
-        self.symmetry_operations = symmetry_operations
+        # assumption: we have already initialised the set of symmetry operations
         physical_quantity = PhysicalQuantity( value = self.axis, bidirector = True )
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
         if not invariant_flag:
             raise ValueError( 'The provided axis is not an invariant of the rest symmetry operations' )
-            
-    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+
+    def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
-            atol (float): a tolerance of the comparing
+            rtol (float): a relative tolerance of the comparing
+            atol (float): an absolute tolerance of the comparing
+            decimal (int): number of decimal places to round eigen values to
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
@@ -392,18 +430,42 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             (bool): True | False
         """
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
-        # TODO prio UT
         if invariant_flag:
-            if not is_scalar_extended( physical_quantity.value ):
-                if not is_3D_vector( physical_quantity.value ):
+            if is_3D_vector( physical_quantity.value ):
+                # collinearity test for the vector
+                cross_product = np.cross( self.axis, physical_quantity.value )
+                if not np.allclose( cross_product, np.array( np.zeros( (3) ) ), atol = atol):
                     invariant_flag = False
-                # here, only collinearity is required to validate the SG ∞. We check the rest of symmetry operations
-                # in the parent class, leading to ∞2, ∞/m, ∞mm, etc.
-                else:
-                    # collinearity test
-                    cross_product = np.cross( self.axis, physical_quantity.value )
-                    if not np.allclose( cross_product, np.array( np.zeros( (3) ) ), atol = atol):
+            elif is_symmetrical_tensor( physical_quantity.value, rtol = rtol, atol = atol ):
+                if not is_scalar_extended( physical_quantity.value ):
+                    eigvals, eigvecs_tmp = np.linalg.eigh( physical_quantity.value )
+                    # represent the eigvecs as rows:
+                    eigvecs = eigvecs_tmp.transpose()
+                    max_val = np.max( eigvals )
+                    dec_tol = int( np.log10( max_val * rtol ) )
+                    if dec_tol >= 0:
+                        dec_tol = 0
+                    qty_unique_vals = len( np.unique( np.round( eigvals, decimals = - dec_tol ) ) )
+                    # is the tensor axially symmetric?
+                    if qty_unique_vals == 2:
+                        three_indx = { 0, 1, 2 }
+                        for i in range( 2 ):
+                            for j in range( i + 1, 3 ):
+                                if isclose( eigvals[i], eigvals[j], rel_tol = rtol ):
+                                    # the remaining eigenvalue defines the axial vector of the given tensor
+                                    indx_axial = next( iter( three_indx - { i, j } ) )
+                                    tensor_axis = eigvecs[ indx_axial ]
+                        cross_product = np.cross( self.axis, tensor_axis )
+                        if not np.allclose( cross_product, np.array( np.zeros( (3) ) ), atol = atol):
+                            invariant_flag = False
+                    elif qty_unique_vals == 3:
+                        # anisotropic tensor. Hence, no axial symmetry
                         invariant_flag = False
+                    #elif qty_unique_vals == 1:
+                        # isotropic tensor, nothing to do -- keep the defined invariance flag
+            elif not is_scalar_extended( physical_quantity.value ):
+                raise ValueError('Non-symmetrical tensor or another unsupporte (in this version) type')
+        
         return invariant_flag
 
     def _assign_label( self ):
@@ -469,11 +531,13 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         Returns:
             None
         """
+        #TODO call this during [ so ] assignment here as well. Local decorator is needed
+        #TODO duplicate UTs - using init test cases
         self._scalar_symmetry_operations_check( scalar_symmetry_operations = scalar_symmetry_operations)
         super(LimitingSymmetryGroupScalar, self).__init__( symmetry_operations = scalar_symmetry_operations)
         self._assign_label()
     
-    def _scalar_symmetry_operations_check( self, scalar_symmetry_operations, atol = 1e-6 ):
+    def _scalar_symmetry_operations_check( self, scalar_symmetry_operations, rtol = 1e-6 ):
         if not isinstance( scalar_symmetry_operations, list ):
             raise TypeError('Must be a list of SymmetryOperation objects')
         for so in scalar_symmetry_operations:
@@ -481,17 +545,16 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
                 #TODO UT
                 raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
             n_dim = so.matrix.shape[0]
-            if not ( np.allclose( so.matrix,   np.identity( n_dim ), atol = atol) or
-                     np.allclose( so.matrix, - np.identity( n_dim ), atol = atol) ):
+            if not ( np.allclose( so.matrix,   np.identity( n_dim ), rtol = rtol) or
+                     np.allclose( so.matrix, - np.identity( n_dim ), rtol = rtol) ):
                 raise ValueError('Must be an identity or inversion matrix')
 
-    def is_invariant( self, physical_quantity, atol = 1e-6 ):
+    def is_invariant( self, physical_quantity ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
-            atol (float): a tolerance of the comparing
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity

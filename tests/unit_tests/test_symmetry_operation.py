@@ -129,6 +129,8 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
     def setUp(self):
         # absolute tolerance
         self.atol = 1e-6
+        # relative tolerance
+        self.rtol = 1e-6
         # decimal power tolerance 10**(-ptol)
         self.ptol = 6
         # random scalar
@@ -417,19 +419,19 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
 
         pq_updated = so_2 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_0,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
         pq_updated = so_3 * pq
         np.testing.assert_allclose( pq_updated.value, - vec_test_0,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, 'E' )
 
         pq_updated = so_4 * pq
         np.testing.assert_allclose( pq_updated.value, - vec_test_0,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
@@ -483,19 +485,19 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
 
         pq_updated = so_2 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_updated_2,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
         pq_updated = so_3 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_updated_3,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, "B" )
 
         pq_updated = so_4 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_updated_4,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
@@ -503,7 +505,9 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
     """Tests for SO(3) symmetry operation functions"""
     def setUp(self):
         # absolute tolerance
-        self.atol = 1e-6
+        self.atol = 1e-15
+        # relative tolerance
+        self.rtol = 1e-6
         # decimal power tolerance 10**(-ptol)
         self.ptol = 6
         # random scalar
@@ -706,13 +710,13 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
 
         pq_updated = so_2 * pq
         np.testing.assert_allclose( pq_updated.value, - vec_test_0,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
         pq_updated = so_3 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_0,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
@@ -747,20 +751,20 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
 
         #test cases
         pq_updated = so_1 * pq
-        np.testing.assert_allclose( pq_updated.value, vec_test_updated_1,
-                                     atol = self.atol)
+        np.testing.assert_allclose( vec_test_updated_1, pq_updated.value,
+                                     rtol = self.rtol, atol = self.atol )
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, "B" )
 
         pq_updated = so_2 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_updated_2,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
         pq_updated = so_3 * pq
         np.testing.assert_allclose( pq_updated.value, vec_test_updated_3,
-                                     atol = self.atol)
+                                     rtol = self.rtol)
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
@@ -769,6 +773,8 @@ class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
     def setUp(self):
         # absolute tolerance
         self.atol = 1e-6
+        # relaive tolerance
+        self.rtol = 1e-6
         # decimal power tolerance 10**(-ptol)
         self.ptol = 6
         # axis of an infinitesimal rotation operation
@@ -846,6 +852,8 @@ class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
     def setUp(self):
         # absolute tolerance
         self.atol = 1e-6
+        # relative tolerance
+        self.rtol = 1e-6
         # decimal power tolerance 10**(-ptol)
         self.ptol = 6
         # axis of an infinitesimal rotation operation

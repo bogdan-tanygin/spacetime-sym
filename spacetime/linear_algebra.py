@@ -6,9 +6,11 @@
 #
 
 import numpy as np
-from numpy.linalg import det
+from numpy.linalg import det, norm
+from scipy.linalg import issymmetric
+from scipy.spatial.transform import Rotation
 from collections import Counter
-from math import factorial, pi, sqrt
+from math import factorial, pi, sqrt, asin
 from functools import reduce
 from operator import mul
 from copy import deepcopy
@@ -76,13 +78,13 @@ def is_diagonal( m ):
     return True
 
 
-def is_rotational_3D( m, atol = 1e-6 ):
+def is_rotational_3D( m, rtol = 1e-6 ):
     """
     Test whether a numpy matrix is rotational O(3) or SO(3).
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
-        atol (float): absolute tolerance for elements of the matrix/tensor
+        rtol (float): relative tolerance for elements of the matrix/tensor
 
     Returns:
         (bool): True | False.
@@ -93,20 +95,20 @@ def is_rotational_3D( m, atol = 1e-6 ):
         identity_check = ( m.transpose() ).dot( m )
         expected = np.identity( m.shape[0] )
         det_check = det( m )
-        if np.allclose( identity_check, expected, atol = atol ) and abs( abs( det_check ) - 1) < atol:
+        if np.allclose( identity_check, expected, rtol = rtol ) and abs( abs( det_check ) - 1) < rtol:
             return True
         else:
             return False
     else:
         return False
 
-def is_rotational_proper_3D( m, atol = 1e-6 ):
+def is_rotational_proper_3D( m, rtol = 1e-6 ):
     """
     Test whether a numpy matrix is proper SO(3).
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
-        atol (float): absolute tolerance for elements of the matrix/tensor
+        rtol (float): relative tolerance for elements of the matrix/tensor
 
     Returns:
         (bool): True | False.
@@ -116,7 +118,7 @@ def is_rotational_proper_3D( m, atol = 1e-6 ):
     else:
         m = np.array( m )
         det_check = det( m )
-        if abs( det_check - 1) < atol:
+        if abs( det_check - 1) < rtol:
             return True
         else:
             return False
@@ -138,6 +140,23 @@ def is_3D_vector( x ):
         return True
     else:
         return False
+
+#TODO UT
+def is_symmetrical_tensor( x, rtol = 1e-6, atol = 1e-15 ):
+    """
+    Test whether x is a symmetrical tensor in 3D space.
+
+    Args:
+        x (numpy.ndarray): an argument to test.
+        rtol (float): relative tolerance for elements of the matrix/tensor
+        atol (float): absolute tolerance for elements of the matrix/tensor
+
+    Returns:
+        (bool): True | False.
+    """
+    # ensure the numpy type
+    x = np.array( x )
+    return x.ndim == 2 and x.shape[0] == 3 and issymmetric( x, rtol = rtol, atol = atol )
 
 def is_scalar( x ):
     """
@@ -162,14 +181,14 @@ def is_scalar( x ):
     else:
         return False
 
-def is_scalar_extended( x, atol = 1e-6 ):
+def is_scalar_extended( x, rtol = 1e-6 ):
     """
     Test whether x is a scalar.
     Including the case when x is a diagonal matrix representation of a scalar.
 
     Args:
         x (int|float|numpy.ndarray): an argument to test.
-        atol (float): absolute tolerance for elements of the matrix/tensor
+        rtol (float): relative tolerance for elements of the matrix/tensor
 
     Returns:
         (bool): True | False.
@@ -185,7 +204,7 @@ def is_scalar_extended( x, atol = 1e-6 ):
             trace = np.trace( x )
             av_element = trace / x.shape[0]
             expected = np.identity( x.shape[0] ) * av_element
-            return np.allclose( x, expected, atol = atol )
+            return np.allclose( x, expected, rtol = rtol )
         else:
             return False
     else:
@@ -247,48 +266,6 @@ def number_of_unique_permutations( seq ):
     factorials = list( map( factorial, times_included ) )
     return int( factorial( len( seq ) ) / reduce( mul, factorials ) )
 
-def unique_permutations( seq ):
-    """
-    Yield only unique permutations of seq in an efficient way.
-
-    A python implementation of Knuth's "Algorithm L", also known from the 
-    std::next_permutation function of C++, and as the permutation algorithm 
-    of Narayana Pandita.
-   
-    see http://stackoverflow.com/questions/12836385/how-can-i-interleave-or-create-unique-permutations-of-two-stings-without-recurs/12837695
-    """
-    # Precalculate the indices we'll be iterating over for speed
-    i_indices = range(len(seq) - 1, -1, -1)
-    k_indices = i_indices[1:]
-    # The algorithm specifies to start with a sorted version
-    seq = sorted(seq)
-    while True:
-        #yield list( seq )
-        yield list( seq )
-        # Working backwards from the last-but-one index,           k
-        # we find the index of the first decrease in value.  0 0 1 0 1 1 1 0
-        for k in k_indices:
-            if seq[k] < seq[k + 1]:
-                break
-        else:
-            # Introducing the slightly unknown python for-else syntax:
-            # else is executed only if the break statement was never reached.
-            # If this is the case, seq is weakly decreasing, and we're done.
-            return
-        # Get item from sequence only once, for speed
-        k_val = seq[k]
-        # Working backwards starting with the last item,           k     i
-        # find the first one greater than the one at k       0 0 1 0 1 1 1 0
-        for i in i_indices:
-            if k_val < seq[i]:
-                break
-        # Swap them in the most efficient way
-        (seq[k], seq[i]) = (seq[i], seq[k])                #       k     i
-                                                           # 0 0 1 1 1 1 0 0
-        # Reverse the part after but not                           k
-        # including k, also efficiently.                     0 0 1 1 0 0 1 1
-        seq[k + 1:] = seq[-1:k:-1]
-
 def set_copy_assignment( value ):
         set_value = deepcopy( value )
         if isinstance( set_value, set ):
@@ -320,3 +297,27 @@ def is_equal_2D( value_1, value_2 ):
     else:
         raise ValueError('not implemented for higher dimensions as of now')
     return eq_flag
+
+def rotation_matrix_based_on_vectors( v1, v2 ):
+    """
+    Calculate rotation matrix that connect 2 given vectors.
+
+    Args:
+        v1, v2 (numpy.matrix|numpy.ndarray|list): The 3D-vectors to be connected.
+
+    Returns:
+        (numpy.ndarray): rotation matrix.
+    
+    Raise:
+        TypeError: non-3D-vector inputs
+    """
+    v1 = np.array( v1 )
+    v2 = np.array( v2 )
+    if not is_3D_vector( v1 ) or not is_3D_vector( v2 ):
+        raise TypeError('Unsupported non-3D-vector inputs')
+    c = np.cross( v1, v2 )
+    theta = asin( norm( c ) / ( norm( v1 ) * norm( v2 ) ) )
+    if np.dot( v1, v2 ) < 0:
+        theta += ( pi / 2 - theta ) * 2
+    rot = Rotation.from_rotvec( theta * c / norm( c ), degrees = False )
+    return rot.as_matrix()

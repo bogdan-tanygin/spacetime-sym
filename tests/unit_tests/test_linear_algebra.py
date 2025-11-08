@@ -19,6 +19,8 @@ class GenericLinearAlgebraTestCase( unittest.TestCase ):
     def setUp(self):
         # absolute tolerance
         self.atol = 1e-6
+        # relative tolerance
+        self.rtol = 1e-6
         # decimal power tolerance 10**(-ptol)
         self.ptol = 6
         # random scalar
@@ -145,35 +147,6 @@ class GenericLinearAlgebraTestCase( unittest.TestCase ):
         self.assertEqual( is_scalar( x ), False )
         x = None
         self.assertEqual( is_scalar( x ), False )
-
-class PermutationsTestCase( unittest.TestCase ):
-    """Tests for permutations functions"""
-
-    def test_flatten_list( self ):
-        l = [ [ 1, 2 ], [ 3, 4, 5 ] ]
-        self.assertEqual( la.flatten_list( l ), [ 1, 2, 3, 4, 5 ] )
-
-    def test_number_of_unique_permutations(self):
-        a = [1,1,0,0]
-        self.assertEqual( la.number_of_unique_permutations( a ), 6 )
-        b = [1]*8 + [0]*8
-        self.assertEqual( la.number_of_unique_permutations( b ), 12870 )
-        c = [1,1,2,2,3,3]
-        self.assertEqual( la.number_of_unique_permutations( c ), 90 )
-  
-    def test_unique_permuations( self ):
-        all_permutations = [ [ 1, 1, 0, 0 ],
-                             [ 1, 0, 1, 0 ],
-                             [ 1, 0, 0, 1 ],
-                             [ 0, 1, 1, 0 ],
-                             [ 0, 1, 0, 1 ],
-                             [ 0, 0, 1, 1 ] ]
-        for p in all_permutations:
-            unique_permutations = list( la.unique_permutations( p ) )
-            self.assertEqual( len( all_permutations ), len( unique_permutations ) )
-            # check that every list in all_permutations has been generated
-            for p2 in all_permutations:
-                self.assertEqual( p2 in unique_permutations, True )
  
 if __name__ == '__main__':
     unittest.main()

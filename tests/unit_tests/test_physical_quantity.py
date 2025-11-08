@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Dr. Bogdan Tanygin <info@deeptech.business>
+# Copyright (C) 2024-2025 Dr. Bogdan Tanygin <info@deeptech.business>
 #
 # This file is part of spacetime-sym.
 #
@@ -15,7 +15,9 @@ class TestPhysicalQuantity( unittest.TestCase ):
         self.scalar = 42.42e+3 * np.sqrt( 7 )
         self.vector = np.array( [ -1/2, 0.4, self.scalar ] )
         self.label = 'velocity'
+        #TODO correct atol globally - make it stricter
         self.atol = 1e-6
+        self.rtol = 1e-6
         # random tensor
         self.tensor = np.array( [ [ -1, np.sqrt( np.pi ), 1.3454675432e6 ],
                                     [ 743.3566, 0, -1.456 ],
@@ -98,7 +100,7 @@ class TestPhysicalQuantity( unittest.TestCase ):
         pq.value = self.vector
         vector_test = np.array( [np.sqrt(3.0), np.exp(-2.3), 0] )
         pq.value = vector_test
-        np.testing.assert_allclose( pq.value, vector_test, atol = self.atol )
+        np.testing.assert_allclose( pq.value, vector_test, rtol = self.rtol )
         self.assertEqual( np.array_equiv( pq.value, vector_test ), True )
 
     def test_init_scalar_value( self ):
@@ -110,7 +112,7 @@ class TestPhysicalQuantity( unittest.TestCase ):
     def test_init_vector_value( self ):
         pq = PhysicalQuantity( value = self.vector )
         vector_test = self.vector
-        np.testing.assert_allclose( pq.value, vector_test, atol = self.atol )
+        np.testing.assert_allclose( pq.value, vector_test, rtol = self.rtol )
         self.assertEqual( np.array_equiv( pq.value, vector_test ), True )
     
     def test_init_bidirector_value( self ):

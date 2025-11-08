@@ -144,7 +144,7 @@ class SymmetryOperation:
         """
         return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label = label)
 
-    def similarity_transform( self, s, label=None ):
+    def similarity_transform( self, s, label = None ):
         """
         Generate the SymmetryOperation produced by a similarity transform S^{-1}.M.S
 
@@ -236,10 +236,10 @@ class SymmetryOperationO3(SymmetryOperation):
         """
         det_check = det( matrix )
         # assuming unitary magnitude
-        if not is_rotational_3D( matrix, atol = det_rtol * 1):
+        if not is_rotational_3D( matrix, rtol = det_rtol * 1):
             raise ValueError('Not a rotation matrix')
         # set the improper location flag
-        if not is_rotational_proper_3D( matrix, atol = det_rtol * 1):
+        if not is_rotational_proper_3D( matrix, rtol = det_rtol * 1):
             # the symmetry operation belongs to O(3)
             self._improper = True
             # automatic setting of the space parity
@@ -560,7 +560,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             # Dot-multiplaying (acting on) the PhysicalQuantity
             return self.operate_on( other )
         else:
-            raise TypeError
+            raise TypeError('Unsupported class of an operand')
 
     @property
     def matrix( self ):
@@ -624,7 +624,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             None
         """
         # assuming unitary value
-        if not is_rotational_proper_3D( matrix, atol = det_rtol * 1 ):
+        if not is_rotational_proper_3D( matrix, rtol = det_rtol * 1 ):
             raise ValueError('Not a proper rotation matrix')
         else:
             self._det_check_and_init( matrix = matrix )
