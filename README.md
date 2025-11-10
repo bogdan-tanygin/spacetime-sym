@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/17573059.svg)](https://doi.org/10.5281/zenodo.17573059)
 [![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
 
 `spacetime-sym` is a Python module introducing symmetry theory formalism into data science and natural sciences. It is a fork of [bsym][githubbsym]. It consists of core classes that describe configuration vector and Euclidean 3D spaces, their symmetry operations (e.g. `O(3)` and `SO(3)` groups), specific configurations of objects within these spaces, and physical quantities. The module also contains an interface for working with [`pymatgen`](https://pymatgen.org) `Structure` objects.
