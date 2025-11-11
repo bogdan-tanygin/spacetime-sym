@@ -10,8 +10,7 @@ readme = "README.md"
 authors = [
     {name = "Dr. Bogdan M. Tanygin", email = "bogdan@deeptech.business"},
 ]
-license = { file = "LICENSE" }
-license-files = ["LICENSE*", "COPYING*", "LICENSE-commercial*"]
+license = "GPL-3.0-only"
 requires-python = ">=3.12"
 dependencies = [
     "numpy",
@@ -52,7 +51,7 @@ docs = [
 
 [tool.setuptools]
 packages = ["spacetime"]
-license-files = ["LICENSE*"]
+license_files = ["LICENSE", "LICENSE-commercial"]
 
 [tool.setuptools.dynamic]
 version = {attr = "spacetime.version.__version__"}
