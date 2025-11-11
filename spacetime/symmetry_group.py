@@ -301,7 +301,6 @@ class SymmetryGroup:
 
 #TODO
 #TODO UT for LimitingSymmetryGroupAxial similar to LimitingSymmetryGroupScalar
-#TODO functional UTs to cover ∞2, ∞/m, ∞mm, or ∞/mm + dich
 #TODO UTs: init through decorator assignments
 class LimitingSymmetryGroupAxial(SymmetryGroup):
     """
@@ -602,7 +601,6 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         return invariant_flag
 
     def _assign_label( self, atol = 1e-14  ):
-        #TODO UT: more cases
         label = '∞∞'
         for so in self.symmetry_operations:
             # for O3 and its subgroups
@@ -626,7 +624,6 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         self.label = label
     
     def __repr__( self ):
-        to_return = '{}\n'.format( self.label )
+        to_return = ''
         to_return += super( LimitingSymmetryGroupScalar, self ).__repr__()
         return to_return
-

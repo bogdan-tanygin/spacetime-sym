@@ -174,7 +174,6 @@ def get_tensor_axis( x, rtol = 1e-6, atol = 1e-14 ):
     eigvals, eigvecs_tmp = np.linalg.eigh( x )
     # represent the eigvecs as rows:
     eigvecs = eigvecs_tmp.transpose()
-    # TODO prio here and in the SG -- abs value of each eig
     eigvals_abs = np.zeros( 3 )
     for i in range( 3 ):
         eigvals_abs[ i ] = abs( eigvals[ i ] )

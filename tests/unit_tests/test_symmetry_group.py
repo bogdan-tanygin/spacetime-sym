@@ -1028,9 +1028,7 @@ Dichromatic reversals: ['P', 'T']
         print( sg, file = print_io)
         printed_str = print_io.getvalue()
         print_io.close()
-        #TODO to deduplicate
         expected_str = '''\
-∞∞m*'
 ∞∞m*'
 LimitingSymmetryGroupScalar
 SymmetryOperation
@@ -1045,6 +1043,92 @@ label(---)
  [-0. -1. -0.]
  [-0. -0. -1.]]
 Dichromatic reversals: ['C', 'P', 'T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_lim_scalar_symmetry_group_timerev( self ):
+        self.maxDiff = None
+        inv_CT = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = { 'C', 'T' } )
+        id_T = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ inv_CT, id_T ] )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞∞1'm*'m*
+LimitingSymmetryGroupScalar
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: ['T']
+SymmetryOperation
+label(---)
+[[-1. -0. -0.]
+ [-0. -1. -0.]
+ [-0. -0. -1.]]
+Dichromatic reversals: ['C', 'P', 'T']
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
+Dichromatic reversals: ['C', 'P']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_lim_scalar_symmetry_group_timerev_chiral( self ):
+        self.maxDiff = None
+        id_T = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ id_T ] )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞∞1'
+LimitingSymmetryGroupScalar
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: ['T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+    
+    def test_repr_lim_scalar_symmetry_group_chiral( self ):
+        sg = LimitingSymmetryGroupScalar()
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞∞
+LimitingSymmetryGroupScalar
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
 
 '''.format(length='multi-line')
         self.assertEqual( printed_str, expected_str )
