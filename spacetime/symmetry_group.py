@@ -525,7 +525,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                     else:
                         label += dich
         if '\\' in label:
-            label -= '\\'
+            label = label.replace("\\", "")
             label = '\\' + label
         label = '∞' + label
         self.label = label
@@ -581,12 +581,13 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
                      np.allclose( so.matrix, - np.identity( n_dim ), rtol = rtol) ):
                 raise ValueError('Must be an identity or inversion matrix')
 
-    def is_invariant( self, physical_quantity ):
+    def is_invariant( self, physical_quantity, rtol = 1e-6 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
+            rtol (float): a relative tolerance of the comparing
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
@@ -594,7 +595,7 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         Return:
             (bool): True | False
         """
-        invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity )
+        invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol )
         if not is_scalar_extended( physical_quantity.value ):
             invariant_flag = False
         return invariant_flag
