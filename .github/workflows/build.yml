@@ -22,15 +22,7 @@ jobs:
         python -m pip install numpy
         # Install package with dev dependencies
         python -m pip install -e ".[dev]"
-        python -m pip list | python - <<'PY'
-import sys, subprocess
-for k in ("numpy","pytest","mypy","setuptools"):
-    try:
-        __import__(k)
-        print(k, "OK")
-    except Exception as e:
-        print(k, "MISSING", e, file=sys.stderr)
-PY
+        python -m pip list
     - name: Run tests
       run: |
         pytest tests/unit_tests
