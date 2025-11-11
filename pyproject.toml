@@ -10,8 +10,8 @@ readme = "README.md"
 authors = [
     {name = "Dr. Bogdan M. Tanygin", email = "bogdan@deeptech.business"},
 ]
-license = "GPL-3.0-only OR Proprietary"
-license-files = ["LICENSE", "LICENSE-commercial"]
+license = { file = "LICENSE" }
+license-files = ["LICENSE*", "COPYING*", "LICENSE-commercial*"]
 requires-python = ">=3.12"
 dependencies = [
     "numpy",
