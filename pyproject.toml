@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spacetime-sym"
+dynamic = ["version"]
+description = "A spacetime symmetry module"
+readme = "README.md"
+authors = [
+    {name = "Dr. Bogdan M. Tanygin", email = "bogdan@deeptech.business"},
+]
+license = {text = "GPL-3.0"}
+requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "scipy",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "License :: OSI Approved :: GNU General Public License version 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx_rtd_theme>=1.0.0",
+    "nbsphinx>=0.8.9",
+    "ipykernel>=6.0.0",
+    "matplotlib>=3.4.0",
+    "pypandoc>=1.5",
+    "myst-parser",
+    "myst-nb",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/bogdan-tanygin/spacetime-sym"
+"Bug Tracker" = "https://github.com/bogdan-tanygin/spacetime-sym/issues"
+"Source Code" = "https://github.com/bogdan-tanygin/spacetime-sym"
+
+[tool.setuptools]
+packages = ["spacetime-sym"]
+
+[tool.setuptools.dynamic]
+version = {attr = "spacetime.version.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--strict-markers",
+]
+
+[tool.coverage.run]
+source = ["spacetime"]
+omit = [
+    "*/python?.?/*",
+    "*/lib-python/?.?/*.py",
+    "*/lib_pypy/_*.py",
+    "*/site-packages/ordereddict.py",
+    "*/site-packages/nose/*",
+    "*/unittest2/*",
+    "docs",
+]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true

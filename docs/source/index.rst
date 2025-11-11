@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-spacetime-sym - A symmetry module for natural sciences
+spacetime - A symmetry module for natural sciences
 ======================================================
 
-``spacetime-sym`` is a Python module introducing symmetry theory formalism into data science and natural sciences.
+``spacetime`` is a Python module introducing symmetry theory formalism into data science and natural sciences.
 
 API documentation is `here <modules.html>`__.
 

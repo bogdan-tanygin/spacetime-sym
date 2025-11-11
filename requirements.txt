@@ -1,4 +1,2 @@
 numpy
-pymatgen
 scipy
-tqdm
