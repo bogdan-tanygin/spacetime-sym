@@ -51,7 +51,7 @@ docs = [
 
 [tool.setuptools]
 packages = ["spacetime"]
-license_files = ["LICENSE", "LICENSE-commercial"]
+license-files = ["LICENSE", "LICENSE-commercial"]
 
 [tool.setuptools.dynamic]
 version = {attr = "spacetime.version.__version__"}
