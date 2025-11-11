@@ -259,13 +259,14 @@ class SymmetryGroup:
         return [ so.label for so in self._symmetry_operations ] 
 
     #TODO UT
-    def is_invariant( self, physical_quantity, rtol = 1e-6 ):
+    def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
             rtol (float): a relative tolerance of the comparing
+            atol (float): an absolute tolerance of the comparing
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
