@@ -424,7 +424,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             physical_quantity (PhysicalQuantity): a physical quantity to check.
             rtol (float): a relative tolerance of the comparing
             atol (float): an absolute tolerance of the comparing
-            decimal (int): number of decimal places to round eigen values to
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
@@ -432,7 +431,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         Return:
             (bool): True | False
         """
-        invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
+        invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol, atol = atol )
         if invariant_flag:
             if is_3D_vector( physical_quantity.value ):
                 # collinearity test for the vector
@@ -475,7 +474,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         return invariant_flag
 
     #TODO prio
-    def _assign_label( self , atol = 1E14 ):
+    def _assign_label( self, atol = 1e-14 ):
         #label = '∞'
         label = ''
         for so in self.symmetry_operations:
@@ -582,13 +581,14 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
                      np.allclose( so.matrix, - np.identity( n_dim ), rtol = rtol) ):
                 raise ValueError('Must be an identity or inversion matrix')
 
-    def is_invariant( self, physical_quantity, rtol = 1e-6 ):
+    def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
 
         Args:
             physical_quantity (PhysicalQuantity): a physical quantity to check.
             rtol (float): a relative tolerance of the comparing
+            atol (float): an absolute tolerance of the comparing
 
         Raises:
             TypeError: if physical_quantity does not belong to the class PhysicalQuantity
@@ -596,12 +596,12 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         Return:
             (bool): True | False
         """
-        invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol )
+        invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol, atol = atol )
         if not is_scalar_extended( physical_quantity.value ):
             invariant_flag = False
         return invariant_flag
 
-    def _assign_label( self ):
+    def _assign_label( self, atol = 1e-14  ):
         #TODO UT: more cases
         label = '∞∞'
         for so in self.symmetry_operations:
