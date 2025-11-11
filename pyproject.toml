@@ -10,7 +10,8 @@ readme = "README.md"
 authors = [
     {name = "Dr. Bogdan M. Tanygin", email = "bogdan@deeptech.business"},
 ]
-license = {text = "GPL-3.0"}
+license = {text = "GPL-3.0-only OR Proprietary"}
+license-files = ["LICENSE", "LICENSE-commercial"]
 requires-python = ">=3.12"
 dependencies = [
     "numpy",
@@ -22,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: Other/Proprietary License",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering",
 ]
