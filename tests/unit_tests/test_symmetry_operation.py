@@ -20,28 +20,28 @@ from spacetime.linear_algebra import is_square, is_permutation_matrix
 class SymmetryOperationTestCase( unittest.TestCase ):
     """Tests for symmetry operation functions"""
 
-    def test_symmetry_operation_is_initialised_from_an_array( self ):
+    def test_symmetry_operation_is_initialised_from_an_array_1( self ):
         array = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperation( array )
         np.testing.assert_array_equal( so.matrix, np.array( array ) )
 
-    def test_symmetry_operation_is_initialised_from_a_list( self ):
+    def test_symmetry_operation_is_initialised_from_a_list_1( self ):
         this_list = [ [ 1, 0 ], [ 0, 1 ] ]
         so = SymmetryOperation( this_list )
         np.testing.assert_array_equal( so.matrix, np.array( this_list ) )
 
-    def test_symmetry_operation_raises_typeerror_for_invalid_type( self ):
+    def test_symmetry_operation_raises_typeerror_for_invalid_type_1( self ):
         objects = [ 'foo', 1, None ]
         for o in objects:
             with self.assertRaises( TypeError ):
                 SymmetryOperation( o )
 
-    def test_symmetry_operation_raises_valueerror_for_nonsquare_matrix( self ):
+    def test_symmetry_operation_raises_valueerror_for_nonsquare_matrix_2( self ):
         array = np.array( [ [ 1, 0, 0 ], [ 0, 0, 1 ] ] )
         with self.assertRaises( ValueError ):
             SymmetryOperation( array )
 
-    def test_symmetry_operation_is_initialised_with_label( self ):
+    def test_symmetry_operation_is_initialised_with_label_1( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         label = 'E'
         so = SymmetryOperation( matrix, label=label ) 
@@ -54,24 +54,18 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so_b = SymmetryOperation( matrix_b )
         np.testing.assert_array_equal( ( so_a * so_b ).matrix , np.array( [ [ 0, 1 ], [ 1, 0 ] ] ) )
 
-    def test_invert( self ):
+    def test_invert_1( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         matrix_b = np.array( [ [ 0, 0, 1 ], [ 1, 0, 0 ], [ 0, 1, 0 ] ] )
         so = SymmetryOperation( matrix_a )
         np.testing.assert_array_equal( so.invert().matrix, matrix_b )
 
-    def test_invert_sets_label( self ):
+    def test_invert_sets_label_1( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         so = SymmetryOperation( matrix_a ).invert( label='A' )
         self.assertEqual( so.label, 'A' )
 
-    def test_symmetry_operation_is_initialised_with_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
-        label = 'E'
-        so = SymmetryOperation( matrix, label=label )
-        self.assertEqual( so.label, label )
-
-    def test_similarity_transform( self ):
+    def test_similarity_transform_2( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         matrix_b = np.array( [ [ 1, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ] ] )
         matrix_c = np.linalg.inv( matrix_a )
@@ -93,13 +87,13 @@ class SymmetryOperationTestCase( unittest.TestCase ):
         so = SymmetryOperation( matrix )
         self.assertEqual( so.character(), 2 )
 
-    def test_se_label( self ):
+    def test_se_label_1( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperation( matrix )
         so.set_label( 'new_label' )
         self.assertEqual( so.label, 'new_label' )
 
-    def test_repr( self ):
+    def test_repr_2( self ):
         matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
         so = SymmetryOperation( matrix, label='L' )
         this_repr = so.__repr__()
@@ -158,36 +152,36 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
                                 [ 0,   2, 0 ],
                                 [ 0,   0, 1 ]]
 
-    def test_symmetry_operation_is_initialised_from_an_array( self ):
+    def test_symmetry_operation_is_initialised_from_an_array_2( self ):
         so = SymmetryOperationO3( self.array_0 )
         np.testing.assert_allclose( so.matrix, self.array_0 )
     
-    def test_symmetry_operation_is_initialised_from_a_list( self ):
+    def test_symmetry_operation_is_initialised_from_a_list_2( self ):
         so = SymmetryOperationO3( self.list_0 )
         np.testing.assert_allclose( so.matrix, np.array( self.list_0 ) )
     
-    def test_symmetry_operation_is_initialised_from_a_rotation( self ):
+    def test_symmetry_operation_is_initialised_from_a_rotation_1( self ):
         so = SymmetryOperationO3( self.rotation_0 )
         np.testing.assert_allclose( so.matrix, self.rotation_0.as_matrix() )
 
-    def test_symmetry_operation_raises_typeerror_for_invalid_type( self ):
+    def test_symmetry_operation_raises_typeerror_for_invalid_type_2( self ):
         objects = [ 'foo', 1, None ]
         for o in objects:
             with self.assertRaises( TypeError ):
                 SymmetryOperationO3( o )
 
-    def test_symmetry_operation_raises_valueerror_for_nonsquare_matrix( self ):
+    def test_symmetry_operation_raises_valueerror_for_nonsquare_matrix_1( self ):
         array = np.array( [ [ 1, 0, 0 ], [ 0, 0, 1 ] ] )
         with self.assertRaises( ValueError ):
             SymmetryOperationO3( array )
 
-    def test_symmetry_operation_is_initialised_with_label( self ):
-        matrix = np.array( [ [ 1, 0 ], [ 0, 1 ] ] )
+    def test_symmetry_operation_is_initialised_with_label_2( self ):
+        matrix = np.array( np.identity( 3 ) )
         label = 'E'
         so = SymmetryOperationO3( matrix, label=label ) 
         self.assertEqual( so.label, label )
 
-    def test_mul( self ):
+    def test_mul_1( self ):
         rot_0 = Rotation.from_rotvec(self.rot_vec_0)
         rot_2 = Rotation.from_rotvec(2 * self.rot_vec_0)
         so_0 = SymmetryOperationO3( rot_0 )
@@ -201,7 +195,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         np.testing.assert_allclose( (so * so_inv).matrix, np.identity( 3 ),
                                      atol = self.atol)
 
-    def test_invert_sets_label( self ):
+    def test_invert_sets_label_2( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         so = SymmetryOperationO3( matrix_a ).invert( label='A' )
         self.assertEqual( so.label, 'A' )
@@ -212,7 +206,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so = SymmetryOperationO3( matrix, label=label )
         self.assertEqual( so.label, label )
 
-    def test_similarity_transform( self ):
+    def test_similarity_transform_1( self ):
         matrix_a = np.array( [ [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ] )
         matrix_b = np.array( [ [ 1, 0, 0 ], [ 0, 0, 1 ], [ 0, 1, 0 ] ] )
         matrix_c = np.linalg.inv( matrix_a )
@@ -220,13 +214,13 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_b = SymmetryOperationO3( matrix_b )
         np.testing.assert_array_equal( so_a.similarity_transform( so_b ).matrix, matrix_c )
 
-    def test_se_label( self ):
+    def test_se_label_2( self ):
         matrix = np.array( self.list_0 )
         so = SymmetryOperationO3( matrix )
         so.set_label( 'new_label' )
         self.assertEqual( so.label, 'new_label' )
 
-    def test_repr( self ):
+    def test_repr_1( self ):
         matrix = np.array( self.list_0 )
         so = SymmetryOperationO3( matrix, label='L' )
         this_repr = so.__repr__()
@@ -287,7 +281,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
             so_3.matrix = self.array_0
 
-    def test_mul_physical_scalar( self ):
+    def test_mul_physical_scalar_2( self ):
         dich_test = {"C":1, "P":1, "T":1}
         scalar_test = 273.15
         pq = PhysicalQuantity( value = scalar_test, label = 'temperature',
@@ -320,7 +314,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( pq_updated.dich, dich_test )
         self.assertEqual( pq_updated.label, pq.label )
 
-    def test_mul_physical_pseudoscalar( self ):
+    def test_mul_physical_pseudoscalar_2( self ):
         dich_test = {"C":1, "P":-1, "T":1}
         pseudoscalar_test = sqrt( 42 )
         pseudoscalar_test_tensor = sqrt( 42 ) * np.identity( 3 )
@@ -373,7 +367,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( pq == pq_updated, True )
         self.assertEqual( pq != pq_updated, False )
 
-    def test_mul_electric_field( self ):
+    def test_mul_electric_field_1( self ):
         # electrical field, a polar time-even vector.
         # It has the odd dichromatic symmetry against charge inversion.
         dich_test = {"C":-1, "P":1, "T":1}
@@ -435,7 +429,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
-    def test_mul_magnetic_field( self ):
+    def test_mul_magnetic_field_2( self ):
         # magnetic field, an axial time-odd vector.
         # It has the odd dichromatic symmetry against charge inversion.
         dich_test = {"C":-1, "P":-1, "T":-1}
@@ -545,11 +539,11 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
             #the regular proper rotation class with wrong dichromatic reversal
             so_1 = SymmetryOperationSO3( matrix = self.array_0, dich_operations = { 'P' } )
 
-    def test_symmetry_operation_is_initialised_from_a_list( self ):
+    def test_symmetry_operation_is_initialised_from_a_list_3( self ):
         so = SymmetryOperationSO3( self.list_0 )
         np.testing.assert_allclose( so.matrix, np.array( self.list_0 ) )
     
-    def test_symmetry_operation_is_initialised_from_a_rotation( self ):
+    def test_symmetry_operation_is_initialised_from_a_rotation_2( self ):
         so = SymmetryOperationSO3( self.rotation_0 )
         np.testing.assert_allclose( so.matrix, self.rotation_0.as_matrix() )
     
@@ -568,20 +562,20 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
             so_3 = SymmetryOperationSO3( self.matrix_unit_det )
     
-    def test_invert( self ):
+    def test_invert_2( self ):
         matrix_a = self.array_0
         so = SymmetryOperationSO3( matrix_a )
         so_inv = so.invert()
         np.testing.assert_allclose( (so * so_inv).matrix, np.identity( 3 ),
                                      atol = self.atol)
     
-    def test_mul( self ):
+    def test_mul_2( self ):
         rot_0 = Rotation.from_rotvec(self.rot_vec_0)
         rot_2 = Rotation.from_rotvec(2 * self.rot_vec_0)
         so_0 = SymmetryOperationSO3( rot_0 )
         so_2 = SymmetryOperationSO3( rot_2 )
         np.testing.assert_allclose( ( so_0 * so_0 ).matrix , so_2.matrix )
-    
+
     def test_returnO3_with_improper_flag( self ):
         #first, let's set the regular proper rotation
         so_1 = SymmetryOperationSO3( self.rotation_0 )
@@ -589,7 +583,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         so_2 = SymmetryOperationO3( - 1 * self.array_0 )
         self.assertEqual( (so_1 * so_2).improper, True )
     
-    def test_mul_physical_scalar( self ):
+    def test_mul_physical_scalar_1( self ):
         dich_test = {"C":1, "P":1, "T":1}
         scalar_test = 273.15
         pq = PhysicalQuantity( value = scalar_test, label = 'temperature',
@@ -618,7 +612,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         self.assertEqual( pq_updated.dich, dich_test )
         self.assertEqual( pq_updated.label, pq.label )
 
-    def test_mul_physical_pseudoscalar( self ):
+    def test_mul_physical_pseudoscalar_1( self ):
         dich_test = {"C":-1, "P":-1, "T":1}
         pseudoscalar_test = sqrt( 42 )
         pq = PhysicalQuantity( value = pseudoscalar_test, label = 'the pseudoscalar',
@@ -674,7 +668,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         self.assertEqual( pq_updated.dich, dich_test )
         self.assertEqual( pq_updated.label, pq.label )
 
-    def test_mul_electric_field( self ):
+    def test_mul_electric_field_2( self ):
         # electrical field, a polar time-even vector.
         # It has the odd dichromatic symmetry against charge inversion.
         dich_test = {"C":-1, "P":1, "T":1}
@@ -720,7 +714,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         np.testing.assert_array_equal( pq_updated.dich, dich_test )
         np.testing.assert_array_equal( pq_updated.label, pq.label )
 
-    def test_mul_magnetic_field( self ):
+    def test_mul_magnetic_field_1( self ):
         # magnetic field, an axial time-odd vector.
         # It has the odd dichromatic symmetry against charge inversion.
         dich_test = {"C":-1, "P":-1, "T":-1}
@@ -782,19 +776,19 @@ class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
         self.list_0 = [0.4578, - 1.639, - 4.25]
         self.array_Z = np.array( [0, 0, 1] )
 
-    def test_symmetry_operation_is_initialised_from_an_array( self ):
+    def test_symmetry_operation_is_initialised_from_an_array_3( self ):
         so = LimitingSymmetryOperationO3( self.array_0 )
         np.testing.assert_allclose( so.axis, self.array_0 )
     
-    def test_symmetry_operation_is_initialised_from_a_list( self ):
+    def test_symmetry_operation_is_initialised_from_a_list_4( self ):
         so = LimitingSymmetryOperationO3( self.list_0 )
         np.testing.assert_allclose( so.axis, self.array_0 )
 
-    def test_symmetry_operation_is_initialised_by_defaults( self ):
+    def test_symmetry_operation_is_initialised_by_defaults_1( self ):
         so = LimitingSymmetryOperationO3()
         np.testing.assert_allclose( so.axis, self.array_Z )
 
-    def test_symmetry_operation_raises_errors_for_invalid_type( self ):
+    def test_symmetry_operation_raises_errors_for_invalid_type_2( self ):
         objects = [ 'foo', None, 1 ]
         for o in objects:
             with self.assertRaises( TypeError ):
@@ -802,12 +796,12 @@ class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
                 LimitingSymmetryOperationO3( [1, 2] )
     
-    def test_limiting_sym_operation_matrix( self ):
+    def test_limiting_sym_operation_matrix_1( self ):
         so = LimitingSymmetryOperationO3()
         with self.assertRaises( ValueError ):
             so.matrix
     
-    def test_repr_sym_oper( self ):
+    def test_repr_sym_oper_2( self ):
         so = LimitingSymmetryOperationO3( self.list_0 )
         print_io = io.StringIO()
         print( so, file = print_io)
@@ -818,7 +812,7 @@ class LimitingSymmetryOperationO3TestCase( unittest.TestCase ):
                        '\nDichromatic reversals: \n'
         self.assertEqual( printed_str, expected_str )
 
-    def test_repr_sym_oper_w_dich( self ):
+    def test_repr_sym_oper_w_dich_1( self ):
         so = LimitingSymmetryOperationO3( self.list_0 )
         so.dich_operations = {'P','C'}
         so.add_dich_operations('T')
@@ -861,19 +855,19 @@ class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
         self.list_0 = [0.4578, - 1.639, - 4.25]
         self.array_Z = np.array( [0, 0, 1] )
 
-    def test_symmetry_operation_is_initialised_from_an_array( self ):
+    def test_symmetry_operation_is_initialised_from_an_array_4( self ):
         so = LimitingSymmetryOperationSO3( self.array_0 )
         np.testing.assert_allclose( so.axis, self.array_0 )
     
-    def test_symmetry_operation_is_initialised_from_a_list( self ):
+    def test_symmetry_operation_is_initialised_from_a_list_5( self ):
         so = LimitingSymmetryOperationSO3( self.list_0 )
         np.testing.assert_allclose( so.axis, self.array_0 )
 
-    def test_symmetry_operation_is_initialised_by_defaults( self ):
+    def test_symmetry_operation_is_initialised_by_defaults_2( self ):
         so = LimitingSymmetryOperationSO3()
         np.testing.assert_allclose( so.axis, self.array_Z )
 
-    def test_symmetry_operation_raises_errors_for_invalid_type( self ):
+    def test_symmetry_operation_raises_errors_for_invalid_type_1( self ):
         objects = [ 'foo', None, 1 ]
         for o in objects:
             with self.assertRaises( TypeError ):
@@ -881,12 +875,12 @@ class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
         with self.assertRaises( ValueError ):
                 LimitingSymmetryOperationSO3( [1, 2] )
     
-    def test_limiting_sym_operation_matrix( self ):
+    def test_limiting_sym_operation_matrix_2( self ):
         so = LimitingSymmetryOperationSO3()
         with self.assertRaises( ValueError ):
             so.matrix
     
-    def test_repr_sym_oper( self ):
+    def test_repr_sym_oper_1( self ):
         so = LimitingSymmetryOperationSO3( self.list_0 )
         print_io = io.StringIO()
         print( so, file = print_io)
@@ -897,7 +891,7 @@ class LimitingSymmetryOperationSO3TestCase( unittest.TestCase ):
                        '\nDichromatic reversals: \n'
         self.assertEqual( printed_str, expected_str )
 
-    def test_repr_sym_oper_w_dich( self ):
+    def test_repr_sym_oper_w_dich_2( self ):
         so = LimitingSymmetryOperationSO3( self.list_0 )
         so.add_dich_operations('T')
         so.add_dich_operations('C')

@@ -27,30 +27,24 @@ class SymmetryGroup:
         SymmetryGroup( symmetry_operations=[ s1, s2, s3 ] )
 
     where `s1`, `s2`, and `s3` are :any:`SymmetryOperation` objects.
-
-    :any:`SymmetryGroup` objects can also be created from files using the class methods::
-
-        SymmetryGroup.read_from_file( filename )
-
-    and::
-
-        SymmetryGroup.read_from_file_with_labels( filename )
     """
 
     class_str = 'SymmetryGroup'
 
-    def __init__( self, symmetry_operations=[] ):
+    def __init__( self, symmetry_operations=[], label = "" ):
         """
         Create a :any:`SymmetryGroup` object.
 
         Args:
             symmetry_operations (list): A list of :any:`SymmetryOperation` objects.
+            label (default = "") (str): optional string label for this `SymmetryGroup` object.
 
         Returns:
             None
         """
         self._symmetry_operations_check_and_init( symmetry_operations )
         self._validate_and_correct()
+        self.label = label
 
     @property
     def symmetry_operations( self ):
@@ -70,21 +64,50 @@ class SymmetryGroup:
         self._symmetry_operations_check_and_init( value )
         self._validate_and_correct()
 
-    """
-    Get an order of the group. Forces the group validation before that.
-    Args:
-        group_rtol (float): relative tolerance of the matrix elements comparison.
-    Returns:
-        Order of the symmetry group.
-    """
-    def order( self, group_rtol = 1e-4 ):
-        self._validate_and_correct(group_rtol = group_rtol)
+    @property
+    def label( self ):
+        """
+        Label of the symmetry group.
+
+        Args:
+            None.
+
+        Returns:
+            (str): label.
+        """
+        return self._label
+
+    @label.setter
+    def label( self, value ):
+        """
+        Label of the symmetry group.
+
+        Args:
+            label (str): optional string label for this `SymmetryGroup` object.
+
+        Returns:
+            None.
+        """
+        if not isinstance( value, str):
+            raise ValueError('Label must be a string')
+        else:
+            self._label = value
+
+    def order( self, group_atol = 1e-4 ):
+        """
+        Get an order of the group. Forces the group validation before that.
+        Args:
+            group_atol (float): absolute tolerance of the matrix elements comparison.
+        Returns:
+            Order of the symmetry group.
+        """
+        self._validate_and_correct(group_atol = group_atol)
         return len( self._symmetry_operations )
 
-    def _add_so_if_new( self, so, group_rtol ):
+    def _add_so_if_new( self, so, group_atol ):
         self._gen_flag = False
         # if the matrix is new, we add symmetry operation anyway
-        if not any( np.allclose( so.matrix, so_0_.matrix, rtol = group_rtol ) for so_0_ in self._symmetry_operations ):
+        if not any( np.allclose( so.matrix, so_0_.matrix, atol = group_atol ) for so_0_ in self._symmetry_operations ):
             self._symmetry_operations.append( so )
             self._gen_flag = True
         # if there is already such matrix, we need to compare dich properties
@@ -93,7 +116,7 @@ class SymmetryGroup:
             self._gen_flag = True
             for so_0_ in self._symmetry_operations:
                 # this must be true for some operations if we are here
-                if np.allclose( so.matrix, so_0_.matrix, rtol = group_rtol ):
+                if np.allclose( so.matrix, so_0_.matrix, atol = group_atol ):
                     # if the existing symmetry operation is not dichromatic, we add the new one anyway
                     # note: we enabled dichromatic properties for the group O3 and its subgroups only
                     # allowing us automatic (spatial) parity control, etc.
@@ -106,14 +129,14 @@ class SymmetryGroup:
             if ( self._gen_flag ):
                 self._symmetry_operations.append( so )
 
-    def _validate_and_correct( self, group_rtol = 1e-4 ):
+    def _validate_and_correct( self, group_atol = 1e-4 ):
         # identity check / add if needed
         if not self.identity_w_dich_flag:
-            if not any( np.allclose( so.matrix, self._e_0.matrix, rtol = group_rtol) for so in self._symmetry_operations):
+            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) for so in self._symmetry_operations):
                 self.add_and_generate( self._e_0 )
         else:
             # identity operation must contain empty list of dichromatic reversals
-            if not any( np.allclose( so.matrix, self._e_0.matrix, rtol = group_rtol) and len( so.dich_operations ) == 0 
+            if not any( np.allclose( so.matrix, self._e_0.matrix, atol = group_atol) and len( so.dich_operations ) == 0 
                        for so in self._symmetry_operations):
                 self.add_and_generate( self._e_0 )
         # first, let's deduplicate the group
@@ -127,7 +150,7 @@ class SymmetryGroup:
                         if i != j:
                             so = self._symmetry_operations[i]
                             so_1 = self._symmetry_operations[j]
-                            if np.allclose( so.matrix, so_1.matrix, rtol = group_rtol ):
+                            if np.allclose( so.matrix, so_1.matrix, atol = group_atol ):
                                 if type(so) is SymmetryOperation and type(so_1) is SymmetryOperation:
                                     indx_for_remove.append( j )
                                 # for SymmetryOperationO3 and its subclasses, hence, isinstance(), not type()
@@ -142,14 +165,14 @@ class SymmetryGroup:
             self._symmetry_operations.remove( so )
             self.add_and_generate( so )
 
-    def add_and_generate( self, so, group_rtol = 1e-4  ):
+    def add_and_generate( self, so, group_atol = 1e-4  ):
         """
         Add a :any:`SymmetryOperation` to this :any:`SymmetryGroup` and generate
         all the remaining group operations based on consideration of the current list of
         symmetry operations as a group generator.
         Args:
             symmetry_operation (:any:`SymmetryOperation`): The :any:`SymmetryOperation` to add.
-            group_rtol (float): relative tolerance of the matrix elements comparison.
+            group_atol (float): absolute tolerance of the matrix elements comparison.
         Raises:
             ValueError: in case of numbers of dimensions mismatch.
         Returns:
@@ -160,7 +183,7 @@ class SymmetryGroup:
         if any( so_0.matrix.shape[0] != so.matrix.shape[0] for so_0 in self._symmetry_operations ):
             ValueError('Wrong dimensions of the input symmetry operation')
         # Adding part
-        self._add_so_if_new( so, group_rtol )        
+        self._add_so_if_new( so, group_atol )        
         # Generating part
         if self._gen_flag:
             # the flag is used to track whether group continues to generate new elements
@@ -299,7 +322,6 @@ class SymmetryGroup:
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
 
-#TODO
 #TODO UT for LimitingSymmetryGroupAxial similar to LimitingSymmetryGroupScalar
 #TODO UTs: init through decorator assignments
 class LimitingSymmetryGroupAxial(SymmetryGroup):
@@ -309,7 +331,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
 
     class_str = 'LimitingSymmetryGroupAxial'
 
-    def __init__( self, axis = [ 1, 0, 0 ], symmetry_operations = [ SymmetryOperationSO3( ) ] ):
+    def __init__( self, axis = [ 1, 0, 0 ], symmetry_operations = [ SymmetryOperationSO3( ) ], label = "" ):
         """
         Create a :any:`LimitingSymmetryGroupAxial` object of a symmetry group of
         an axis/vector/straight line/plane. Using Hermann-Mauguin notation,
@@ -326,6 +348,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                 If an only set of dichromatic reversals form a combined
                 reversals with an improper rotation, it defines a noninvariant chirality.
                 For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞/m'.
+            label (default = "") (str): optional string label for this `SymmetryGroup` object.
         Raises:
             ValueError: if the axis is not an invariant of the rest symmetry operations
         Returns:
@@ -333,10 +356,14 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         """
         self._check_and_set_axis( axis = axis )
         #TODO UTs - extending some of init test cases - for axis and [so] reassignemnt
-        super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = symmetry_operations)
+        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
+        # added implicitly for the generation of the rest 
+        so_list = list( symmetry_operations )
+        self._symmetry_operations = so_list
         self._axial_symmetry_operations_check()
+        super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = so_list, label = label)
         # we can generate and assign lavel after the axis and symmetry operations have been initialised
-        self._assign_label()
+        # self._assign_label()
     
     def _check_and_set_axis( self, axis ):
         axis = deepcopy( axis )
@@ -346,11 +373,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             raise TypeError('Not a vector')
         if not is_3D_vector( self._axis ):
             raise TypeError('Not a 3D vector')
-        # the 2-fold rotational axis as a part of the axial limiting group
-        rot_vec_2 =  self.axis * pi / norm( self.axis )
-        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
-        so_2 = SymmetryOperationSO3( matrix = rot_2 )
-        self._so_2 = so_2
 
     @property
     def axis( self ):
@@ -374,13 +396,10 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         self._check_and_set_axis( axis = value )
         # we need to reinit the group if the axis has been changed
         self._axial_symmetry_operations_check()
-        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
-        # added implicitly for the generation of the rest 
-        self._symmetry_operations.append( self._so_2 )
         # now, the group should be regenerated (new axis)
         super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = self.symmetry_operations)
         # we can generate and assign lavel after the axis and symmetry operations have been initialised
-        self._assign_label()
+        #self._assign_label()
 
     @property
     def symmetry_operations( self ):
@@ -399,10 +418,12 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
     @symmetry_operations.setter
     def symmetry_operations( self, value ):
         so_list = list( value )
-        so_list.append( self._so_2 )
-        self._symmetry_operations_check_and_init( so_list )
-        self._validate_and_correct()
-        self._assign_label()
+        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
+        # added implicitly for the generation of the rest 
+        # so_list.append( self._so_2 )
+        # now, the group should be regenerated (new axis)
+        super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = so_list)
+        #self._assign_label()
         # with new symmetry operations, the axis should be revalidated
         self._axial_symmetry_operations_check()
 
@@ -468,67 +489,10 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                     #elif qty_unique_vals == 1:
                         # isotropic tensor, nothing to do -- keep the defined invariance flag
             elif not is_scalar_extended( physical_quantity.value ):
-                raise ValueError('Non-symmetrical tensor or another unsupporte (in this version) type')
+                raise ValueError('Non-symmetrical tensor or another unsupported (in this version) type')
         
         return invariant_flag
-
-    #TODO prio
-    def _assign_label( self, atol = 1e-14 ):
-        #label = '∞'
-        label = ''
-        for so in self.symmetry_operations:
-            # for O3 and its subgroups
-            if isinstance( so, SymmetryOperationO3 ):
-                matrix_axis = get_tensor_axis( so.matrix )
-                
-                is_axial = True
-                if norm( matrix_axis ) < atol:
-                    is_axial = False
-                det_val = det( so.matrix )
-                
-                is_proper_rot = True
-                if is_axial < 0:
-                    is_proper_rot = False
-                
-                is_collinear = False
-                c = np.cross( matrix_axis, self.axis )
-                if norm( c ) < atol:
-                    is_collinear = True
-                
-                is_perpend = False
-                d = np.dot( matrix_axis, self.axis )
-                if abs( d ) < atol:
-                    is_perpend = True
-
-                if not is_proper_rot and not is_axial:
-                    label += '\\'
-                
-                if is_proper_rot and is_axial and is_perpend:
-                    label += '2'
-                
-                if not is_proper_rot and is_axial:
-                    label += 'm'
-
-                if 'P' in so.dich_operations:
-                    remaining_dich_set = so.dich_operations - { 'P' }
-                else:
-                    #label += '1'
-                    remaining_dich_set = so.dich_operations
-                remaining_dich_set = list( remaining_dich_set )
-                remaining_dich_set.sort()
-                for dich in remaining_dich_set:
-                    if dich == 'T':
-                        label += "'"
-                    elif dich == 'C':
-                        label += '*'
-                    else:
-                        label += dich
-        if '\\' in label:
-            label = label.replace("\\", "")
-            label = '\\' + label
-        label = '∞' + label
-        self.label = label
-    
+ 
     def __repr__( self ):
         to_return = '{}\n'.format( self.label )
         to_return += super( LimitingSymmetryGroupAxial, self ).__repr__()
@@ -542,7 +506,7 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
 
     class_str = 'LimitingSymmetryGroupScalar'
 
-    def __init__( self, scalar_symmetry_operations = [ SymmetryOperationSO3( ) ] ):
+    def __init__( self, scalar_symmetry_operations = [ SymmetryOperationSO3( ) ], label = "" ):
         """
         Create a :any:`LimitingSymmetryGroupPoint` object of a symmetry group of a point or a (pseudo)scalar.
         Using Hermann-Mauguin notation, it is one of two limiting Curie groups:
@@ -557,6 +521,7 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
                 If an only set of dichromatic reversals form a combined
                 reversals with an improper rotation, it defines a noninvariant chirality.
                 For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞∞m'.
+            label (default = "") (str): optional string label for this `SymmetryGroup` object.
         Raises:
 
         Returns:
@@ -565,8 +530,10 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         #TODO call this during [ so ] assignment here as well. Local decorator is needed
         #TODO duplicate UTs - using init test cases
         self._scalar_symmetry_operations_check( scalar_symmetry_operations = scalar_symmetry_operations)
-        super(LimitingSymmetryGroupScalar, self).__init__( symmetry_operations = scalar_symmetry_operations)
-        self._assign_label()
+        super(LimitingSymmetryGroupScalar, self).__init__( symmetry_operations = scalar_symmetry_operations,
+                                                           label = label )
+        if label == "":
+            self._assign_label()
     
     def _scalar_symmetry_operations_check( self, scalar_symmetry_operations, rtol = 1e-6 ):
         if not isinstance( scalar_symmetry_operations, list ):

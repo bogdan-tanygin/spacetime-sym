@@ -77,7 +77,6 @@ def is_diagonal( m ):
                 return False
     return True
 
-
 def is_rotational_3D( m, rtol = 1e-6 ):
     """
     Test whether a numpy matrix is rotational O(3) or SO(3).

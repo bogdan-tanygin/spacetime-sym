@@ -18,7 +18,7 @@ class PhysicalQuantity(object):
     spatial mirror reflection or inversion operation (parity, P), and
     the time reversal symmetry (T-symmetry).
     """
-    def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, bidirector = False, label = None):
+    def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, bidirector = False, label = ""):
         """
         Initialise a `PhysicalQuantity` object.
 

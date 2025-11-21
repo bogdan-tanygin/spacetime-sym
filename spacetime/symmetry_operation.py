@@ -6,7 +6,7 @@
 #
 
 import numpy as np
-from numpy.linalg import det
+from numpy.linalg import det, norm
 from numpy import abs
 from scipy.spatial.transform import Rotation
 from copy import deepcopy
@@ -19,7 +19,8 @@ class SymmetryOperation:
     """
     `SymmetryOperation` class.
     """
-    def __init__( self, matrix = np.identity( 2 ), label = None, force_permutation = False ):
+    def __init__( self, matrix = np.identity( 2 ), label = "", force_permutation = False,
+                  matrix_precision = 0 ):
         """
         Initialise a `SymmetryOperation` object
 
@@ -30,6 +31,7 @@ class SymmetryOperation:
             label (default = None) (str): optional string label for this `SymmetryOperation` object.
             force_permutation (default = True) (bool): whether permutation
             matrix is a requirement.
+            matrix_precision (defaul = 0): minimal magnitude of the matrix' elements
 
         Raises:
             TypeError: if matrix is not of the expected type.
@@ -37,14 +39,13 @@ class SymmetryOperation:
             ValueError: if matrix is not a `permutation matrix`_
               assuming force_permutation is kept True.
 
-            .. _permutation_matrix: https://en.wikipedia.org/wiki/Permutation_matrix
-
         Returns:
             None
         """
         self._force_permutation = force_permutation
         self._matrix_check_and_assign( matrix )
         self.label = label
+        self.matrix_precision = matrix_precision
     
     def _matrix_check_and_assign( self, m0 ):
         """
@@ -77,6 +78,35 @@ class SymmetryOperation:
             raise ValueError('Not a square matrix')
         if self._force_permutation and not is_permutation_matrix( self._matrix ):
             raise ValueError('Not a permutation matrix')
+
+    @property
+    def label( self ):
+        """
+        Label of the symmetry transformation.
+
+        Args:
+            None.
+
+        Returns:
+            (str): label.
+        """
+        return self._label
+
+    @label.setter
+    def label( self, value ):
+        """
+        Label of the symmetry transformation.
+
+        Args:
+            label (str): optional string label for this `SymmetryOperation` object.
+
+        Returns:
+            None.
+        """
+        if not isinstance( value, str):
+            raise ValueError('Label must be a string')
+        else:
+            self._label = value
 
     @property
     def matrix( self ):
@@ -132,7 +162,7 @@ class SymmetryOperation:
         else:
             raise TypeError
 
-    def invert( self, label=None ):
+    def invert( self, label = "" ):
         """
         Invert this `SymmetryOperation` object.
 
@@ -144,13 +174,13 @@ class SymmetryOperation:
         """
         return SymmetryOperation( np.linalg.inv( self.matrix ).astype( float ), label = label)
 
-    def similarity_transform( self, s, label = None ):
+    def similarity_transform( self, s, label = "" ):
         """
         Generate the SymmetryOperation produced by a similarity transform S^{-1}.M.S
 
         Args:
             s: the symmetry operation or matrix S.
-            label (:obj:`str`, optional): the label to assign to the new SymmetryOperation. Defaults to None.
+            label (:obj:`str`, optional): the label to assign to the new SymmetryOperation. Defaults to "".
 
         Returns:
             the SymmetryOperation produced by the similarity transform
@@ -186,7 +216,12 @@ class SymmetryOperation:
 
     def __repr__( self ):
         label = self.label if self.label else '---'
-        output = 'SymmetryOperation\nlabel(' + label + ")\n{}".format(self.matrix)
+        output_matrix = deepcopy( self.matrix )
+        shape_0 = self.matrix.shape
+        for i,j in np.ndindex( shape_0 ):
+            if norm( output_matrix[i,j] ) <= self.matrix_precision:
+                output_matrix[i,j] = 0
+        output = 'SymmetryOperation\nlabel(' + label + ")\n{}".format(output_matrix)
         return output
 
 class SymmetryOperationO3(SymmetryOperation):
@@ -194,7 +229,7 @@ class SymmetryOperationO3(SymmetryOperation):
     `SymmetryOperationO3` class.
     """
     def __init__( self, matrix = np.identity( 3 ), dich_operations = set(),
-                  label = None, force_permutation = False):
+                  label = "", force_permutation = False, matrix_precision = 1e-14):
         """
         Initialise a `SymmetryOperationO3` object, that contains a symmetry
         transformation of O(3) group of proper and improper rotations.
@@ -207,9 +242,10 @@ class SymmetryOperationO3(SymmetryOperation):
             The default is an identity matrix.
             dich_operations (default = {}): a set of dichromatic symmetry reversal
             operations marked by string names.
-            label (default = None) (str): optional string label for this object.
+            label (default = "") (str): optional string label for this object.
             force_permutation (default = False) (bool): whether permutation
             matrix is a requirement. It is not for an Euclidean space matrices.
+            matrix_precision (defaul = 1e-14): minimal magnitude of the matrix' elements
         Raises:
             None
         Returns:
@@ -219,6 +255,7 @@ class SymmetryOperationO3(SymmetryOperation):
                                                      force_permutation = force_permutation )
         self.dich_operations = dich_operations
         self._det_check_and_init( matrix = self._matrix )
+        self.matrix_precision = matrix_precision
 
     def _det_check_and_init( self, matrix, det_rtol = 1e-6 ):
         """
@@ -251,7 +288,7 @@ class SymmetryOperationO3(SymmetryOperation):
             if 'P' in self._dich_operations:
                 raise ValueError('Mismatch: proper rotation matrix and parity reversal among dichromatic reversals')
 
-    def invert( self, label = None ):
+    def invert( self, label = "" ):
         """
         Invert this `SymmetryOperationO3` object.
 
@@ -490,7 +527,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
     `SymmetryOperationSO3` class.
     """
     def __init__( self, matrix = np.identity( 3 ), dich_operations = set(),
-                  label = None, force_permutation = False):
+                  label = "", force_permutation = False):
         """
         Initialise a `SymmetryOperationSO3` object, that contains a symmetry
         transformation of SO(3) group of proper rotations.
@@ -503,7 +540,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
             dich_operations (default = {}): a set of dichromatic symmetry reversal
             operations marked by string names. The spatial inversion 'P'
             cannot be among them.
-            label (default = None) (str): optional string label for this object.
+            label (default = "") (str): optional string label for this object.
             force_permutation (default = False) (bool): whether permutation
             matrix is a requirement. It is not for an Euclidean space matrices.
         Raises:
@@ -594,7 +631,7 @@ class SymmetryOperationSO3(SymmetryOperationO3):
         self._ensure_proper_rotation( matrix = value )
         self._matrix_check_and_assign( value )
 
-    def invert( self, label = None ):
+    def invert( self, label = "" ):
         """
         Invert this `SymmetryOperationSO3` object.
 

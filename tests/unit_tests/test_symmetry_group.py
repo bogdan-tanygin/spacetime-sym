@@ -21,6 +21,8 @@ class SymmetryGroupTestCase( unittest.TestCase ):
     """Tests for SymmetryGroup class"""
 
     def setUp(self):
+        # to remove limits off showing the difference between groups and matrices
+        self.maxDiff = None
         # absolute tolerance
         self.atol = 1e-6
         # relative tolerance
@@ -57,6 +59,8 @@ class SymmetryGroupTestCase( unittest.TestCase ):
                                  [ 0, 0, -1 ] ] )
         # random vector
         self.vector_0 = np.array( [ 2.12, -1.3, 2.3454675432 * sqrt( 2 ) ] )
+        # random vector
+        self.vector_1 = np.array( [ -1.12786878, 1.3454675432 * sqrt( 3 ), 0.003344e3 ] )
         # random tensor
         self.tensor_0 = np.array( [ [ -1, np.sqrt( np.pi ), 1.3454675432e6 ],
                                     [ 743.3566, 0, -1.456 ],
@@ -206,6 +210,40 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         # after deduplication in the group
         self._compare_lists_of_sym_opers( sg.symmetry_operations, [s1, s0] ) 
 
+    def test_symmetry_group_is_initialised_w_different_opers_3d_inv( self ):
+        m1 = np.identity( 3 )
+        m2 = - np.identity( 3 )
+        e, inv = SymmetryOperationSO3( matrix = m1 ), \
+                 SymmetryOperationO3( matrix = m2 )
+        sg = SymmetryGroup( symmetry_operations = [ inv ] )
+        # after deduplication in the group
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [e, inv] ) 
+
+    def test_symmetry_group_is_initialised_w_different_opers_3d_mm2( self ):
+        e = SymmetryOperationSO3( matrix = np.identity( 3 ) )
+        # axis 2a
+        test_axis_2a = np.array( [1, -1, 0] )
+        # perpednical axis 2b
+        test_axis_2b = np.array( [1, 1, 0] )
+        # perpednical axis 2c
+        test_axis_2c = np.cross( test_axis_2a, test_axis_2b )
+        rot_vec_2a =  test_axis_2a * pi / norm( test_axis_2a )
+        rot_vec_2b =  test_axis_2b * pi / norm( test_axis_2b )
+        rot_vec_2c =  test_axis_2c * pi / norm( test_axis_2c )
+        rot_2a = Rotation.from_rotvec( rot_vec_2a, degrees = False )
+        rot_2b = Rotation.from_rotvec( rot_vec_2b, degrees = False )
+        rot_2c = Rotation.from_rotvec( rot_vec_2c, degrees = False )
+        so_2a = SymmetryOperationSO3( matrix = rot_2a )
+        so_2b = SymmetryOperationSO3( matrix = rot_2b )
+        so_2c = SymmetryOperationSO3( matrix = rot_2c )
+        so_inv = SymmetryOperationO3( matrix = - np.identity( 3 ) )
+        so_ma = so_2a * so_inv
+        so_mb = so_2b * so_inv
+        sg = SymmetryGroup( symmetry_operations = [ so_ma, so_mb ] )
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [ so_ma, so_mb, so_2c, e ] ) 
+        sg = SymmetryGroup( symmetry_operations = [ so_ma, so_2c ] )
+        self._compare_lists_of_sym_opers( sg.symmetry_operations, [ so_ma, so_mb, so_2c, e ] ) 
+
     def test_symmetry_group_is_initialised_w_different_opers_dich( self ):
         m0 = np.identity( 3 )
         m_inv = - np.identity( 3 )
@@ -349,9 +387,9 @@ class SymmetryGroupTestCase( unittest.TestCase ):
 SymmetryGroup
 SymmetryOperation
 label(---)
-[[-1. -0. -0.]
- [-0. -1. -0.]
- [-0. -0. -1.]]
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
 Dichromatic reversals: ['P']
 SymmetryOperation
 label(---)
@@ -515,7 +553,7 @@ Dichromatic reversals: ['P', 'T']
         # test the random tensor
         with self.assertRaises( ValueError ):
             pq_tensor = PhysicalQuantity( value = self.tensor_0 )
-            self.assertFalse( sg.is_invariant( pq_tensor ) )
+            tmp = sg.is_invariant( pq_tensor )
         # test the invariant tensors
         # scalar as a tensor
         pq_tensor_scalar = PhysicalQuantity( value = np.sqrt( 7 ) * np.identity( 3 ), dich = { 'P':1, 'T':1 } )
@@ -560,10 +598,32 @@ Dichromatic reversals: ['P', 'T']
         pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':-1, 'T':-1 } )
         self.assertTrue( sg.is_invariant( pq_vector ))
 
+    # test the limiting Curie symmetry group ∞
+    def test_repr_lim_axial_symmetry_group_simplest( self ):
+        self.maxDiff = None
+        test_axis = [-1, sqrt(3), 23]
+        sg = LimitingSymmetryGroupAxial( axis = test_axis, label = '∞' )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞
+LimitingSymmetryGroupAxial
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
     # test the limiting symmetry group ∞1'
     def test_lim_symmetry_group_axial_inf_T_reversal(self):
         # axis ∞
-        test_axis = [-1, sqrt(3), 23]
+        test_axis = self.vector_1
         so_T_rev = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
         sg = LimitingSymmetryGroupAxial( axis = test_axis, symmetry_operations = [ so_T_rev ] )
         # let's test invariants
@@ -582,7 +642,7 @@ Dichromatic reversals: ['P', 'T']
         ## test the random tensor
         with self.assertRaises( ValueError ):
             pq_tensor = PhysicalQuantity( value = self.tensor_0, dich = { 'T':1 } )
-            self.assertFalse( sg.is_invariant( pq_tensor ) )
+            tmp = sg.is_invariant( pq_tensor )
         ## test vectors
         # random time-even vector
         pq_vector = PhysicalQuantity( value = self.vector_0, dich = { 'T':1 } )
@@ -596,6 +656,34 @@ Dichromatic reversals: ['P', 'T']
         # axial time-odd bidirectional vector (collinear with the axis ∞)
         pq_vector = PhysicalQuantity( value = test_axis, dich = { 'P':-1, 'T':-1 }, bidirector = True )
         self.assertTrue( sg.is_invariant( pq_vector ))
+
+    # test the limiting Curie symmetry group ∞1'
+    def test_repr_lim_axial_symmetry_group_timerev( self ):
+        so_T_rev = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
+        sg = LimitingSymmetryGroupAxial( axis = self.vector_1, symmetry_operations = [ so_T_rev ],
+                                         label = "∞1'" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞1'
+LimitingSymmetryGroupAxial
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: ['T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
 
     # test the limiting symmetry group ∞2
     def test_lim_symmetry_group_axial_inf2(self):
@@ -652,6 +740,39 @@ Dichromatic reversals: ['P', 'T']
         pq_tensor_001 = PhysicalQuantity( value = self.tensor_001, dich = { 'P':1, 'T':1 } )
         pq_tensor = rot_so * pq_tensor_001
         self.assertTrue( sg.is_invariant( pq_tensor ) )
+
+    # test the limiting Curie symmetry group ∞2
+    def test_repr_lim_axial_symmetry_group_m2( self ):
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2. Note: ∞ and 2 are perpendicular
+        test_axis_2 = np.array( [1, 1, 0] )
+        rot_vec_2 =  test_axis_2 * pi / norm( test_axis_2 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_2 ], label = "∞2" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞2
+LimitingSymmetryGroupAxial
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[ 0.  1.  0.]
+ [ 1.  0.  0.]
+ [ 0.  0. -1.]]
+Dichromatic reversals: 
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
 
     # test the limiting symmetry group ∞mm
     def test_lim_symmetry_group_axial_infmm(self):
@@ -718,6 +839,48 @@ Dichromatic reversals: ['P', 'T']
         pq_tensor_001 = PhysicalQuantity( value = self.tensor_001, dich = { 'P':-1, 'T':1 } )
         pq_tensor = rot_so * pq_tensor_001
         self.assertFalse( sg.is_invariant( pq_tensor ) )
+
+    # test the limiting Curie symmetry group ∞mm
+    def test_repr_lim_axial_symmetry_group_mm( self ):
+        self.maxDiff = None
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2a. Note: ∞ and 2 are perpendicular
+        test_axis_2a = np.array( [1, 1, 0] )
+        rot_vec_2a =  test_axis_2a * pi / norm( test_axis_2a )
+        rot_2a = Rotation.from_rotvec( rot_vec_2a, degrees = False )
+        so_2a = SymmetryOperationSO3( matrix = rot_2a )
+        so_inv = SymmetryOperationO3( matrix = - np.identity( 3 ) )
+        so_ma = so_2a * so_inv
+        # axis 2b. Note: ∞ and 2 are perpendicular as well
+        test_axis_2b = np.array( [0, 0, -1] )
+        rot_vec_2b =  test_axis_2b * pi / norm( test_axis_2b )
+        rot_2b = Rotation.from_rotvec( rot_vec_2b, degrees = False )
+        so_2b = SymmetryOperationSO3( matrix = rot_2b )
+        so_mb = so_2b * so_inv
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_ma ], label = "∞mm" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞mm
+LimitingSymmetryGroupAxial
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[ 0. -1.  0.]
+ [-1.  0.  0.]
+ [ 0.  0.  1.]]
+Dichromatic reversals: ['P']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
 
     # test the limiting symmetry group ∞21'
     def test_lim_symmetry_group_axial_inf2_T_reversal(self):
@@ -902,6 +1065,52 @@ Dichromatic reversals: ['P', 'T']
         pq_tensor = rot_so * pq_tensor_001
         self.assertTrue( sg.is_invariant( pq_tensor ) )
 
+    # test the limiting Curie symmetry group ∞/m
+    def test_repr_lim_axial_symmetry_group_inv_m( self ):
+        # axis ∞
+        test_axis_inf = self.vector_1
+        rot_vec_2 =  test_axis_inf * pi / norm( test_axis_inf )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        so_inv = SymmetryOperationO3( matrix = - np.identity( 3 ) )
+        so_m = so_2 * so_inv
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_m, so_inv ],
+                                         label = "∞/m" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞/m
+LimitingSymmetryGroupAxial
+SymmetryOperation
+label(---)
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
+Dichromatic reversals: ['P']
+SymmetryOperation
+label(---)
+[[ 0.85775023  0.29391846  0.42175406]
+ [ 0.29391846  0.3927016  -0.8714341 ]
+ [ 0.42175406 -0.8714341  -0.25045183]]
+Dichromatic reversals: ['P']
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[-0.85775023 -0.29391846 -0.42175406]
+ [-0.29391846 -0.3927016   0.8714341 ]
+ [-0.42175406  0.8714341   0.25045183]]
+Dichromatic reversals: 
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
     # test the limiting symmetry group ∞/mm
     def test_lim_symmetry_group_axial_inf_inv_m(self):
         # axis ∞
@@ -968,6 +1177,62 @@ Dichromatic reversals: ['P', 'T']
         pq_tensor = rot_so * pq_tensor_001
         self.assertFalse( sg.is_invariant( pq_tensor ) )
 
+    # test the limiting Curie symmetry group ∞/mm
+    def test_repr_lim_axial_symmetry_group_mmm( self ):
+        self.maxDiff = None
+        # axis ∞
+        test_axis_inf = np.array([1, -1, 0])
+        # axis 2a. Note: ∞ and 2 are perpendicular
+        test_axis_2a = np.array( [1, 1, 0] )
+        rot_vec_2a =  test_axis_2a * pi / norm( test_axis_2a )
+        rot_2a = Rotation.from_rotvec( rot_vec_2a, degrees = False )
+        so_2a = SymmetryOperationSO3( matrix = rot_2a )
+        so_inv = SymmetryOperationO3( matrix = - np.identity( 3 ) )
+        so_ma = so_2a * so_inv
+        # axis 2b. Note: ∞ and 2 are collinear
+        test_axis_2b = test_axis_inf
+        rot_vec_2b =  test_axis_2b * pi / norm( test_axis_2b )
+        rot_2b = Rotation.from_rotvec( rot_vec_2b, degrees = False )
+        so_2b = SymmetryOperationSO3( matrix = rot_2b )
+        so_mb = so_2b * so_inv
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_inv, so_ma, so_mb ],
+                                         label = "∞/mm" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        inclusive_result = '''\
+∞/mm
+LimitingSymmetryGroupAxial
+'''.format(length='multi-line') in printed_str
+        self.assertTrue( inclusive_result )
+
+# test the limiting Curie symmetry group ∞/mm1'
+    def test_repr_lim_axial_symmetry_group_mmm_timerev( self ):
+        self.maxDiff = None
+        # axis ∞
+        test_axis_inf = [1, -1, 0]
+        # axis 2. Note: ∞ and 2 are perpendicular
+        test_axis_2 = np.array( [1, 1, 0] )
+        rot_vec_2 =  test_axis_2 * pi / norm( test_axis_2 )
+        rot_2 = Rotation.from_rotvec( rot_vec_2, degrees = False )
+        so_2 = SymmetryOperationSO3( matrix = rot_2 )
+        so_T = SymmetryOperationSO3( dich_operations = ['T'] )
+        so_inv = SymmetryOperationO3( matrix = - np.identity( 3 ) )
+        so_m = so_2 * so_inv
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_2, so_inv, so_T ],
+                                         label = "∞/mm1'" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        print(printed_str)
+        inclusive_result = '''\
+∞/mm1'
+LimitingSymmetryGroupAxial
+'''.format(length='multi-line') in printed_str
+        self.assertTrue( inclusive_result )
+
     def test_lim_symmetry_group_scalar(self):
         sg = LimitingSymmetryGroupScalar()
         # now, let's test invariants
@@ -1021,7 +1286,7 @@ Dichromatic reversals: ['P', 'T']
         pq_pseudoscalar = PhysicalQuantity( value = np.sqrt( 7 ), dich = { 'P':-1, 'T':1 } )
         self.assertFalse( sg.is_invariant( pq_pseudoscalar ) )
 
-    def test_repr_lim_scalar_symmetry_group( self ):
+    def test_repr_lim_scalar_symmetry_group_dich( self ):
         inv_CT = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = { 'C', 'T' } )
         sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ inv_CT ] )
         print_io = io.StringIO()
@@ -1039,15 +1304,41 @@ label(E)
 Dichromatic reversals: 
 SymmetryOperation
 label(---)
-[[-1. -0. -0.]
- [-0. -1. -0.]
- [-0. -0. -1.]]
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
 Dichromatic reversals: ['C', 'P', 'T']
 
 '''.format(length='multi-line')
         self.assertEqual( printed_str, expected_str )
 
-    def test_repr_lim_scalar_symmetry_group_timerev( self ):
+    def test_repr_lim_scalar_symmetry_group_dich_self_init_label( self ):
+        inv_CT = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = { 'C', 'T' } )
+        sg = LimitingSymmetryGroupScalar( scalar_symmetry_operations = [ inv_CT ], label = "∞∞m*'" )
+        print_io = io.StringIO()
+        print( sg, file = print_io)
+        printed_str = print_io.getvalue()
+        print_io.close()
+        expected_str = '''\
+∞∞m*'
+LimitingSymmetryGroupScalar
+SymmetryOperation
+label(E)
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+Dichromatic reversals: 
+SymmetryOperation
+label(---)
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
+Dichromatic reversals: ['C', 'P', 'T']
+
+'''.format(length='multi-line')
+        self.assertEqual( printed_str, expected_str )
+
+    def test_repr_lim_scalar_symmetry_group_dich2( self ):
         self.maxDiff = None
         inv_CT = SymmetryOperationO3( matrix = - np.identity( 3 ), dich_operations = { 'C', 'T' } )
         id_T = SymmetryOperationSO3( matrix = np.identity( 3 ), dich_operations = { 'T' } )
@@ -1067,9 +1358,9 @@ label(---)
 Dichromatic reversals: ['T']
 SymmetryOperation
 label(---)
-[[-1. -0. -0.]
- [-0. -1. -0.]
- [-0. -0. -1.]]
+[[-1.  0.  0.]
+ [ 0. -1.  0.]
+ [ 0.  0. -1.]]
 Dichromatic reversals: ['C', 'P', 'T']
 SymmetryOperation
 label(E)
