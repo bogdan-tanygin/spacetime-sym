@@ -122,7 +122,6 @@ def is_rotational_proper_3D( m, rtol = 1e-6 ):
         else:
             return False
 
-#TODO UT
 def is_3D_vector( x ):
     """
     Test whether x is a 3D-space vector.

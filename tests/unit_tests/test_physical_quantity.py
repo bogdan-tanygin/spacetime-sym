@@ -15,8 +15,7 @@ class TestPhysicalQuantity( unittest.TestCase ):
         self.scalar = 42.42e+3 * np.sqrt( 7 )
         self.vector = np.array( [ -1/2, 0.4, self.scalar ] )
         self.label = 'velocity'
-        #TODO correct atol globally - make it stricter
-        self.atol = 1e-6
+        self.atol = 1e-14
         self.rtol = 1e-6
         # random tensor
         self.tensor = np.array( [ [ -1, np.sqrt( np.pi ), 1.3454675432e6 ],

@@ -84,7 +84,7 @@ class PhysicalQuantity(object):
             return is_equal_2D( value_1, value_2 ) or is_equal_2D( value_1, np.array( - value_2 ) )
         elif self.bidirector or other.bidirector:
             # if ONLY one of them is a bidirector, comparison depends on the theory
-            raise TypeError("""Comparison of bidirector non-bidirector is ambiguous and depends on the theory
+            raise TypeError("""Comparison of bidirector and non-bidirector is ambiguous and depends on the theory
                          Feel free to implement it here for your case""")
         else:
             # both are non-bidirectors

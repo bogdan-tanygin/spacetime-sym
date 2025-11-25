@@ -453,7 +453,6 @@ class SymmetryOperationO3(SymmetryOperation):
         else:
             raise TypeError
 
-    #TODO bidirector UTs
     def operate_on( self, pq ):
         """
         Return the PhysicalQuantity (scalar or vector) 

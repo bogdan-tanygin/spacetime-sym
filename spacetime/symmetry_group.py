@@ -237,7 +237,6 @@ class SymmetryGroup:
             # it is already checked in the SymmetryOperation class that the matrix is square
             dim_0 = so_random.matrix.shape[0]
             # dimensions matching: matrix/vector case
-            # TODO UT
             if dim_0 > 1:
                 if not all( dim_0 == so.matrix.shape[0] for so in symmetry_operations ):
                     raise ValueError('Different dimensions of input symmetry operations')
@@ -281,7 +280,6 @@ class SymmetryGroup:
         """
         return [ so.label for so in self._symmetry_operations ] 
 
-    #TODO UT
     def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
         Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
@@ -300,7 +298,6 @@ class SymmetryGroup:
         if not isinstance( physical_quantity, PhysicalQuantity ):
             raise TypeError('physical_quantity must belongs to the class PhysicalQuantity')
         invariant_flag = True
-        #TODO UT diagonal bidirectional asymmetric tensor test with mirror mx, my, mz
         for so in self.symmetry_operations:
             pq_updated = so * physical_quantity
             if not np.allclose( pq_updated.value, physical_quantity.value, rtol = rtol ):
@@ -322,8 +319,6 @@ class SymmetryGroup:
         """
         return SymmetryGroup( [ s1 * s2 for s1, s2 in product( self._symmetry_operations, other.symmetry_operations ) ] )
 
-#TODO UT for LimitingSymmetryGroupAxial similar to LimitingSymmetryGroupScalar
-#TODO UTs: init through decorator assignments
 class LimitingSymmetryGroupAxial(SymmetryGroup):
     """
     `LimitingSymmetryGroupAxial` class.
@@ -355,15 +350,10 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
             None
         """
         self._check_and_set_axis( axis = axis )
-        #TODO UTs - extending some of init test cases - for axis and [so] reassignemnt
-        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
-        # added implicitly for the generation of the rest 
         so_list = list( symmetry_operations )
         self._symmetry_operations = so_list
         self._axial_symmetry_operations_check()
         super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = so_list, label = label)
-        # we can generate and assign lavel after the axis and symmetry operations have been initialised
-        # self._assign_label()
     
     def _check_and_set_axis( self, axis ):
         axis = deepcopy( axis )
@@ -378,7 +368,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
     def axis( self ):
         return self._axis
     
-    #TODO UT
     @axis.setter
     def axis( self, value ):
         """
@@ -414,7 +403,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         """
         return self._symmetry_operations
 
-    #TODO UT
     @symmetry_operations.setter
     def symmetry_operations( self, value ):
         so_list = list( value )
@@ -427,7 +415,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         # with new symmetry operations, the axis should be revalidated
         self._axial_symmetry_operations_check()
 
-    #TODO UT
     def _axial_symmetry_operations_check( self ):
         # let's check that the given axis is an invariant of the rest symmetry operations
         # assumption: we have already initialised the set of symmetry operations
@@ -498,7 +485,6 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         to_return += super( LimitingSymmetryGroupAxial, self ).__repr__()
         return to_return
 
-#TODO init through decorator assignments, UTs
 class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
     """
     `LimitingSymmetryGroupScalar` class.
@@ -527,8 +513,6 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
         Returns:
             None
         """
-        #TODO call this during [ so ] assignment here as well. Local decorator is needed
-        #TODO duplicate UTs - using init test cases
         self._scalar_symmetry_operations_check( scalar_symmetry_operations = scalar_symmetry_operations)
         super(LimitingSymmetryGroupScalar, self).__init__( symmetry_operations = scalar_symmetry_operations,
                                                            label = label )
@@ -540,7 +524,6 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
             raise TypeError('Must be a list of SymmetryOperation objects')
         for so in scalar_symmetry_operations:
             if not isinstance( so, SymmetryOperation ):
-                #TODO UT
                 raise TypeError('The objects in the list must belong to SymmetryOperation or its subclasses')
             n_dim = so.matrix.shape[0]
             if not ( np.allclose( so.matrix,   np.identity( n_dim ), rtol = rtol) or

@@ -367,6 +367,19 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertEqual( pq == pq_updated, True )
         self.assertEqual( pq != pq_updated, False )
 
+        pq_updated = PhysicalQuantity()
+        pq_updated = so_2 * pq_tensor
+        self.assertEqual( pq_updated == pq, False )
+        self.assertEqual( pq == pq_updated, False )
+
+        # bidirector case
+        pq_updated = PhysicalQuantity()
+        pq_tensor.bidirector = True
+        pq.bidirector = True
+        pq_updated = so_2 * pq_tensor
+        self.assertEqual( pq_updated == pq, True )
+        self.assertEqual( pq == pq_updated, True )
+
     def test_mul_electric_field_1( self ):
         # electrical field, a polar time-even vector.
         # It has the odd dichromatic symmetry against charge inversion.
@@ -615,6 +628,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
     def test_mul_physical_pseudoscalar_1( self ):
         dich_test = {"C":-1, "P":-1, "T":1}
         pseudoscalar_test = sqrt( 42 )
+        # time-even charge-odd pseudoscalar
         pq = PhysicalQuantity( value = pseudoscalar_test, label = 'the pseudoscalar',
                                dich = dich_test )
         #first, let's set the regular proper rotation
