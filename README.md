@@ -28,17 +28,21 @@ pytest tests/unit_tests --cov-config .coveragerc --cov=spacetime --cov-report xm
 
 The code has been tested with Python versions 3.9.18 and above.
 
-## LICENSE
+## License
 
-The `spacetime-sym` is a dual-licensed software. The sublicensing happened in 2024 as permitted by the original `bsym`'s MIT license.
+`spacetime-sym` is available under the GNU General Public License version 3 (GPLv3) or under a separate written commercial license agreement.
 
-### Option 1: open-source license
+### Open-source license
 
-The `spacetime-sym` can be used as an open-source software according to the terms of GPL-3.0.
+You may use, modify, and redistribute `spacetime-sym` under the terms of the [GNU General Public License version 3](LICENSE).
 
-### Option 2: commercial license
+### Commercial license
 
-After signing the written agreement with Dr. Bogdan Tanygin (info@deeptech.business), the `spacetime-sym` can be used in a proprietary software project.
+To license `spacetime-sym` for integration into proprietary software under commercial terms, enter into a separate written agreement with Dr. Bogdan Tanygin. See [commercial licensing information](LICENSE-commercial) or contact [info@deeptech.business](mailto:info@deeptech.business).
+
+### Third-party code
+
+`spacetime-sym` incorporates code from [`bsym`](https://github.com/bjmorgan/bsym). The original copyright notice and MIT license text are included in [`licenses/bsym-MIT`](licenses/bsym-MIT). The original `bsym` code remains available under the terms of the MIT License.
 
 ## Citing
 
