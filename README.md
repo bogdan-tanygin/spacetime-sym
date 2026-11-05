@@ -21,7 +21,7 @@ python3 setup.py install
 
 ## Tests
 
-Manual tests can be run using
+Test scripts can be run using
 ```
 pytest tests/unit_tests --cov-config .coveragerc --cov=spacetime --cov-report xml
 ```
