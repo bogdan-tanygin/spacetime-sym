@@ -40,9 +40,11 @@ You may use, modify, and redistribute `spacetime-sym` under the terms of the [GN
 
 To license `spacetime-sym` for integration into proprietary software under commercial terms, enter into a separate written agreement with Dr. Bogdan Tanygin. See [commercial licensing information](LICENSE-commercial) or contact [info@deeptech.business](mailto:info@deeptech.business).
 
-### Third-party code
+### Upstream project and attribution
 
-`spacetime-sym` incorporates code from [`bsym`](https://github.com/bjmorgan/bsym). The original copyright notice and MIT license text are included in [`licenses/bsym-MIT`](licenses/bsym-MIT). The original `bsym` code remains available under the terms of the MIT License.
+`spacetime-sym` is based on [`bsym`](https://github.com/bjmorgan/bsym) by Benjamin J. Morgan. The original codebase has been substantially reworked and extended for space-time symmetry analysis. Some portions of the original `bsym` code remain unchanged.
+
+The original `bsym` copyright notice and MIT license text are included in [`licenses/bsym-MIT`](licenses/bsym-MIT).
 
 ## Citing
 

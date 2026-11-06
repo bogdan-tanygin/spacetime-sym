@@ -1,8 +1,7 @@
+# Copyright (C) 2024-2026 Dr. Bogdan Tanygin <info@deeptech.business>
 #
-# Copyright (C) 2024-2025 Dr. Bogdan Tanygin <info@deeptech.business>
-#
-# This file is part of spacetime-sym.
-#
+# This file is part of spacetime-sym and is based on bsym by Benjamin J. Morgan.
+# See licenses/bsym-MIT for the upstream license.
 
 import unittest
 from spacetime.physical_quantity import PhysicalQuantity
