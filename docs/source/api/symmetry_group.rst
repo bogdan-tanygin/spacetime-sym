@@ -1,5 +1,5 @@
-spacetime\.symmetry\_group
----------------------
+Symmetry Groups
+===============
 
 .. automodule:: spacetime.symmetry_group
     :members:

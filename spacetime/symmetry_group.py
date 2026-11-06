@@ -329,7 +329,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         Create a :any:`LimitingSymmetryGroupAxial` object of a symmetry group of
         an axis/vector/straight line/plane. Using Hermann-Mauguin notation,
         it is one of the following limiting Curie groups:
-        ∞ (default), ∞2, ∞/m, ∞mm, or ∞/mm. First two describe symmetry of chiral physical objects.
+        ∞ (default), ∞2, ∞/m, ∞m, or ∞/mm. First two describe symmetry of chiral physical objects.
 
         Args:
             axis: the direction of the infinity-fold rotational symmetry axis.

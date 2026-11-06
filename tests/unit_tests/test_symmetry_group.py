@@ -915,8 +915,8 @@ Dichromatic reversals:
 '''.format(length='multi-line')
         self.assertEqual( printed_str, expected_str )
 
-    # test the limiting symmetry group ∞mm
-    def test_lim_symmetry_group_axial_infmm(self):
+    # test the limiting symmetry group ∞m
+    def test_lim_symmetry_group_axial_infm(self):
         # axis ∞
         test_axis_inf = [1, -1, 0]
         # axis 2. Note: ∞ and 2 are perpendicular
@@ -981,8 +981,8 @@ Dichromatic reversals:
         pq_tensor = rot_so * pq_tensor_001
         self.assertFalse( sg.is_invariant( pq_tensor ) )
 
-    # test the limiting Curie symmetry group ∞mm
-    def test_repr_lim_axial_symmetry_group_mm( self ):
+    # test the limiting Curie symmetry group ∞m
+    def test_repr_lim_axial_symmetry_group_m( self ):
         self.maxDiff = None
         # axis ∞
         test_axis_inf = [1, -1, 0]
@@ -999,13 +999,13 @@ Dichromatic reversals:
         rot_2b = Rotation.from_rotvec( rot_vec_2b, degrees = False )
         so_2b = SymmetryOperationSO3( matrix = rot_2b )
         so_mb = so_2b * so_inv
-        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_ma ], label = "∞mm" )
+        sg = LimitingSymmetryGroupAxial( axis = test_axis_inf, symmetry_operations = [ so_ma ], label = "∞m" )
         print_io = io.StringIO()
         print( sg, file = print_io)
         printed_str = print_io.getvalue()
         print_io.close()
         expected_str = '''\
-∞mm
+∞m
 LimitingSymmetryGroupAxial
 SymmetryOperation
 label(E)

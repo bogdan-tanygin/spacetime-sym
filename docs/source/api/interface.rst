@@ -1,7 +1,0 @@
-interface
----------
-
-.. toctree::
-   :glob:
-
-   interface/*

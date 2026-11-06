@@ -1,5 +1,5 @@
-spacetime\.symmetry\_operation
--------------------------
+Symmetry Operations
+===================
 
 .. automodule:: spacetime.symmetry_operation
     :members:

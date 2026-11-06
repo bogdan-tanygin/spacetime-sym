@@ -1,96 +1,48 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17573059.svg)](https://doi.org/10.5281/zenodo.17573059)
+# spacetime-sym
+
 [![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
-[![Coverage Status](https://coveralls.io/repos/github/bogdan-tanygin/spacetime-sym/badge.svg?branch=main)](https://coveralls.io/github/bogdan-tanygin/spacetime-sym?branch=main)
+[![Coverage](https://coveralls.io/repos/github/bogdan-tanygin/spacetime-sym/badge.svg?branch=main)](https://coveralls.io/github/bogdan-tanygin/spacetime-sym?branch=main)
 
-`spacetime-sym` is a Python module introducing symmetry theory formalism into data science and natural sciences. It is a fork of [bsym][githubbsym]. It consists of core classes that describe configuration vector and Euclidean 3D spaces, their symmetry operations (e.g. `O(3)` and `SO(3)` groups), specific configurations of objects within these spaces, and physical quantities.
+**Symmetry groups and physical-quantity invariance in Python.**
 
-`spacetime-sym` supports the following physical quantities: scalars, pseudoscalars, vectors, axial vectors, and tensors. They are powered by all possible dichromatic symmetry properties, such as: [parity](https://en.wikipedia.org/wiki/Parity_(physics)) `P`, [charge conjugation](https://en.wikipedia.org/wiki/C-symmetry) `C`, and [time reversal](https://en.wikipedia.org/wiki/T-symmetry) `T`. 
+`spacetime-sym` is a scientific Python library for constructing symmetry operations and groups, describing the transformation properties of physical quantities, and testing their invariance. It combines spatial transformations in **O(3)** (including **SO(3)** rotations and reflections) with discrete symmetry labels such as **P**, **T**, and a symbolic **C**. The emphasis is on symmetry analysis **beyond periodic crystal structures**.
 
-Source code is available as a git repository at [https://github.com/bogdan-tanygin/spacetime-sym][github].
+### Highlights
+
+- **Physical-quantity-centric:** scalars, pseudoscalars, polar and axial vectors, and second-rank tensors with distinct transformation properties.
+- **Groups from generators:** finite spatial and magnetic symmetry groups, including rotations, reflections, and time reversal.
+- **Curie limiting groups:** selected continuous symmetries and invariance checks without sampling every rotation angle.
+- **Reproducible examples:** finite and limiting-group cases in the [documentation](docs/source/index.md) and [unit tests](tests/unit_tests/).
+
+The current `C` label is a simplified dichromatic operation; **Dirac-spinor charge conjugation is not implemented**.
 
 ## Installation
 
-Clone the latest development version
-```
-git clone git@github.com:bogdan-tanygin/spacetime-sym.git
-```
-and install:
-```
+**Python 3.12+** is required.
+
+```bash
+git clone https://github.com/bogdan-tanygin/spacetime-sym.git
 cd spacetime-sym
-python3 setup.py install 
+python -m pip install -e .
 ```
 
 ## Tests
 
-Test scripts can be run using
-```
-pytest tests/unit_tests --cov-config .coveragerc --cov=spacetime --cov-report xml
-```
-
-The code has been tested with Python versions 3.9.18 and above.
-
-## License
-
-`spacetime-sym` is available under the GNU General Public License version 3 (GPLv3) or under a separate written commercial license agreement.
-
-### Open-source license
-
-You may use, modify, and redistribute `spacetime-sym` under the terms of the [GNU General Public License version 3](LICENSE).
-
-### Commercial license
-
-To license `spacetime-sym` for integration into proprietary software under commercial terms, enter into a separate written agreement with Dr. Bogdan Tanygin. See [commercial licensing information](LICENSE-commercial) or contact [info@deeptech.business](mailto:info@deeptech.business).
-
-### Upstream project and attribution
-
-`spacetime-sym` is based on [`bsym`](https://github.com/bjmorgan/bsym) by Benjamin J. Morgan. The original codebase has been substantially reworked and extended for space-time symmetry analysis. Some portions of the original `bsym` code remain unchanged.
-
-The original `bsym` copyright notice and MIT license text are included in [`licenses/bsym-MIT`](licenses/bsym-MIT).
-
-## Citing
-
-### Citing `spacetime-sym`
-
-The publication will be added later. If it is needed now, the general methodological concept was described here:
-
-Tanygin, Bogdan M. (2011). *Symmetry theory of the flexomagnetoelectric effect in the magnetic domain walls*. Journal of Magnetism and Magnetic Materials. https://doi.org/10.1016/j.jmmm.2010.10.028
-
-#### BibTeX
-
-```
-@article{tanygin2011symmetry,
-  title={Symmetry theory of the flexomagnetoelectric effect in the magnetic domain walls},
-  author={Tanygin, Bogdan M},
-  journal={Journal of Magnetism and Magnetic Materials},
-  volume={323},
-  number={5},
-  pages={616--619},
-  year={2011},
-  publisher={Elsevier}
-}
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest tests/unit_tests
 ```
 
-### Citing `bsym`
+## Documentation and research
 
-The original `bsym` code can be cited as:
+- [Scientific overview and API documentation](docs/source/index.md)
+- [Executable examples in the test suite](tests/unit_tests/)
+- [Research background: Tanygin's thesis](https://doi.org/10.5281/zenodo.17573059) and [Hlinka's vectorlike-quantity classification](https://doi.org/10.1103/PhysRevLett.113.165502)
 
-Morgan, Benjamin J. (2017). *bsym - a Basic Symmetry Module*. The Journal of Open Source Software. http://doi.org/10.21105/joss.00370
+## License, attribution, and contributions
 
-#### BibTeX
+`spacetime-sym` is available under [GPL-3.0-only](LICENSE) **or** a [separate written commercial license](LICENSE-commercial). For commercial use or research partnerships, contact [info@deeptech.business](mailto:info@deeptech.business).
 
-```
-@article{Morgan_JOSS2017b,
-  doi = {10.21105/joss.00370},
-  url = {https://doi.org/10.21105/joss.00370},
-  year  = {2017},
-  month = {aug},
-  publisher = {The Open Journal},
-  volume = {2},
-  number = {16},
-  author = {Benjamin J. Morgan},
-  title = {bsym: A basic symmetry module},
-  journal = {The Journal of Open Source Software}
-}
-```
-[github]: https://github.com/bogdan-tanygin/spacetime-sym
-[githubbsym]: https://github.com/bjmorgan/bsym
+The project builds on [bsym](https://github.com/bjmorgan/bsym) by Benjamin J. Morgan ([JOSS, 2017](https://doi.org/10.21105/joss.00370)); retained upstream code is covered by the original [MIT notices](licenses/bsym-MIT).
+
+Issues, tests, documentation improvements, and pull requests are welcome. Please coordinate licensing of substantial code contributions in advance. See [Issues](https://github.com/bogdan-tanygin/spacetime-sym/issues) and [Pull requests](https://github.com/bogdan-tanygin/spacetime-sym/pulls).
