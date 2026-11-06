@@ -18,7 +18,7 @@ class SymmetryGroup:
     """
     :any:`SymmetryGroup` class.
 
-    A :any:`SymmetryGroup` object contains a list of :any:`SymmetryOperation` objects. Their order can be arbitrary.
+    A :any:`SymmetryGroup` contains a list of :any:`SymmetryOperation` objects in arbitrary order.
 
     e.g.::
 
@@ -93,7 +93,7 @@ class SymmetryGroup:
 
     def order( self, group_atol = 1e-4 ):
         """
-        Get an order of the group. Forces the group validation before that.
+        Return the group order after validating the symmetry operations.
         Args:
             group_atol (float): absolute tolerance of the matrix elements comparison.
         Returns:
@@ -166,13 +166,12 @@ class SymmetryGroup:
     def add_and_generate( self, so, group_atol = 1e-4  ):
         """
         Add a :any:`SymmetryOperation` to this :any:`SymmetryGroup` and generate
-        all the remaining group operations based on consideration of the current list of
-        symmetry operations as a group generator.
+        the remaining elements from the current set of generators.
         Args:
-            symmetry_operation (:any:`SymmetryOperation`): The :any:`SymmetryOperation` to add.
+            so (:any:`SymmetryOperation`): The symmetry operation to add.
             group_atol (float): absolute tolerance of the matrix elements comparison.
         Raises:
-            ValueError: in case of numbers of dimensions mismatch.
+            ValueError: If the symmetry-operation dimensions do not match.
         Returns:
             None
         """
@@ -210,8 +209,8 @@ class SymmetryGroup:
     
     def _symmetry_operations_check_and_init( self, symmetry_operations={} ):
         """
-        Checks the consistency of symmetry operations list provided.
-        If everything is correct, assigns it.
+        Check the consistency of the supplied symmetry operations.
+        Assign the operations when validation succeeds.
 
         Args:
             symmetry_operations: a list or a set of :any:`SymmetryOperation` objects.
@@ -268,7 +267,7 @@ class SymmetryGroup:
     @property
     def labels( self ):
         """
-        A list of labels for each :any:`SymmetryOperation` in this spacegroup.
+        List the labels of the symmetry operations in this group.
 
         Args:
             None
@@ -280,18 +279,18 @@ class SymmetryGroup:
 
     def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
-        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+        Check whether a physical quantity is invariant under this symmetry group.
 
         Args:
-            physical_quantity (PhysicalQuantity): a physical quantity to check.
-            rtol (float): a relative tolerance of the comparing
-            atol (float): an absolute tolerance of the comparing
+            physical_quantity (PhysicalQuantity): Physical quantity to test.
+            rtol (float): Relative tolerance used for comparisons.
+            atol (float): Absolute tolerance used for comparisons.
 
         Raises:
-            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+            TypeError: If physical_quantity is not a PhysicalQuantity.
 
-        Return:
-            (bool): True | False
+        Returns:
+            bool: Whether the quantity is invariant.
         """
         if not isinstance( physical_quantity, PhysicalQuantity ):
             raise TypeError('physical_quantity must belongs to the class PhysicalQuantity')
@@ -326,8 +325,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
 
     def __init__( self, axis = [ 1, 0, 0 ], symmetry_operations = [ SymmetryOperationSO3( ) ], label = "" ):
         """
-        Create a :any:`LimitingSymmetryGroupAxial` object of a symmetry group of
-        an axis/vector/straight line/plane. Using Hermann-Mauguin notation,
+        Create a :any:`LimitingSymmetryGroupAxial` for an axis, vector, line, or plane. Using Hermann-Mauguin notation,
         it is one of the following limiting Curie groups:
         ∞ (default), ∞2, ∞/m, ∞m, or ∞/mm. First two describe symmetry of chiral physical objects.
 
@@ -338,9 +336,9 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                 They can be different orientations of 2, m, and, also, identity (always) and a spatial inversion 1-.
                 with (optionally) dichromatic reversals which make the group "grey" for the given property.
                 For instance, 'T' for time-reversal can make ∞/m1'.
-                If an only set of dichromatic reversals form a combined
-                reversals with an improper rotation, it defines a noninvariant chirality.
-                For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞/m'.
+                If dichromatic reversals occur only together with an improper
+                spatial transformation, they may describe chirality that is not invariant under these operations.
+                For example, combining 'T' and 'P' can produce an m' operation in ∞/m'.
             label (default = "") (str): optional string label for this `SymmetryGroup` object.
         Raises:
             ValueError: if the axis is not an invariant of the rest symmetry operations
@@ -383,9 +381,9 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
         self._check_and_set_axis( axis = value )
         # we need to reinit the group if the axis has been changed
         self._axial_symmetry_operations_check()
-        # now, the group should be regenerated (new axis)
+        # Regenerate the group after changing the axis.
         super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = self.symmetry_operations)
-        # we can generate and assign lavel after the axis and symmetry operations have been initialised
+        # We can generate and assign a label after the axis and symmetry operations have been initialised
         #self._assign_label()
 
     @property
@@ -404,18 +402,18 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
     @symmetry_operations.setter
     def symmetry_operations( self, value ):
         so_list = list( value )
-        # the 2-fold rotational axis is a part of the axial limiting group anyway. It is practical to have it
+        # A twofold rotation is part of the axial limiting group; it could be
         # added implicitly for the generation of the rest 
         # so_list.append( self._so_2 )
-        # now, the group should be regenerated (new axis)
+        # Regenerate the group after changing the axis.
         super(LimitingSymmetryGroupAxial, self).__init__( symmetry_operations = so_list)
         #self._assign_label()
-        # with new symmetry operations, the axis should be revalidated
+        # Revalidate the axis after changing the symmetry operations.
         self._axial_symmetry_operations_check()
 
     def _axial_symmetry_operations_check( self ):
         # let's check that the given axis is an invariant of the rest symmetry operations
-        # assumption: we have already initialised the set of symmetry operations
+        # The set of symmetry operations has already been initialised.
         physical_quantity = PhysicalQuantity( value = self.axis, bidirector = True )
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity )
         if not invariant_flag:
@@ -423,18 +421,18 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
 
     def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
-        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+        Check whether a physical quantity is invariant under this symmetry group.
 
         Args:
-            physical_quantity (PhysicalQuantity): a physical quantity to check.
-            rtol (float): a relative tolerance of the comparing
-            atol (float): an absolute tolerance of the comparing
+            physical_quantity (PhysicalQuantity): Physical quantity to test.
+            rtol (float): Relative tolerance used for comparisons.
+            atol (float): Absolute tolerance used for comparisons.
 
         Raises:
-            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+            TypeError: If physical_quantity is not a PhysicalQuantity.
 
-        Return:
-            (bool): True | False
+        Returns:
+            bool: Whether the quantity is invariant.
         """
         invariant_flag = super( LimitingSymmetryGroupAxial, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol, atol = atol )
         if invariant_flag:
@@ -462,7 +460,7 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
                         for i in range( 2 ):
                             for j in range( i + 1, 3 ):
                                 if isclose( eigvals[i], eigvals[j], rel_tol = rtol ):
-                                    # the remaining eigenvalue defines the axial vector of the given tensor
+                                    # The remaining eigenvalue identifies the tensor axis.
                                     indx_axial = next( iter( three_indx - { i, j } ) )
                                     tensor_axis = eigvecs[ indx_axial ]
                         cross_product = np.cross( self.axis, tensor_axis )
@@ -492,7 +490,7 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
 
     def __init__( self, scalar_symmetry_operations = [ SymmetryOperationSO3( ) ], label = "" ):
         """
-        Create a :any:`LimitingSymmetryGroupPoint` object of a symmetry group of a point or a (pseudo)scalar.
+        Create a :any:`LimitingSymmetryGroupScalar` for a scalar or pseudoscalar.
         Using Hermann-Mauguin notation, it is one of two limiting Curie groups:
         ∞∞ (default) or ∞∞m. In terms of a physical quantity that is invariant under these groups'
         transformations, ∞∞m describes a scalar and ∞∞ describes a pseudoscalar.
@@ -502,12 +500,10 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
                 with (optionally) dichromatic reversals which make the group "grey" for the given property.
                 For instance, 'T' for time-reversal makes ∞∞1' or ∞∞m1'
                 The group ∞∞m is defined by 'P' reversal, i.e. a spatial inversion.
-                If an only set of dichromatic reversals form a combined
-                reversals with an improper rotation, it defines a noninvariant chirality.
-                For instance, 'T' with 'P' makes makes m' and the whole group looks like ∞∞m'.
+                If dichromatic reversals occur only together with an improper
+                spatial transformation, they may describe chirality that is not invariant under these operations.
+                For example, combining 'T' and 'P' can produce an m' operation in ∞∞m'.
             label (default = "") (str): optional string label for this `SymmetryGroup` object.
-        Raises:
-
         Returns:
             None
         """
@@ -530,18 +526,18 @@ class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
 
     def is_invariant( self, physical_quantity, rtol = 1e-6, atol = 1e-14 ):
         """
-        Check whether the given physical_quantity is an invariant of the given symmetry group transformations.
+        Check whether a physical quantity is invariant under this symmetry group.
 
         Args:
-            physical_quantity (PhysicalQuantity): a physical quantity to check.
-            rtol (float): a relative tolerance of the comparing
-            atol (float): an absolute tolerance of the comparing
+            physical_quantity (PhysicalQuantity): Physical quantity to test.
+            rtol (float): Relative tolerance used for comparisons.
+            atol (float): Absolute tolerance used for comparisons.
 
         Raises:
-            TypeError: if physical_quantity does not belong to the class PhysicalQuantity
+            TypeError: If physical_quantity is not a PhysicalQuantity.
 
-        Return:
-            (bool): True | False
+        Returns:
+            bool: Whether the quantity is invariant.
         """
         invariant_flag = super( LimitingSymmetryGroupScalar, self ).is_invariant( physical_quantity = physical_quantity, rtol = rtol, atol = atol )
         if not is_scalar_extended( physical_quantity.value ):

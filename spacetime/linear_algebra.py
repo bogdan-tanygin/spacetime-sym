@@ -15,15 +15,15 @@ from copy import deepcopy
 
 def is_square( m ):
     """
-    Test whether a numpy matrix is square.
+    Test whether a NumPy matrix is square.
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
 
-    Raise:
+    Raises:
         TypeError: non-matrix type
     """
     # ensure the numpy type
@@ -35,15 +35,15 @@ def is_square( m ):
 
 def is_permutation_matrix( m ):
     """
-    Test whether a numpy array is a `permutation matrix`_.
+    Test whether a NumPy array is a `permutation matrix`_.
 
     .. _permutation_matrix: https://en.wikipedia.org/wiki/Permutation_matrix
     
     Args:
-        m (mp.matrix): The matrix.
+        m (numpy.ndarray|list): The matrix.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     # ensure the numpy type
     m = np.array( m )
@@ -54,13 +54,13 @@ def is_permutation_matrix( m ):
 
 def is_diagonal( m ):
     """
-    Test whether a numpy matrix is diagonal.
+    Test whether a NumPy matrix is diagonal.
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     # ensure the numpy type
     m = np.array( m )
@@ -77,14 +77,14 @@ def is_diagonal( m ):
 
 def is_rotational_3D( m, rtol = 1e-6 ):
     """
-    Test whether a numpy matrix is rotational O(3) or SO(3).
+    Test whether a 3D matrix belongs to O(3) (including SO(3)).
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
-        rtol (float): relative tolerance for elements of the matrix/tensor
+        rtol (float): Relative tolerance used for matrix/tensor comparisons.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     # ensure the numpy type
     m = np.array( m )
@@ -101,14 +101,14 @@ def is_rotational_3D( m, rtol = 1e-6 ):
 
 def is_rotational_proper_3D( m, rtol = 1e-6 ):
     """
-    Test whether a numpy matrix is proper SO(3).
+    Test whether a 3D matrix belongs to SO(3).
 
     Args:
         m (numpy.matrix|numpy.ndarray|list): The matrix.
-        rtol (float): relative tolerance for elements of the matrix/tensor
+        rtol (float): Relative tolerance used for matrix/tensor comparisons.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     if not is_rotational_3D( m ):
         return False
@@ -122,13 +122,13 @@ def is_rotational_proper_3D( m, rtol = 1e-6 ):
 
 def is_3D_vector( x ):
     """
-    Test whether x is a 3D-space vector.
+    Test whether x is a three-dimensional vector.
 
     Args:
         x (numpy.ndarray): an argument to test.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     # ensure the numpy type
     x = np.array( x )
@@ -139,15 +139,15 @@ def is_3D_vector( x ):
 
 def is_symmetrical_tensor( x, rtol = 1e-6, atol = 1e-15 ):
     """
-    Test whether x is a symmetrical tensor in 3D-space.
+    Test whether x is a symmetric tensor in three-dimensional space.
 
     Args:
         x (numpy.ndarray): an argument to test.
-        rtol (float): relative tolerance for elements of the matrix/tensor
-        atol (float): absolute tolerance for elements of the matrix/tensor
+        rtol (float): Relative tolerance used for matrix/tensor comparisons.
+        atol (float): Absolute tolerance used for matrix/tensor comparisons.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     # ensure the numpy type
     x = np.array( x )
@@ -155,12 +155,12 @@ def is_symmetrical_tensor( x, rtol = 1e-6, atol = 1e-15 ):
 
 def get_tensor_axis( x, rtol = 1e-6, atol = 1e-14 ):
     """
-    Test whether x is an axial tensor in 3D-space. Return corresponding axis.
+    Find the symmetry axis of an axially symmetric 3D tensor.
 
     Args:
         x (numpy.ndarray): an argument to test.
-        rtol (float): relative tolerance for elements of the matrix/tensor
-        atol (float): absolute tolerance for elements of the matrix/tensor
+        rtol (float): Relative tolerance used for matrix/tensor comparisons.
+        atol (float): Absolute tolerance used for matrix/tensor comparisons.
 
     Returns:
         (numpy.ndarray): its axis if axial. Otherwise, null-vector.
@@ -199,7 +199,7 @@ def is_scalar( x ):
         x (int|float|numpy.ndarray): an argument to test.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     if x is None:
         return False
@@ -216,15 +216,14 @@ def is_scalar( x ):
 
 def is_scalar_extended( x, rtol = 1e-6 ):
     """
-    Test whether x is a scalar.
-    Including the case when x is a diagonal matrix representation of a scalar.
+    Test whether x is a scalar, including an identity matrix scaled by a scalar.
 
     Args:
         x (int|float|numpy.ndarray): an argument to test.
-        rtol (float): relative tolerance for elements of the matrix/tensor
+        rtol (float): Relative tolerance used for matrix/tensor comparisons.
 
     Returns:
-        (bool): True | False.
+        bool: True or False.
     """
     if x is None:
         return False
@@ -245,30 +244,30 @@ def is_scalar_extended( x, rtol = 1e-6 ):
 
 def make_0D_scalar( x ):
     """
-    Transform scalar to the simplest 0-dimensional type.
+    Convert a scalar to a zero-dimensional NumPy array.
 
     Args:
         x (numpy.matrix|numpy.ndarray|list|int|float): The scalar
         in different representations.
 
     Returns:
-        (numpy.ndarray): 0-dimensional numpy array scalar.
+        (numpy.ndarray): 0-dimensional NumPy array scalar.
 
-    Raise:
+    Raises:
         TypeError: non-scalar input
     """
     # ensure the numpy type
     x = np.array( x )
     if is_scalar( x ):
         if x.ndim == 1:
-            # make 0D numpy array
+            # make 0D NumPy array
             x = np.array( x[0] )
             return x
         else:
             return x
     # transform the diagonal matrix with constant diagonal elements into the 0D-scalar
     elif is_scalar_extended( x ):
-        # all are equal, one returns the first diagonal elements
+        # All diagonal entries are equal; return the first one.
         return np.array( x[0,0] )
     #elif is_diagonal( x ):
     #    if all( x[i][i] == x[i + 1][i + 1] for i in range (x.shape[0]) ):
@@ -286,13 +285,13 @@ def flatten_list( this_list ):
     return [ item for sublist in this_list for item in sublist ]
 
 def number_of_unique_permutations( seq ):
-    """Calculate the number of unique permutations of a sequence seq.
+    """Calculate the number of distinct permutations of a sequence.
 
     Args:
         seq (list): list of items.
         
     Returns:
-        int: The number of unique permutations of seq
+        int: Number of distinct permutations.
         
     """
     times_included = list( Counter( seq ).values() )
@@ -333,15 +332,15 @@ def is_equal_2D( value_1, value_2 ):
 
 def rotation_matrix_based_on_vectors( v1, v2 ):
     """
-    Calculate rotation matrix that connect 2 given vectors.
+    Calculate a rotation matrix mapping one 3D vector to another.
 
     Args:
-        v1, v2 (numpy.matrix|numpy.ndarray|list): The 3D-vectors to be connected.
+        v1, v2 (numpy.matrix|numpy.ndarray|list): The two 3D vectors to connect.
 
     Returns:
         (numpy.ndarray): rotation matrix.
     
-    Raise:
+    Raises:
         TypeError: non-3D-vector inputs
     """
     v1 = np.array( v1 )

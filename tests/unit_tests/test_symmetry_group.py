@@ -40,7 +40,7 @@ class SymmetryGroupTestCase( unittest.TestCase ):
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
         # inversion in 3D
         self.inv = - np.identity( 3 )
-        # same as an NumPy array
+        # same as a NumPy array
         self.array_0 = np.array( self.list_0 )
         # as advanced SciPy Rotation object
         self.rotation_0 = Rotation.from_matrix( self.list_0 )
@@ -231,9 +231,9 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         e = SymmetryOperationSO3( matrix = np.identity( 3 ) )
         # axis 2a
         test_axis_2a = np.array( [1, -1, 0] )
-        # perpednical axis 2b
+        # perpendicular axis 2b
         test_axis_2b = np.array( [1, 1, 0] )
-        # perpednical axis 2c
+        # perpendicular axis 2c
         test_axis_2c = np.cross( test_axis_2a, test_axis_2b )
         rot_vec_2a =  test_axis_2a * pi / norm( test_axis_2a )
         rot_vec_2b =  test_axis_2b * pi / norm( test_axis_2b )
@@ -290,8 +290,8 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self.assertEqual( sg2.order(), 6 )
 
     def test_symmetry_group_is_initialised_w_rotational_axis_6_dich( self ):
-        #first, let's set the regular proper rotation
-        # 60-degrees rotation around direction [111]
+        # First, let's set the regular proper rotation
+        # 60-degree rotation around direction [111]
         m0 = np.identity( 3 )
         e = SymmetryOperationO3( matrix = m0 )
         e_T = SymmetryOperationSO3( matrix = m0, dich_operations = {'T'} )
@@ -317,8 +317,8 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         self.assertEqual( sg.order(), 6 )
 
     def test_symmetry_group_is_initialised_w_rotational_axis_3( self ):
-        #first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # First, let's set the regular proper rotation
+        # 120-degree rotation around direction [111]
         m0 = np.identity( 3 )
         e = SymmetryOperation( matrix = m0 )
         rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
@@ -337,7 +337,7 @@ class SymmetryGroupTestCase( unittest.TestCase ):
         # init w/ mismatched dimensions
         with self.assertRaises( ValueError ):
             sg = SymmetryGroup( symmetry_operations = [e, e_4d] )
-        # init w/ a wrong types (non-symmetry operations)
+        # Initialise with invalid types (non-symmetry operations).
         with self.assertRaises( TypeError ):
             sg = SymmetryGroup( symmetry_operations = [e, 6.3] )
 
@@ -422,8 +422,8 @@ Dichromatic reversals: ['P', 'T']
         self.assertEqual( printed_str, expected_str )
     
     def test_invariants_symmetry_group_axis_3( self ):
-        #first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # First, let's set the regular proper rotation
+        # 120-degree rotation around direction [111]
         rot_120 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
         s_120 = SymmetryOperationSO3( matrix = rot_120)
         sg = SymmetryGroup( symmetry_operations = [ s_120 ] )
@@ -531,8 +531,8 @@ Dichromatic reversals: ['P', 'T']
         self.assertFalse( sg.is_invariant( pq_a_tensor ) )
 
     def test_invariants_symmetry_group_axis_refl_6m_dich( self ):
-        #first, let's set the regular proper rotation
-        # 60-degrees rotation around direction [100]
+        # First, let's set the regular proper rotation
+        # 60-degree rotation around direction [100]
         rot_60 = Rotation.from_rotvec( self.rot_vec_100_2pi_6, degrees = False )
         # rotation with time-reversal 6'
         s_60 = SymmetryOperationSO3( matrix = rot_60, dich_operations = { 'T' } )

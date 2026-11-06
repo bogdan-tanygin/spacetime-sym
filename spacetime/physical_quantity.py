@@ -9,32 +9,30 @@ from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar, is_
 
 class PhysicalQuantity(object):
     """
-    This class describes a physical quantity supplemented by its 
-    dichromatic symmetry properties (hereinafter, "dich") against
-    selected symmetry operations. E.g. dis tuple defines whether
-    the physical quantity should be inverted under operating upon
-    it such symmetry operations as charge conjugation (C-symmetry),
-    spatial mirror reflection or inversion operation (parity, P), and
-    the time reversal symmetry (T-symmetry).
+    Represent a physical quantity and its dichromatic symmetry properties.
+
+    The ``dich`` mapping associates symmetry-reversal labels with +1 or -1
+    factors. These factors describe the quantity's response to operations
+    such as parity (P), time reversal (T), and the symbolic charge-conjugation
+    label (C). Spatial O(3) matrices act on the value separately.
     """
     def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, bidirector = False, label = ""):
         """
         Initialise a `PhysicalQuantity` object.
 
         Args:
-            value: the value of the physical quantity (always as a NumPy array).
-            dich: dichromatic symmetry properties in a key-value form.
-                  The key is a string label. The value is an actual change when the
-                  corresponding symmetry operation
-                  is applied to the value: a multiplying +1 or -1.
-            bidirector: the flag whether sign/direction makes sense for its value.
-                        For instance, if value is an axis, not a directed vector,
-                        then True. It also applies to scalars and tensors.
-            label: a name of the physical quantity
+            value: Value of the physical quantity, stored as a NumPy array.
+            dich: Mapping from symmetry-reversal labels to +1 or -1 factors.
+                These factors are applied when the corresponding operation
+                acts on the quantity.
+            bidirector: If True, equality treats a value and its negative as
+                equivalent (for example, for an unoriented axis). This flag
+                can also be used with scalars and tensors.
+            label: Name of the physical quantity.
         Raises:
-            TypeError: if the dichromatic symmetry keys are not textual
-            ValueError: if the dichromatic symmetry values are not +1 or -1.
-            TypeError: if the label is not textual
+            TypeError: If a dichromatic symmetry key is not a string.
+            ValueError: If a dichromatic symmetry factor is not +1 or -1.
+            TypeError: If the label is not a string.
 
         Returns:
             None
@@ -44,7 +42,7 @@ class PhysicalQuantity(object):
         if label is not None:
             self._check_label_format( label )
         # regardless of the value's type and dimension, it is stored
-        # as an numpy array
+        # as a NumPy array
         if not is_scalar( value ):
             self._value = np.array( deepcopy( value ) )
         else:
@@ -55,11 +53,11 @@ class PhysicalQuantity(object):
     
     def __eq__(self, other):
         """
-        Compare `PhysicalQuantity` objects (redefines the operator "==" ).
+        Compare two `PhysicalQuantity` objects using the ``==`` operator.
 
         Raises:
-            TypeError: attempt to compare with non-PhysicalQuantity
-            TypeError: attempt to compare different types of values (e.g. vectors and scalars)
+            TypeError: If the other object is not a PhysicalQuantity.
+            TypeError: If the value types or dimensions are incompatible.
         """
         if not isinstance( other, PhysicalQuantity ):
             raise TypeError( 'Must be compared with other PhysicalQuantity' )
@@ -79,14 +77,14 @@ class PhysicalQuantity(object):
         else:
             raise TypeError( 'Dimensions or types of values of physical quantities do not match' )
         if self.bidirector and other.bidirector:
-            # bidirectors comparison ignores their signs
+            # Bidirector comparison ignores the overall sign.
             return is_equal_2D( value_1, value_2 ) or is_equal_2D( value_1, np.array( - value_2 ) )
         elif self.bidirector or other.bidirector:
-            # if ONLY one of them is a bidirector, comparison depends on the theory
+            # Comparing a bidirector with a non-bidirector is ambiguous.
             raise TypeError("""Comparison of bidirector and non-bidirector is ambiguous and depends on the theory
                          Feel free to implement it here for your case""")
         else:
-            # both are non-bidirectors
+            # Neither quantity is a bidirector.
             return is_equal_2D( value_1, value_2 )
 
     @property
@@ -151,10 +149,10 @@ class PhysicalQuantity(object):
     @bidirector.setter
     def bidirector( self, value ):
         """
-        The flag whether sign/direction makes sense for its value.
+        Flag indicating whether the overall sign of the value is disregarded.
 
         Raises:
-            ValueError: if not boolean
+            ValueError: If the flag is not boolean.
         """
         self._check_and_set_bidirector_flag( bidirector = value )
 
@@ -169,10 +167,8 @@ class PhysicalQuantity(object):
             None
 
         Returns:
-            (dict):  {'key1': 'value1', ...}, where
-            values are 1 for symmetry and -1 for asymmetry,
-            and key label the dichromatic reversal symmetry 
-            operation.
+            dict: Mapping from reversal labels to +1 (even) or -1 (odd)
+            transformation factors.
         """
         return self._dich
     

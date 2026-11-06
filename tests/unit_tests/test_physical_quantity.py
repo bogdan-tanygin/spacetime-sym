@@ -47,18 +47,18 @@ class TestPhysicalQuantity( unittest.TestCase ):
         # default dich
         dich_test = self.dich
         pq.dich = dich_test
-        # mass inversion dis
+        # Mass-inversion dichromatic label.
         pq.dich["M"] = -1
-        # make sure that the CPT symmetry stay the same
+        # Ensure that the C/P/T factors remain unchanged.
         keys = dich_test.keys()
         for key in keys:
             self.assertEqual( pq.dich[key], dich_test[key] )
-        # test mass inversion dis
+        # Check the mass-inversion label.
         self.assertEqual( pq.dich["M"], -1 )
     
     def test_assigning_dich_with_wrong_value( self ):
         pq = PhysicalQuantity()
-        # new incorrect dis value
+        # Invalid dichromatic factor.
         dich_test = {"X":-2}
         with self.assertRaises( ValueError ):
             # new incorrect dich setting
@@ -77,12 +77,12 @@ class TestPhysicalQuantity( unittest.TestCase ):
 
     def test_reassigning_dis_with_wrong_value( self ):
         pq = PhysicalQuantity()
-        # default dis
+        # Default dichromatic properties.
         pq.dich = self.dich
-        # new incorrect dis value
+        # Invalid dichromatic factor.
         dich_test = {"X":-2}
         with self.assertRaises( ValueError ):
-            # extra incorrect dis setting
+            # Invalid dichromatic assignment.
             pq.dich = dich_test
 
     def test_reassign_scalar_value( self ):

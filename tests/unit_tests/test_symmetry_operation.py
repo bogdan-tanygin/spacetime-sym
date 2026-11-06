@@ -135,7 +135,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.list_0 = [[ 1, 0,                      0                    ],
                        [ 0, np.cos(self.angle_0), - np.sin(self.angle_0) ],
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
-        # same as an NumPy array
+        # same as a NumPy array
         self.array_0 = np.array( self.list_0 )
         # as advanced SciPy Rotation object
         self.rotation_0 = Rotation.from_matrix( self.list_0 )
@@ -226,23 +226,23 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         self.assertNotEqual( this_repr.find( "[[1, 0],\n[0, 1]]" ), 0 )
     
     def test_ensure_unit_det_properO3( self ):
-        #first, let's check the regular proper rotation
+        # First, let's check the regular proper rotation
         so_1 = SymmetryOperationO3( self.rotation_0 )
         det_1 = det( so_1.matrix )
         np.testing.assert_approx_equal( det_1, 1, self.ptol )
         #let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
-        #now, let's test the case of unitary determinant, but non-rotational matrix
+        # Now, let's test the case of unitary determinant, but non-rotational matrix
         with self.assertRaises( ValueError ):
             so_4 = SymmetryOperationO3 ( self.matrix_unit_det )
 
     def test_ensure_unit_det_improper( self ):
-        #first, let's check the regular improper rotation
+        # First, let's check the regular improper rotation
         so_1 = SymmetryOperationO3( - 1 * self.array_0 )
         det_1 = det( so_1.matrix )
         np.testing.assert_approx_equal(det_1, - 1, self.ptol)
-        #now, let's modify the transformation matrix by a random coefficient
+        # Now, let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationO3 ( self.scalar_0 * self.array_0 )
         so_3_1 = SymmetryOperationO3( self.m001 )
@@ -252,7 +252,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         np.testing.assert_approx_equal(det_3, - 1, self.ptol)
     
     def test_improper_flags( self ):
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationO3( self.rotation_0 )
         #then, let's set the regular improper rotation
         so_2 = SymmetryOperationO3( - 1 * self.array_0 )
@@ -284,7 +284,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         scalar_test = 273.15
         pq = PhysicalQuantity( value = scalar_test, label = 'temperature',
                                dich = dich_test )
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationO3( matrix = self.rotation_0 )
         # let's add time-reversal operation here
         # it must have no effect on this scalar
@@ -321,7 +321,7 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         pq_tensor = PhysicalQuantity( label = 'the pseudoscalar',
                                dich = dich_test )
         pq_tensor.value = pseudoscalar_test_tensor
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationO3( matrix = self.rotation_0 )
         # let's add time-reversal operation here
         # it must have no effect on this pseudoscalar
@@ -380,13 +380,13 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
 
     def test_mul_electric_field_1( self ):
         # electrical field, a polar time-even vector.
-        # It has the odd dichromatic symmetry against charge inversion.
+        # It is odd under the symbolic charge-reversal operation.
         dich_test = {"C":-1, "P":1, "T":1}
         vec_test_0 = np.array( [75**(1/3.0), 0, 0] )
         pq = PhysicalQuantity( value = vec_test_0, label = 'E',
                                dich = dich_test )
-        #first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # First, let's set the regular proper rotation
+        # 120-degree rotation around direction [111]
         rot_1 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
         so_1 = SymmetryOperationO3( matrix = rot_1 )
         # expected vector after this rotation:
@@ -395,20 +395,20 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         # it must have no effect on this polar vector
         so_1.dich_operations = {"T"}
 
-        #now, let's apply spatial inversion along with charge reversal operation.
+        # Now, let's apply spatial inversion along with charge reversal operation.
         so_inv = SymmetryOperationO3( matrix = ( -1 ) * np.identity( 3 ) )
         so_2 = SymmetryOperationO3() * so_inv
         # let's add charge-reversal operation here
         # it must reverse electric field
         so_2.add_dich_operations("C")
         
-        #now, let's do just charge inversion
+        # Now, let's do just charge inversion
         so_3 = SymmetryOperationO3()
         # let's add charge-reversal operation here
         # it must reverse electric field
         so_3.add_dich_operations("C")
 
-        #now, let's do just spatial inversion
+        # Now, let's do just spatial inversion
         so_inv = SymmetryOperationO3( matrix = ( -1 ) * np.identity( 3 ) )
         so_4 = SymmetryOperationO3() * so_inv
         # let's an additional reversal operation here
@@ -442,13 +442,13 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
 
     def test_mul_magnetic_field_2( self ):
         # magnetic field, an axial time-odd vector.
-        # It has the odd dichromatic symmetry against charge inversion.
+        # It is odd under the symbolic charge-reversal operation.
         dich_test = {"C":-1, "P":-1, "T":-1}
         vec_test_0 = np.array( [75**(1/3.0), 0, 0] )
         pq = PhysicalQuantity( value = vec_test_0, label = 'B',
                                dich = dich_test )
         # first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # 120-degree rotation around direction [111]
         rot_1 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
         so_1 = SymmetryOperationO3( matrix = rot_1 )
         # let's add time-reversal operation here
@@ -466,14 +466,14 @@ class SymmetryOperationO3TestCase( unittest.TestCase ):
         so_2.add_dich_operations("C")
         vec_test_updated_2 = - vec_test_0
         
-        #now, let's do just charge inversion
+        # Now, let's do just charge inversion
         so_3 = SymmetryOperationO3()
         # let's add charge-reversal operation here
         # it must reverse magnetic field
         so_3.add_dich_operations("C")
         vec_test_updated_3 = - vec_test_0
 
-        #now, let's do just spatial inversion
+        # Now, let's do just spatial inversion
         so_inv = SymmetryOperationO3( matrix = ( -1 ) * np.identity( 3 ) )
         so_4 = SymmetryOperationO3() * so_inv
         # let's add an additional reversal operation here
@@ -525,7 +525,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         self.list_0 = [[ 1, 0,                      0                    ],
                        [ 0, np.cos(self.angle_0), - np.sin(self.angle_0) ],
                        [ 0, np.sin(self.angle_0),   np.cos(self.angle_0) ]]
-        # same as an NumPy array
+        # same as a NumPy array
         self.array_0  =   np.array( self.list_0 )
         # as advanced SciPy Rotation object
         self.rotation_0 = Rotation.from_matrix(self.list_0)
@@ -559,11 +559,11 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         np.testing.assert_allclose( so.matrix, self.rotation_0.as_matrix() )
     
     def test_ensure_unit_det_properSO3( self ):
-        #first, let's check the regular proper rotation
+        # First, let's check the regular proper rotation
         so_1 = SymmetryOperationSO3( self.rotation_0 )
         det_1 = det( so_1.matrix )
         np.testing.assert_approx_equal( det_1, 1, self.ptol )
-        #now, let's modify the transformation matrix by a random coefficient
+        # Now, let's modify the transformation matrix by a random coefficient
         with self.assertRaises( ValueError ):
             so_2 = SymmetryOperationSO3( self.scalar_0 * self.array_0 )
         #let's test the improper case
@@ -588,7 +588,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         np.testing.assert_allclose( ( so_0 * so_0 ).matrix , so_2.matrix )
 
     def test_returnO3_with_improper_flag( self ):
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationSO3( self.rotation_0 )
         #then, let's set the regular improper rotation
         so_2 = SymmetryOperationO3( - 1 * self.array_0 )
@@ -599,7 +599,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         scalar_test = 273.15
         pq = PhysicalQuantity( value = scalar_test, label = 'temperature',
                                dich = dich_test )
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationSO3( matrix = self.rotation_0 )
         # let's add time-reversal operation here
         # it must have no effect on this scalar
@@ -629,7 +629,7 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
         # time-even charge-odd pseudoscalar
         pq = PhysicalQuantity( value = pseudoscalar_test, label = 'the pseudoscalar',
                                dich = dich_test )
-        #first, let's set the regular proper rotation
+        # First, let's set the regular proper rotation
         so_1 = SymmetryOperationSO3( matrix = self.rotation_0 )
         # let's add time-reversal operation here
         # it must have no effect on this pseudoscalar
@@ -682,13 +682,13 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
 
     def test_mul_electric_field_2( self ):
         # electrical field, a polar time-even vector.
-        # It has the odd dichromatic symmetry against charge inversion.
+        # It is odd under the symbolic charge-reversal operation.
         dich_test = {"C":-1, "P":1, "T":1}
         vec_test_0 = np.array( [75**(1/3.0), 0, 0] )
         pq = PhysicalQuantity( value = vec_test_0, label = 'E',
                                dich = dich_test )
-        #first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # First, let's set the regular proper rotation
+        # 120-degree rotation around direction [111]
         rot_1 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
         so_1 = SymmetryOperationSO3( matrix = rot_1 )
         # expected vector after this rotation:
@@ -728,13 +728,13 @@ class SymmetryOperationSO3TestCase( unittest.TestCase ):
 
     def test_mul_magnetic_field_1( self ):
         # magnetic field, an axial time-odd vector.
-        # It has the odd dichromatic symmetry against charge inversion.
+        # It is odd under the symbolic charge-reversal operation.
         dich_test = {"C":-1, "P":-1, "T":-1}
         vec_test_0 = np.array( [75**(1/3.0), 0, 0] )
         pq = PhysicalQuantity( value = vec_test_0, label = 'B',
                                dich = dich_test )
         # first, let's set the regular proper rotation
-        # 120-degrees rotation around direction [111]
+        # 120-degree rotation around direction [111]
         rot_1 = Rotation.from_rotvec( self.rot_vec_111_2pi_3, degrees = False )
         so_1 = SymmetryOperationSO3( matrix = rot_1 )
         # let's add time-reversal operation here
