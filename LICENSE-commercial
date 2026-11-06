@@ -1,7 +1,60 @@
-Commercial License of "spacetime-sym"
+Commercial License for spacetime-sym
 Copyright (C) 2024-2026 Dr. Bogdan Tanygin <info@deeptech.business>
 
-Holders of valid commercial licenses for "spacetime-sym" are hereby permitted to operate the software
-strictly in adherence to the terms outlined in any existing written agreement with Dr. Bogdan Tanygin.
-Should there be no bespoke agreement in place, the terms and conditions acknowledged and accepted
-by the licensee at the point of purchase or download will be in effect.
+1. Purpose and scope
+
+This Commercial License sets out the default terms under which Dr. Bogdan Tanygin (the "Licensor") may authorize a customer (the "Licensee") to use the Licensor's copyrightable contributions to spacetime-sym in proprietary software and other commercial products.
+
+This License applies only when the Licensor has expressly offered it to the Licensee and the Licensee has accepted it in a signed written agreement or in a purchase or download process that identifies this License and the applicable commercial terms. A separate written agreement or order document may specify the licensed version, project, number of users, territory, fees, support, and any other terms. If it conflicts with this License, the separate agreement or order document controls.
+
+2. License grant
+
+Subject to the applicable commercial terms and this License, the Licensor grants the Licensee a non-exclusive, worldwide license to use, reproduce, modify, and integrate the Licensed Contributions into the Licensee's proprietary software and products for the Licensee's internal business purposes and, where the applicable commercial terms permit, to distribute those products to its customers.
+
+"Licensed Contributions" means the copyrightable contributions to spacetime-sym owned or controlled by the Licensor and covered by the applicable commercial agreement. The grant includes the right to compile the Licensed Contributions and distribute them as object code or as part of a larger product, to the extent authorized by that agreement.
+
+The Licensee may permit its employees and contractors to exercise these rights solely on the Licensee's behalf, provided they are bound by confidentiality and use restrictions at least as protective as this License. The Licensee may not otherwise transfer or sublicense this License without the Licensor's prior written consent.
+
+3. Restrictions
+
+The Licensee must not:
+- sell, publish, or distribute the Licensed Contributions as a standalone library, toolkit, or source-code product, except where expressly authorized in the applicable commercial agreement;
+- remove or alter copyright, attribution, or license notices included with the Licensed Contributions;
+- use the Licensor's name or trademarks to imply endorsement without prior written consent; or
+- use the Licensed Contributions beyond the scope, project, products, users, or other limits stated in the applicable commercial terms.
+
+Nothing in this License restricts activities that applicable law does not permit a license to restrict.
+
+4. Third-party code and other licenses
+
+spacetime-sym includes code derived from the bsym project by Benjamin J. Morgan. That code is identified in the repository and accompanied by its original MIT License notice. The MIT License continues to govern the rights granted in that code. This Commercial License does not revoke, replace, or limit permissions already granted under the MIT License.
+
+The repository may also offer spacetime-sym under the GNU General Public License version 3 (GPLv3). This Commercial License applies only to the Licensed Contributions and commercial permissions expressly granted by the Licensor. It does not alter the terms of GPLv3 or the rights of recipients who receive a copy under GPLv3.
+
+5. Ownership and feedback
+
+The Licensor and other respective rights holders retain ownership of their contributions. The Licensee retains ownership of its own software, data, and materials. No ownership of spacetime-sym or any Licensed Contribution is transferred under this License.
+
+If the Licensee provides suggestions or feedback, the Licensor may use them without restriction or payment, unless the parties agree otherwise in writing. This does not transfer ownership of the Licensee's confidential information.
+
+6. Term and termination
+
+The license term, renewal, and any termination rights are stated in the applicable commercial agreement or order document. If that document does not specify a term, the license is perpetual for the licensed version and scope, subject to the Licensee's continued compliance with this License and payment of any applicable fees.
+
+If the Licensee materially breaches this License and does not remedy the breach within thirty (30) days after receiving written notice, the Licensor may terminate the commercial rights granted under this License. Upon termination, the Licensee must stop using and distributing the Licensed Contributions under this Commercial License. This does not affect rights the Licensee independently holds under the MIT License or GPLv3.
+
+7. Warranty and liability
+
+The Licensed Contributions are provided "AS IS", without warranties or conditions of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement, to the extent permitted by law.
+
+To the extent permitted by law, the Licensor will not be liable for indirect, incidental, special, consequential, or exemplary damages, or for loss of profits, revenue, data, or business interruption arising from use of the Licensed Contributions. The Licensor's total liability under this License will not exceed the fees paid by the Licensee for the commercial license during the twelve (12) months before the event giving rise to the claim. These limitations do not apply where prohibited by applicable law.
+
+8. General terms
+
+This License and the applicable commercial agreement or order document form the entire agreement concerning the commercial permissions granted here, unless the parties agree otherwise in writing. Any amendment must be in writing and accepted by both parties.
+
+If any provision is held unenforceable, the remaining provisions continue in effect. A failure to enforce a provision is not a waiver of the right to enforce it later.
+
+The governing law and dispute-resolution forum are those stated in the applicable commercial agreement or order document. If none are stated, the parties will determine them in a separate written agreement.
+
+For commercial licensing inquiries, contact Dr. Bogdan Tanygin at info@deeptech.business.
