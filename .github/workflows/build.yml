@@ -1,5 +1,10 @@
-name: Build
+# Copyright (C) 2024-2026 Dr. Bogdan Tanygin <info@deeptech.business>
+#
+# This file is part of spacetime-sym and is based on bsym by Benjamin J. Morgan.
+# See licenses/bsym-MIT for the upstream license.
 
+name: build
+# Controls when the action will run
 on: [push, pull_request]
 
 jobs:
@@ -19,13 +24,13 @@ jobs:
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy
+        # python -m pip install numpy
         # Install package with dev dependencies
-        python -m pip install -e ".[dev]"
-        python -m pip list
+        pip install -e ".[dev]"
+        pip list
     - name: Run tests
       run: |
-        pytest tests/unit_tests
+        pytest --cov-config=.coveragerc --cov=spacetime --cov-report lcov
     - name: Static type checking
       run: |
         mypy spacetime
