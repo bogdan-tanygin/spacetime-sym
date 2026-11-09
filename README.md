@@ -1,6 +1,7 @@
 # spacetime-sym
 
 [![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
+[![Documentation](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/docs.yml/badge.svg?branch=main)](https://bogdan-tanygin.github.io/spacetime-sym/)
 [![Coverage](https://coveralls.io/repos/github/bogdan-tanygin/spacetime-sym/badge.svg?branch=main)](https://coveralls.io/github/bogdan-tanygin/spacetime-sym?branch=main)
 
 **Symmetry groups and physical-quantity invariance in Python.**
@@ -12,7 +13,7 @@
 - **Physical-quantity-centric:** scalars, pseudoscalars, polar and axial vectors, and second-rank tensors with distinct transformation properties.
 - **Groups from generators:** finite spatial and magnetic symmetry groups, including rotations, reflections, and time reversal.
 - **Curie limiting groups:** selected continuous symmetries and invariance checks without sampling every rotation angle.
-- **Reproducible examples:** finite and limiting-group cases in the [documentation](docs/source/index.md) and [unit tests](tests/unit_tests/).
+- **Reproducible examples:** finite and limiting-group cases in the [documentation](https://bogdan-tanygin.github.io/spacetime-sym/) and [unit tests](tests/unit_tests/).
 
 The current `C` label is a simplified dichromatic operation; **Dirac-spinor charge conjugation is not implemented**.
 
@@ -35,7 +36,7 @@ python -m pytest tests/unit_tests
 
 ## Documentation and research
 
-- [Scientific overview and API documentation](docs/source/index.md)
+- [Scientific overview and API documentation](https://bogdan-tanygin.github.io/spacetime-sym/)
 - [Executable examples in the test suite](tests/unit_tests/)
 - [Research background: Tanygin's thesis](https://doi.org/10.5281/zenodo.17573059) and [Hlinka's vectorlike-quantity classification](https://doi.org/10.1103/PhysRevLett.113.165502)
 
