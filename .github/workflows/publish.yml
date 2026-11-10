@@ -1,0 +1,101 @@
+# Copyright (C) 2024-2026 Dr. Bogdan Tanygin <info@deeptech.business>
+#
+# Build and test once; publish the exact same distributions to TestPyPI or PyPI.
+# Authentication: PyPI Trusted Publishing (OIDC); no stored API tokens.
+
+name: Publish Python package
+
+on:
+  workflow_dispatch:  # Manual run from main -> TestPyPI only
+  release:
+    types: [published]  # Published, non-prerelease GitHub release -> PyPI
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test and build distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" build twine
+
+      - name: Check release metadata versions
+        run: python scripts/sync_version.py --check
+
+      - name: Ensure a GitHub release tag matches the package version
+        if: github.event_name == 'release'
+        shell: bash
+        run: |
+          package_version="$(python -c 'from spacetime.version import __version__; print(__version__)')"
+          if [[ "${GITHUB_REF_NAME}" != "v${package_version}" ]]; then
+            echo "Release tag '${GITHUB_REF_NAME}' must equal 'v${package_version}'"
+            exit 1
+          fi
+
+      - name: Run unit tests
+        run: python -m pytest tests/unit_tests
+
+      - name: Build wheel and source distribution
+        run: python -m build
+
+      - name: Validate distribution metadata
+        run: python -m twine check dist/*
+
+      - name: Store distributions for publishing
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-testpypi:
+    name: Publish to TestPyPI
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Retrieve tested distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+
+      - name: Publish distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'release' && github.event.release.prerelease == false
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Retrieve tested distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

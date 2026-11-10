@@ -13,8 +13,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
 project = "spacetime-sym"
-author = "Dr. Bogdan M. Tanygin"
-copyright = "2024-2026, Dr. Bogdan M. Tanygin"
+author = "Dr. Bogdan Tanygin"
+copyright = "2024-2026, Dr. Bogdan Tanygin"
 language = "en"
 
 # Read the package version without importing its dependencies.

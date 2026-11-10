@@ -14,7 +14,7 @@
   "datePublished": "2024-04-22",
   "dateModified": "2026-11-06",
   "dateCreated": "2024-04-22",
-  "description": "spacetime-sym - a Python module introducing symmetry theory formalism into data science and natural sciences",
+  "description": "spacetime-sym - symmetry groups and physical-quantity invariance in Python",
   "keywords": "symmetry",
   "license": "GPL-3.0-only OR LicenseRef-Commercial",
   "title": "spacetime-sym",

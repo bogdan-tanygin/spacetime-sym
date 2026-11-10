@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spacetime-sym"
 dynamic = ["version"]
-description = "A spacetime symmetry module"
+description = "Symmetry groups and physical-quantity invariance in Python"
 readme = "README.md"
 authors = [
-    {name = "Dr. Bogdan M. Tanygin", email = "bogdan@deeptech.business"},
+    {name = "Dr. Bogdan Tanygin", email = "bogdan@deeptech.business"},
 ]
 license = "GPL-3.0-only OR LicenseRef-Commercial"
 license-files = ["LICENSE", "LICENSE-commercial", "licenses/bsym-MIT"]
