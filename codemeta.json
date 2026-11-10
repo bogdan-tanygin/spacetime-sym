@@ -14,7 +14,7 @@
   "datePublished": "2024-04-22",
   "dateModified": "2026-11-06",
   "dateCreated": "2024-04-22",
-  "description": "spacetime-sym - symmetry groups and physical-quantity invariance in Python",
+  "description": "spacetime-sym - Python library for spatial and dichromatic point groups, including continuous Curie limiting groups, and symmetry invariance of physical quantities up to second-rank tensors",
   "keywords": "symmetry",
   "license": "GPL-3.0-only OR LicenseRef-Commercial",
   "title": "spacetime-sym",

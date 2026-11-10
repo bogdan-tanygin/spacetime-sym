@@ -6,16 +6,16 @@
 
 ![Abstract visualization of spatial symmetry using translucent surfaces](docs/source/_static/images/symmetry-hero.png)
 
-**Symmetry groups and physical-quantity invariance in Python.**
+**Spatial and dichromatic point groups, Curie limiting groups, and invariance of physical quantities in Python.**
 
-`spacetime-sym` is a scientific Python library for constructing symmetry operations and groups, describing the transformation properties of physical quantities, and testing their invariance. It combines spatial transformations in **O(3)** (including **SO(3)** rotations and reflections) with discrete symmetry labels such as **P**, **T**, and a symbolic **C**. The emphasis is on symmetry analysis **beyond periodic crystal structures**.
+`spacetime-sym` is a scientific Python library for constructing **spatial and dichromatic point groups** and testing the **invariance of physical quantities** under their operations. It combines rotations and reflections in **O(3)** (including proper rotations in **SO(3)**) with discrete reversal operations such as **time reversal (T)**, and supports selected continuous **Curie limiting groups**. Physical quantities carry explicit transformation characters, including the spatial **P** convention and a symbolic **C** label. The supported representations include **scalars, pseudoscalars, polar and axial vectors, and second-rank tensors**. The emphasis is on symmetry constraints **beyond periodic crystal structures**.
 
 ### Highlights
 
-- **Physical-quantity-centric:** scalars, pseudoscalars, polar and axial vectors, and second-rank tensors with distinct transformation properties.
-- **Groups from generators:** finite spatial and magnetic symmetry groups, including rotations, reflections, and time reversal.
-- **Curie limiting groups:** selected continuous symmetries and invariance checks without sampling every rotation angle.
-- **Reproducible examples:** finite and limiting-group cases in the [documentation](https://bogdan-tanygin.github.io/spacetime-sym/) and [unit tests](tests/unit_tests/).
+- **Spatial and dichromatic point groups:** construct finite groups from rotations, reflections, and generators combined with time reversal.
+- **Physical-quantity invariance:** test scalars, pseudoscalars, polar and axial vectors, and second-rank tensors with their specified spatial and dichromatic transformation characters.
+- **Continuous Curie limiting groups:** check supported invariants under selected infinite axial symmetries without sampling every rotation angle.
+- **Reproducible examples:** finite and limiting-group cases, including tensor invariance, in the [documentation](https://bogdan-tanygin.github.io/spacetime-sym/) and [unit tests](tests/unit_tests/).
 
 The current `C` label is a simplified dichromatic operation; **Dirac-spinor charge conjugation is not implemented**.
 
