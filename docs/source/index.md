@@ -2,6 +2,8 @@
 
 **Symmetry groups and transformation properties of physical quantities in Python**
 
+![Abstract visualization of spatial symmetry using translucent surfaces](_static/images/symmetry-hero.png)
+
 `spacetime-sym` is an open-source Python library for constructing symmetry operations and groups, representing physical quantities, and checking their invariance. Its spatial transformations are drawn from **$O(3)$**, including proper rotations in **$SO(3)$** and improper operations such as reflections. They can be combined with discrete dichromatic operations, notably **time reversal ($T$)** and a symbolic **charge-conjugation ($C$)** label.
 
 The purpose is to make symmetry analysis useful **beyond crystallography**: for scalars, pseudoscalars, polar and axial vectors, tensors, and quantities associated with physical fields. The package supports finite groups and selected continuous **Curie limiting groups**, together with transformation rules for different classes of physical quantities.
@@ -14,7 +16,7 @@ In his 1894 paper *[Sur la symétrie dans les phénomènes physiques, symétrie 
 
 The same geometric direction does not necessarily imply the same physical transformation law. For example, electric polarization and velocity are both **polar vectors**, but the former is **time-even** whereas the latter is **time-odd**. Magnetization is instead a **time-odd axial vector**. These distinctions matter when identifying permissible physical responses, order parameters, and interactions.
 
-**J. Hlinka's** 2014 paper, *[Eight Types of Symmetrically Distinct Vectorlike Physical Quantities](https://doi.org/10.1103/PhysRevLett.113.165502)*, is an important inspiration for this project. It explains why directional quantities cannot all be treated as ordinary polar vectors: alongside polar and axial vectors, the classification includes several kinds of **bidirectors**, distinguished by their spatial and time-reversal symmetries. Hlinka cites earlier symmetry-based work by **Bogdan M. Tanygin** on magnetic domain walls and topological defects.
+**J. Hlinka's** 2014 paper, *[Eight Types of Symmetrically Distinct Vectorlike Physical Quantities](https://doi.org/10.1103/PhysRevLett.113.165502)*, is an important inspiration for this project. It explains why directional quantities cannot all be treated as ordinary polar vectors: alongside polar and axial vectors, the classification includes several kinds of **bidirectors**, distinguished by their spatial and time-reversal symmetries. Hlinka cites earlier symmetry-based work by **Dr. Bogdan Tanygin** on magnetic domain walls and topological defects.
 
 `spacetime-sym` grows out of this broader research interest. Its aim is to encourage the use of group-theoretical reasoning for **physical quantities, fields, and micromagnetic structures**, not only for crystal lattices. A longer treatment of Curie groups, Hlinka's classification, **two-dimensional domain walls, one-dimensional line defects, and zero-dimensional point defects**, as well as skyrmions and surface effects, will be developed in the **Theory** section. Specific magnetic examples include Bloch and Néel lines and Bloch points. The group-theoretical treatment follows, in part, [Tanygin's dissertation](https://doi.org/10.5281/zenodo.17573059), especially Section 2 (symmetry of micromagnetic structures).
 
@@ -314,13 +316,27 @@ api/symmetry_group
 
 **Start here:** [GitHub repository](https://github.com/bogdan-tanygin/spacetime-sym) · [Issues and feature requests](https://github.com/bogdan-tanygin/spacetime-sym/issues) · [Pull requests](https://github.com/bogdan-tanygin/spacetime-sym/pulls) · [Test suite](https://github.com/bogdan-tanygin/spacetime-sym/tree/main/tests).
 
-For **scientific partnerships, enterprise integration, commercial licensing, or investment discussions**, contact [info@deeptech.business](mailto:info@deeptech.business). Public-facing project and commercial information is planned for [deeptech.business](https://deeptech.business/). For substantial third-party code contributions, please coordinate licensing and attribution requirements in advance so that contributions remain compatible with the project's **dual-licensing model**.
+For **scientific partnerships, enterprise integration, commercial licensing, or investment discussions**, contact [info@deeptech.business](mailto:info@deeptech.business). Public-facing project and commercial information is planned for [deeptech.business](http://deeptech.business). For substantial third-party code contributions, please coordinate licensing and attribution requirements in advance so that contributions remain compatible with the project's **dual-licensing model**.
 
 ## Project, attribution, and licensing
 
-`spacetime-sym` is developed by **[Bogdan M. Tanygin](https://orcid.org/0000-0003-4042-1144)** and is based on **[bsym](https://github.com/bjmorgan/bsym)** by Benjamin J. Morgan. The original project and its retained contributions are acknowledged in the [repository's attribution and license files](https://github.com/bogdan-tanygin/spacetime-sym/tree/main/licenses).
+```{image} _static/images/dt_logo_black.png
+:alt: Deeptech logo
+:width: 120px
+:class: only-light
+:target: http://deeptech.business
+```
 
-The library is offered under **[GPL-3.0](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE)** or under a **[separately negotiated commercial license](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE-commercial)**. Commercial licensing inquiries: [info@deeptech.business](mailto:info@deeptech.business). A more detailed project and licensing overview will be available on [deeptech.business](https://deeptech.business/).
+```{image} _static/images/dt_logo_white.png
+:alt: Deeptech logo
+:width: 120px
+:class: only-dark
+:target: http://deeptech.business
+```
+
+`spacetime-sym` is developed by **[Dr. Bogdan Tanygin](https://orcid.org/0000-0003-4042-1144)** and is based on **[bsym](https://github.com/bjmorgan/bsym)** by Benjamin J. Morgan. The original project and its retained contributions are acknowledged in the [repository's attribution and license files](https://github.com/bogdan-tanygin/spacetime-sym/tree/main/licenses).
+
+The library is offered under **[GPL-3.0](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE)** or under a **[separately negotiated commercial license](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE-commercial)**. Commercial licensing inquiries: [info@deeptech.business](mailto:info@deeptech.business). A more detailed project and licensing overview will be available on [deeptech.business](http://deeptech.business).
 
 - **Source code:** [GitHub — spacetime-sym](https://github.com/bogdan-tanygin/spacetime-sym)
 - **Related research thesis:** B. M. Tanygin, *[Magnetoelectric Properties and Symmetry Classification of Micromagnetic Structures](https://doi.org/10.5281/zenodo.17573059)* (Zenodo). See especially **§2.2** (line defects / Bloch lines), **§2.3** (magnetic point-symmetry classification of Bloch points), and **§3.1** (sample-surface effects on domain-wall symmetry).
