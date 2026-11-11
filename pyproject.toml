@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spacetime-sym"
 dynamic = ["version"]
-description = "Symmetry groups and physical-quantity invariance in Python"
+description = "Spatial and dichromatic point groups, Curie limiting groups, and invariance of physical quantities in Python"
 readme = "README.md"
 authors = [
     {name = "Dr. Bogdan Tanygin", email = "bogdan@deeptech.business"},
@@ -45,7 +45,7 @@ docs = [
 "Source Code" = "https://github.com/bogdan-tanygin/spacetime-sym"
 
 [tool.setuptools]
-packages = ["spacetime"]
+packages = ["spacetime", "spacetime.interface"]
 
 [tool.setuptools.dynamic]
 version = {attr = "spacetime.version.__version__"}

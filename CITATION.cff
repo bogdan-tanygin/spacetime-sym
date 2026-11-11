@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "For this development version, cite the repository and relevant scientific publications. A software DOI is planned for version 1.0."
+message: "If you use spacetime-sym, please cite this software release and the relevant scientific publications."
 authors:
 - family-names: "Tanygin"
   given-names: "Bogdan"

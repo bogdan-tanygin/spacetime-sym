@@ -1,0 +1,3 @@
+# Include machine-readable research software metadata in the source distribution.
+include CITATION.cff
+include codemeta.json

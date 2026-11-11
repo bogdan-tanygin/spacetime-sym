@@ -20,10 +20,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -51,11 +51,30 @@ jobs:
       - name: Build wheel and source distribution
         run: python -m build
 
+      - name: Verify citation metadata is present in sdist
+        run: |
+          python - <<'PY_CHECK_SDIST'
+          from pathlib import Path
+          import tarfile
+
+          sdists = list(Path('dist').glob('*.tar.gz'))
+          assert len(sdists) == 1, f'Expected one sdist, found: {sdists}'
+          with tarfile.open(sdists[0], 'r:gz') as tar:
+              root_files = {
+                  parts[1]
+                  for member in tar.getmembers()
+                  if len(parts := Path(member.name).parts) == 2
+              }
+          required = {'CITATION.cff', 'codemeta.json'}
+          missing = required - root_files
+          assert not missing, f'Missing from sdist: {sorted(missing)}'
+          PY_CHECK_SDIST
+
       - name: Validate distribution metadata
         run: python -m twine check dist/*
 
       - name: Store distributions for publishing
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-distributions
           path: dist/*
@@ -72,7 +91,7 @@ jobs:
       id-token: write
     steps:
       - name: Retrieve tested distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: python-distributions
           path: dist/
@@ -92,7 +111,7 @@ jobs:
       id-token: write
     steps:
       - name: Retrieve tested distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: python-distributions
           path: dist/
