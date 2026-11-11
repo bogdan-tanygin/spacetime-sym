@@ -8,7 +8,7 @@
 
 **Spatial and dichromatic point groups, Curie limiting groups, and invariance of physical quantities in Python.**
 
-`spacetime-sym` is a scientific Python library for constructing **spatial and dichromatic point groups** and testing the **invariance of physical quantities** under their operations. It combines rotations and reflections in **O(3)** (including proper rotations in **SO(3)**) with discrete reversal operations such as **time reversal (T)**, and supports selected continuous **Curie limiting groups**. Physical quantities carry explicit transformation characters, including the spatial **P** convention and a symbolic **C** label. The supported representations include **scalars, pseudoscalars, polar and axial vectors, and second-rank tensors**. The emphasis is on symmetry constraints **beyond periodic crystal structures**.
+`spacetime-sym` is a scientific Python library for constructing **spatial and dichromatic point groups** and testing the **invariance of physical quantities** under their operations. It combines rotations and reflections in **O(3)** (including proper rotations in **SO(3)**) with discrete reversal operations such as **time reversal (T)**, and supports selected continuous **Curie limiting groups**. Physical quantities carry explicit transformation characters, including the spatial **P** convention and a symbolic **C** label. The supported representations include **scalars, pseudoscalars, polar and axial vectors, bidirectors, and second-rank tensors with different dichromatic properties**. The emphasis is on symmetry constraints **beyond periodic crystal structures**.
 
 ### Highlights
 
