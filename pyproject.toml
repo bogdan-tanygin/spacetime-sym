@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spacetime-sym"
 dynamic = ["version"]
-description = "Spatial and dichromatic point groups, Curie limiting groups, and invariance of physical quantities in Python"
+description = "Python library for spatial and dichromatic point groups, Curie limiting groups, multiple antisymmetry, and physical-quantity invariance up to rank 2."
 readme = "README.md"
 authors = [
     {name = "Dr. Bogdan Tanygin", email = "bogdan@deeptech.business"},

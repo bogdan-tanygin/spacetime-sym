@@ -18,7 +18,9 @@ class SymmetryGroup:
     """
     :any:`SymmetryGroup` class.
 
-    A :any:`SymmetryGroup` contains a list of :any:`SymmetryOperation` objects in arbitrary order.
+    A :any:`SymmetryGroup` contains spatial operations with optional binary
+    reversal labels. It generates finite group closure from supplied operations,
+    distinguishing equal spatial matrices with different reversal labels.
 
     e.g.::
 
@@ -318,7 +320,8 @@ class SymmetryGroup:
 
 class LimitingSymmetryGroupAxial(SymmetryGroup):
     """
-    `LimitingSymmetryGroupAxial` class.
+    Continuous axial Curie symmetry with compatible finite operations and
+    optional binary reversal labels. The continuous rotations are not enumerated.
     """
 
     class_str = 'LimitingSymmetryGroupAxial'
@@ -483,7 +486,8 @@ class LimitingSymmetryGroupAxial(SymmetryGroup):
 
 class LimitingSymmetryGroupScalar(LimitingSymmetryGroupAxial):
     """
-    `LimitingSymmetryGroupScalar` class.
+    Isotropic Curie limiting symmetry for scalar and pseudoscalar quantities,
+    with compatible spatial and binary reversal operations.
     """
 
     class_str = 'LimitingSymmetryGroupScalar'

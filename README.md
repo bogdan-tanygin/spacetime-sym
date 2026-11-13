@@ -12,9 +12,10 @@
 
 ### Highlights
 
-- **Spatial and dichromatic point groups:** construct finite groups from rotations and reflections combined with time reversal or user-defined dichromatic reversals.
+- **Spatial and dichromatic point groups:** construct groups from rotations and reflections combined with time reversal and other independently configurable binary reversal labels (a form of *multiple antisymmetry*).
+- **Generator-based group closure:** compose generators and inverses into a finite group, distinguishing independent reversal-label combinations; limiting groups additionally enforce compatible axial or isotropic symmetry constraints.
 - **Physical-quantity invariance:** test scalars, pseudoscalars, polar and axial vectors, and second-rank tensors with their specified (configurable) spatial and dichromatic transformation characters.
-- **Continuous Curie limiting groups:** check invariants under axial and isotropic limiting symmetries, including dichromatic extensions, without sampling every rotation angle. Automatic Hermann–Mauguin-style labels are available for supported isotropic groups.
+- **Continuous Curie limiting groups:** check invariants under axial and isotropic limiting symmetries, including multiple binary reversals, without sampling every rotation angle. Use the limiting-group classes with compatible finite operations; the limiting-operation classes can be used separately. Automatic Hermann–Mauguin-style labels are available for supported isotropic groups.
 - **Reproducible examples:** finite and limiting-group cases, including tensor invariance, in the [documentation](https://bogdan-tanygin.github.io/spacetime-sym/) and [unit tests](https://github.com/bogdan-tanygin/spacetime-sym/tree/main/tests/unit_tests/).
 
 ## Installation

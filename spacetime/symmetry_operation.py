@@ -222,7 +222,8 @@ class SymmetryOperation:
 
 class SymmetryOperationO3(SymmetryOperation):
     """
-    `SymmetryOperationO3` class.
+    Spatial O(3) operation with optional independent binary reversal labels.
+    Spatial parity is determined by the sign of the orthogonal matrix determinant.
     """
     def __init__( self, matrix = np.identity( 3 ), dich_operations = set(),
                   label = "", force_permutation = False, matrix_precision = 1e-14):
@@ -662,7 +663,8 @@ class SymmetryOperationSO3(SymmetryOperationO3):
 
 class LimitingSymmetryOperationO3(SymmetryOperationO3):
     """
-    `LimitingSymmetryOperationO3` class.
+    Standalone infinitesimal Curie-symmetry operation with an axis and optional
+    reversal labels; it has no finite rotation matrix for group generation.
     """
     def __init__( self, axis = [ 0, 0, 1 ], dich_operations = set()):
         """
@@ -786,7 +788,8 @@ class LimitingSymmetryOperationO3(SymmetryOperationO3):
 
 class LimitingSymmetryOperationSO3(LimitingSymmetryOperationO3):
     """
-    `LimitingSymmetryOperationSO3` class.
+    Standalone proper-rotation limiting operation with optional binary reversals;
+    unlike finite group generators, it does not expose a rotation matrix.
     """
     def __init__( self, axis = [ 0, 0, 1 ], dich_operations = set()):
         """

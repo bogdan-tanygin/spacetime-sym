@@ -6,12 +6,13 @@ from spacetime.linear_algebra import is_scalar, is_diagonal, make_0D_scalar, is_
 
 class PhysicalQuantity(object):
     """
-    Represent a physical quantity and its dichromatic symmetry properties.
+    Represent a scalar, vector, or rank-two tensor with configurable reversal characters.
 
     The ``dich`` mapping associates symmetry-reversal labels with +1 or -1
     factors. These factors describe the quantity's response to operations
     such as parity (P), time reversal (T), and the symbolic charge-conjugation
-    label (C). Spatial O(3) matrices act on the value separately.
+    label (C), as well as other user-defined binary labels. Spatial O(3)
+    matrices act on the value separately.
     """
     def __init__( self, value = None, dich = { 'C':1, 'P':1, 'T':1 }, bidirector = False, label = ""):
         """
