@@ -3,6 +3,9 @@
 [![Build](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml/badge.svg)](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/build.yml)
 [![Documentation](https://github.com/bogdan-tanygin/spacetime-sym/actions/workflows/docs.yml/badge.svg?branch=main)](https://bogdan-tanygin.github.io/spacetime-sym/)
 [![Coverage](https://coveralls.io/repos/github/bogdan-tanygin/spacetime-sym/badge.svg?branch=main)](https://coveralls.io/github/bogdan-tanygin/spacetime-sym?branch=main)
+[![PyPI](https://img.shields.io/pypi/v/spacetime-sym.svg)](https://pypi.org/project/spacetime-sym/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/spacetime-sym.svg)](https://pypi.org/project/spacetime-sym/)
+[![DOI](https://zenodo.org/badge/763485846.svg)](https://doi.org/10.5281/zenodo.24294664)
 
 ![Abstract visualization of spatial symmetry using translucent surfaces](https://raw.githubusercontent.com/bogdan-tanygin/spacetime-sym/main/docs/source/_static/images/symmetry-hero.png)
 
@@ -20,7 +23,13 @@
 
 ## Installation
 
-**Python 3.12+** is required.
+**Python 3.12+** is required. Install the latest release from [PyPI](https://pypi.org/project/spacetime-sym/):
+
+```bash
+python -m pip install spacetime-sym
+```
+
+For development, install from source:
 
 ```bash
 git clone https://github.com/bogdan-tanygin/spacetime-sym.git
@@ -37,6 +46,7 @@ python -m pytest tests/unit_tests
 
 ## Documentation and research
 
+- [PyPI package](https://pypi.org/project/spacetime-sym/) and [archived software release (Zenodo DOI)](https://doi.org/10.5281/zenodo.24294664)
 - [Scientific overview and API documentation](https://bogdan-tanygin.github.io/spacetime-sym/)
 - [Executable examples in the test suite](https://github.com/bogdan-tanygin/spacetime-sym/tree/main/tests/unit_tests/)
 - [Research background: Tanygin's thesis](https://doi.org/10.5281/zenodo.17573059) and [Hlinka's vectorlike-quantity classification](https://doi.org/10.1103/PhysRevLett.113.165502)

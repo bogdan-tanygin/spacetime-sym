@@ -2,6 +2,9 @@
 
 **Spatial and dichromatic point groups, Curie limiting groups, and invariance of physical quantities in Python**
 
+[![PyPI](https://img.shields.io/pypi/v/spacetime-sym.svg)](https://pypi.org/project/spacetime-sym/)
+[![DOI](https://zenodo.org/badge/763485846.svg)](https://doi.org/10.5281/zenodo.24294664)
+
 ![Abstract visualization of spatial symmetry using translucent surfaces](_static/images/symmetry-hero.png)
 
 `spacetime-sym` is an open-source Python library for constructing **spatial and dichromatic point groups** and checking the **invariance of physical quantities** under their operations. It represents spatial transformations in $O(3)$, including proper rotations in $SO(3)$ and improper operations such as reflections. These can be combined with dichromatic operations, notably time reversal ($T$) and a charge-reversal label ($C$). Including time reversal extends the spatial orthogonal group to the magnetic group $O'(3)=O(3)\times\{1,1'\}$ in the classical symmetry description. Beyond finite point groups, the library implements continuous axial and isotropic Curie limiting groups, including magnetic and other dichromatic extensions. The axial groups arise as $n\to\infty$ limits of families of finite rotational point groups within $O(3)$. Beyond conventional two-state (black-and-white) magnetic symmetry, independent binary reversal labels can be combined in the API, giving a restricted form of *multiple antisymmetry* within the broader literature on [color symmetry](https://doi.org/10.1103/RevModPhys.69.1181) and [double antisymmetry](https://doi.org/10.1107/S2053273313023176).
@@ -310,6 +313,8 @@ The tests also provide executable reference material, including fixtures and int
 
 ## Documentation
 
+**Installation (Python 3.12+):** `python -m pip install spacetime-sym` ([PyPI](https://pypi.org/project/spacetime-sym/)).
+
 The API pages below are generated from source-code docstrings.
 
 ```{toctree}
@@ -367,6 +372,8 @@ For scientific partnerships, enterprise integration, commercial licensing, or in
 The library is offered under **[GPL-3.0](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE)** or under a **[separately negotiated commercial license](https://github.com/bogdan-tanygin/spacetime-sym/blob/main/LICENSE-commercial)**. Commercial licensing inquiries: [info@deeptech.business](mailto:info@deeptech.business).
 
 - **Source code:** [GitHub — spacetime-sym](https://github.com/bogdan-tanygin/spacetime-sym)
+- **Published package:** [spacetime-sym on PyPI](https://pypi.org/project/spacetime-sym/)
+- **Software release and DOI:** [Zenodo — spacetime-sym](https://doi.org/10.5281/zenodo.24294664) (`10.5281/zenodo.24294664`)
 - **Related research thesis:** B. M. Tanygin, *[Magnetoelectric Properties and Symmetry Classification of Micromagnetic Structures](https://doi.org/10.5281/zenodo.17573059)* (Zenodo). See especially §2.2 (line defects / Bloch lines), §2.3 (magnetic point-symmetry classification of Bloch points), and §3.1 (sample-surface effects on domain-wall symmetry).
 - **Upstream software:** B. J. Morgan, *bsym: A basic symmetry module*, [JOSS (2017)](https://doi.org/10.21105/joss.00370)
 
