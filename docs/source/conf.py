@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.viewcode",      # Links to highlighted Python source.
     "sphinx.ext.githubpages",   # Generate .nojekyll for GitHub Pages.
     "myst_parser",              # Hand-written Markdown and math.
+    "sphinx_sitemap",           # Generate sitemap.xml for search engines.
 ]
 
 autosummary_generate = True
@@ -64,6 +65,11 @@ exclude_patterns = ["build", "_build", "Thumbs.db", ".DS_Store"]
 html_theme = "pydata_sphinx_theme"
 html_title = "spacetime-sym documentation"
 html_short_title = "spacetime-sym"
+
+# Google Search Console: verify ownership of this URL-prefix property.
+myst_html_meta = {
+    "google-site-verification": "4bFDaCjgW1Yok9Z00lIVGmTquSQ8MlQ2GywYJtSIoAo",
+}
 html_theme_options = {
     "show_nav_level": 2,
     "show_toc_level": 2,
@@ -86,6 +92,10 @@ html_context = {
     "doc_path": "docs/source",
 }
 
-# Once GitHub Pages is enabled at the URL below, uncomment this to produce
-# canonical links in the generated HTML and a sitemap base if configured.
-# html_baseurl = "https://bogdan-tanygin.github.io/spacetime-sym/"
+# The publicly deployed GitHub Pages URL (used in canonical links and sitemap).
+html_baseurl = "https://bogdan-tanygin.github.io/spacetime-sym/"
+
+# GitHub Pages serves pages directly under /spacetime-sym/, without language
+# or version directories. Do not generate /en/1.0.0/ URLs in sitemap.xml.
+sitemap_url_scheme = "{link}"
+sitemap_locales = [None]
