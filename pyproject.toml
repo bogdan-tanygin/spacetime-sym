@@ -37,6 +37,7 @@ docs = [
     "sphinx>=8.2,<10",
     "pydata-sphinx-theme>=0.23,<1",
     "myst-parser>=5,<6",
+    "sphinx-sitemap>=2.9,<3",
 ]
 
 [project.urls]
