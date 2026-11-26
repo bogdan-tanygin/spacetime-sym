@@ -5,7 +5,7 @@
 [![Coverage](https://coveralls.io/repos/github/bogdan-tanygin/spacetime-sym/badge.svg?branch=main)](https://coveralls.io/github/bogdan-tanygin/spacetime-sym?branch=main)
 [![PyPI](https://img.shields.io/pypi/v/spacetime-sym.svg)](https://pypi.org/project/spacetime-sym/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/spacetime-sym.svg)](https://pypi.org/project/spacetime-sym/)
-[![DOI](https://zenodo.org/badge/763485846.svg)](https://doi.org/10.5281/zenodo.24294664)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.24294664-blue)](https://doi.org/10.5281/zenodo.24294664)
 
 ![Abstract visualization of spatial symmetry using translucent surfaces](https://raw.githubusercontent.com/bogdan-tanygin/spacetime-sym/main/docs/source/_static/images/symmetry-hero.png)
 
